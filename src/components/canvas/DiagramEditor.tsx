@@ -35,7 +35,15 @@ import {
   Redo2, 
   FolderOpen,
   LayoutTemplate,
-  Sparkles
+  Sparkles,
+  Settings,
+  Fish,
+  Target,
+  HelpCircle,
+  Layers,
+  Workflow,
+  LayoutGrid,
+  Globe
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -48,14 +56,19 @@ import ExportModal from './ExportModal';
 import HistoryModal from './HistoryModal';
 import TemplateModal from './TemplateModal';
 import CanvasToolbar from './CanvasToolbar';
+import CanvasBottomBar from './CanvasBottomBar';
+import { CanvasPageFrame, CanvasPageConfig, DEFAULT_PAGE_CONFIG } from './CanvasPageFrame';
+import CanvasSettingsModal from './CanvasSettingsModal';
 import { 
   saveDiagramToStorage, 
   getDiagramById, 
   getAllDiagramsMeta, 
-  initDefaultDiagramsIfEmpty 
+  initDefaultDiagramsIfEmpty,
+  DiagramPage
 } from '@/lib/diagramStorage';
-import { getTemplateByCategory, CategoryTemplate } from '@/lib/specialistTemplates';
+import { getTemplateByCategory, CategoryTemplate, SPECIALIST_CATEGORIES } from '@/lib/specialistTemplates';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { APP_VERSION, APP_LOGO_URL } from '@/lib/version';
 
 interface DiagramEditorInnerProps {
   diagramId?: string;
@@ -64,7 +77,7 @@ interface DiagramEditorInnerProps {
 
 function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }: DiagramEditorInnerProps) {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const { screenToFlowPosition, fitView } = useReactFlow();
+  const { screenToFlowPosition, fitView, getNode } = useReactFlow();
 
   const [currentId, setCurrentId] = useState<string>('flowchart-demo-1');
   const [title, setTitle] = useState(initialTitle);
@@ -80,6 +93,14 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('saved');
   const [storageType, setStorageType] = useState<'cloud' | 'local'>('local');
   const [historyCount, setHistoryCount] = useState<number>(0);
+  const [pageConfig, setPageConfig] = useState<CanvasPageConfig>(DEFAULT_PAGE_CONFIG);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+
+  // Multi-Page Diagram State (Halaman 1, 2, 3...)
+  const [pages, setPages] = useState<DiagramPage[]>([
+    { id: 'page-1', name: 'Page 1', nodes: [], edges: [] },
+  ]);
+  const [activePageId, setActivePageId] = useState<string>('page-1');
 
   // Undo & Redo History Stack
   const [past, setPast] = useState<Array<{ nodes: Node[]; edges: Edge[] }>>([]);
@@ -136,6 +157,8 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
           setTitle(`Template ${found.name}`);
           setNodes(found.nodes || []);
           setEdges(found.edges || []);
+          setPages([{ id: 'page-1', name: 'Page 1', nodes: found.nodes || [], edges: found.edges || [] }]);
+          setActivePageId('page-1');
           window.history.replaceState(null, '', `/editor?id=${newId}`);
           return;
         }
@@ -153,8 +176,24 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     if (loaded) {
       setCurrentId(loaded.id);
       setTitle(loaded.title);
-      setNodes(loaded.nodes || []);
-      setEdges(loaded.edges || []);
+      if (loaded.pages && loaded.pages.length > 0) {
+        setPages(loaded.pages);
+        const activeP = loaded.pages.find((p) => p.id === loaded.activePageId) || loaded.pages[0];
+        setActivePageId(activeP.id);
+        setNodes(activeP.nodes || []);
+        setEdges(activeP.edges || []);
+      } else {
+        const p: DiagramPage = {
+          id: 'page-1',
+          name: 'Page 1',
+          nodes: loaded.nodes || [],
+          edges: loaded.edges || [],
+        };
+        setPages([p]);
+        setActivePageId('page-1');
+        setNodes(loaded.nodes || []);
+        setEdges(loaded.edges || []);
+      }
       if (typeof window !== 'undefined') {
         window.history.replaceState(null, '', `/editor?id=${loaded.id}`);
       }
@@ -167,6 +206,10 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
 
     setSaveStatus('saving');
     const timer = setTimeout(() => {
+      const currentPages = pages.map((p) =>
+        p.id === activePageId ? { ...p, nodes, edges } : p
+      );
+
       saveDiagramToStorage({
         id: currentId,
         title,
@@ -177,6 +220,8 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
         type: 'custom',
         nodes,
         edges,
+        pages: currentPages,
+        activePageId,
       });
 
       const updatedMeta = getAllDiagramsMeta();
@@ -185,15 +230,78 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     }, 600);
 
     return () => clearTimeout(timer);
-  }, [nodes, edges, title, currentId]);
+  }, [nodes, edges, title, currentId, pages, activePageId]);
+
+  // Melacak node asal saat koneksi mulai ditarik pengguna
+  const connectStartRef = useRef<{ nodeId: string | null; handleId: string | null; handleType: string | null } | null>(null);
+
+  const onConnectStart = useCallback((_: MouseEvent | TouchEvent, params: { nodeId: string | null; handleId: string | null; handleType: any }) => {
+    connectStartRef.current = params;
+  }, []);
+
+  const onConnectEnd = useCallback(() => {
+    setTimeout(() => {
+      connectStartRef.current = null;
+    }, 150);
+  }, []);
 
   // Callback saat garis dihubungkan antar bentuk
   const onConnect = useCallback(
     (params: Connection) => {
       takeSnapshot();
+
+      let source = params.source;
+      let target = params.target;
+      let sHandle = params.sourceHandle;
+      let tHandle = params.targetHandle;
+
+      // KOREKSI ARAH PANAH (Arrow Inversion Prevention):
+      // Jika user mulai menarik garis dari node asal (A), namun React Flow menetapkan params.target = A
+      // (terjadi bila handle yang diklik bertipe 'target'), maka balikkan source dan target.
+      // Hal ini menjamin titik asal selalu menjadi SOURCE dan titik tujuan selalu TARGET dengan markerEnd mengarah ke sana!
+      if (
+        connectStartRef.current?.nodeId &&
+        params.target === connectStartRef.current.nodeId &&
+        params.source !== connectStartRef.current.nodeId
+      ) {
+        source = params.target;
+        target = params.source;
+        sHandle = params.targetHandle;
+        tHandle = params.sourceHandle;
+      }
+
+      // Normalisasi nama handle jika tertukar
+      if (sHandle && sHandle.endsWith('-in')) {
+        sHandle = sHandle.replace('-in', '-out');
+      }
+      if (tHandle && tHandle.endsWith('-out')) {
+        tHandle = tHandle.replace('-out', '-in');
+      }
+
+      // Jika belum ada titik spesifik, otomatis sesuaikan ke sisi yang saling berhadapan
+      if (!sHandle || !tHandle) {
+        const srcNode = getNode(source);
+        const tgtNode = getNode(target);
+        if (srcNode && tgtNode) {
+          const dx = tgtNode.position.x - srcNode.position.x;
+          const dy = tgtNode.position.y - srcNode.position.y;
+          if (Math.abs(dx) >= Math.abs(dy)) {
+            if (!sHandle) sHandle = dx >= 0 ? 'r-out' : 'l-out';
+            if (!tHandle) tHandle = dx >= 0 ? 'l-in' : 'r-in';
+          } else {
+            if (!sHandle) sHandle = dy >= 0 ? 'b-out' : 't-out';
+            if (!tHandle) tHandle = dy >= 0 ? 't-in' : 'b-in';
+          }
+        }
+      }
+
       const edgeStyleType = edgeType === 'step' ? 'smoothstep' : edgeType;
       const newEdge: Edge = {
         ...params,
+        source,
+        target,
+        sourceHandle: sHandle || 'r-out',
+        targetHandle: tHandle || 'l-in',
         id: `edge-${Date.now()}`,
         type: edgeStyleType,
         markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
@@ -203,7 +311,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       setEdges((eds) => addEdge(newEdge, eds));
       setSaveStatus('idle');
     },
-    [edgeType, setEdges, takeSnapshot]
+    [edgeType, setEdges, takeSnapshot, getNode]
   );
 
   // Callback memindahkan titik tuju atau titik asal garis (Edge Reconnection)
@@ -235,7 +343,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
 
   // Tambah bentuk manual dari sidebar (klik)
   const handleAddNode = useCallback(
-    (type: string, label: string) => {
+    (type: string, label: string, customData?: Record<string, any>) => {
       takeSnapshot();
       const id = `node-${Date.now()}`;
       const position = {
@@ -252,6 +360,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
           color: type === 'terminal' ? '#ecfdf5' : '#ffffff',
           borderColor: type === 'terminal' ? '#10b981' : '#3b82f6',
           textColor: '#0f172a',
+          ...(customData || {}),
         },
       };
 
@@ -274,7 +383,8 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       if (!rawData) return;
 
       takeSnapshot();
-      const { type, label } = JSON.parse(rawData);
+      const parsed = JSON.parse(rawData);
+      const { type, label, customData } = parsed;
       const position = screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
@@ -289,6 +399,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
           color: type === 'terminal' ? '#ecfdf5' : '#ffffff',
           borderColor: type === 'terminal' ? '#10b981' : '#3b82f6',
           textColor: '#0f172a',
+          ...(customData || {}),
         },
       };
 
@@ -314,7 +425,16 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     setSelectedNode(null);
     setSelectedEdge(null);
     setIsNewMenuOpen(false);
-  }, []);
+    setEdges((eds) => (eds.some((e) => e.selected) ? eds.map((e) => (e.selected ? { ...e, selected: false } : e)) : eds));
+  }, [setEdges]);
+
+  // Sinkronisasi selectedEdge dengan status selected pada array edges
+  useEffect(() => {
+    const activeSelectedEdge = edges.find((e) => e.selected);
+    if (activeSelectedEdge) {
+      setSelectedEdge(activeSelectedEdge);
+    }
+  }, [edges]);
 
   // Update Data Node dari PropertyPanel
   const handleUpdateNode = useCallback(
@@ -438,15 +558,141 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [setNodes, setEdges, handleUndo, handleRedo, takeSnapshot]);
 
-  // Buka Diagram dari Riwayat
+  // Multi-Page Handlers
+  const handleSwitchPage = useCallback(
+    (targetPageId: string) => {
+      if (targetPageId === activePageId) return;
+
+      const updatedPages = pages.map((p) =>
+        p.id === activePageId ? { ...p, nodes, edges } : p
+      );
+      setPages(updatedPages);
+
+      const targetPage = updatedPages.find((p) => p.id === targetPageId);
+      if (targetPage) {
+        setActivePageId(targetPageId);
+        setNodes(targetPage.nodes || []);
+        setEdges(targetPage.edges || []);
+        setSelectedNode(null);
+        setSelectedEdge(null);
+        setPast([]);
+        setFuture([]);
+        setTimeout(() => fitView({ duration: 250, padding: 0.2 }), 50);
+      }
+    },
+    [activePageId, pages, nodes, edges, setNodes, setEdges, fitView]
+  );
+
+  const handleAddPage = useCallback(() => {
+    takeSnapshot();
+    const newPageId = `page-${Date.now()}`;
+    const newPageName = `Page ${pages.length + 1}`;
+
+    const updatedPages = pages.map((p) =>
+      p.id === activePageId ? { ...p, nodes, edges } : p
+    );
+
+    const newPage: DiagramPage = {
+      id: newPageId,
+      name: newPageName,
+      nodes: [],
+      edges: [],
+    };
+
+    setPages([...updatedPages, newPage]);
+    setActivePageId(newPageId);
+    setNodes([]);
+    setEdges([]);
+    setSelectedNode(null);
+    setSelectedEdge(null);
+    setPast([]);
+    setFuture([]);
+  }, [pages, activePageId, nodes, edges, setNodes, setEdges, takeSnapshot]);
+
+  const handleRenamePage = useCallback((pageId: string, newName: string) => {
+    setPages((prev) => prev.map((p) => (p.id === pageId ? { ...p, name: newName } : p)));
+  }, []);
+
+  const handleDuplicatePage = useCallback(
+    (pageId: string) => {
+      takeSnapshot();
+      const target = pages.find((p) => p.id === pageId);
+      if (!target) return;
+
+      const sourceNodes = pageId === activePageId ? nodes : target.nodes;
+      const sourceEdges = pageId === activePageId ? edges : target.edges;
+
+      const clonedNodes = sourceNodes.map((n) => ({
+        ...n,
+        id: `node-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+        position: { x: n.position.x + 20, y: n.position.y + 20 },
+      }));
+
+      const clonedEdges = sourceEdges.map((e) => ({
+        ...e,
+        id: `edge-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+      }));
+
+      const newPageId = `page-${Date.now()}`;
+      const newPage: DiagramPage = {
+        id: newPageId,
+        name: `${target.name} (Salinan)`,
+        nodes: clonedNodes,
+        edges: clonedEdges,
+      };
+
+      setPages((prev) => [...prev, newPage]);
+    },
+    [pages, activePageId, nodes, edges, takeSnapshot]
+  );
+
+  const handleDeletePage = useCallback(
+    (pageId: string) => {
+      if (pages.length <= 1) return;
+      takeSnapshot();
+
+      if (pageId === activePageId) {
+        const nextActive = pages.find((p) => p.id !== pageId);
+        if (nextActive) {
+          setActivePageId(nextActive.id);
+          setNodes(nextActive.nodes || []);
+          setEdges(nextActive.edges || []);
+          setSelectedNode(null);
+          setSelectedEdge(null);
+        }
+      }
+
+      setPages((prev) => prev.filter((p) => p.id !== pageId));
+    },
+    [pages, activePageId, setNodes, setEdges, takeSnapshot]
+  );
+
+  // Muat Diagram dari Riwayat
   const handleLoadFromHistory = (id: string) => {
+    setIsHistoryModalOpen(false);
     const loaded = getDiagramById(id);
     if (loaded) {
       takeSnapshot();
       setCurrentId(loaded.id);
       setTitle(loaded.title);
-      setNodes(loaded.nodes || []);
-      setEdges(loaded.edges || []);
+      if (loaded.pages && loaded.pages.length > 0) {
+        setPages(loaded.pages);
+        const activeP = loaded.pages.find((p) => p.id === loaded.activePageId) || loaded.pages[0];
+        setActivePageId(activeP.id);
+        setNodes(activeP.nodes || []);
+        setEdges(activeP.edges || []);
+      } else {
+        const p: DiagramPage = {
+          id: 'page-1',
+          name: 'Page 1',
+          nodes: loaded.nodes || [],
+          edges: loaded.edges || [],
+        };
+        setPages([p]);
+        setActivePageId('page-1');
+        setNodes(loaded.nodes || []);
+        setEdges(loaded.edges || []);
+      }
       setSelectedNode(null);
       setSelectedEdge(null);
       setSaveStatus('saved');
@@ -469,36 +715,57 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       window.history.replaceState(null, '', `/editor?id=${newId}`);
     }
 
+    let newNodes: Node[] = [];
+    let newEdges: Edge[] = [];
+
     if (type === 'blank') {
-      setNodes([]);
-      setEdges([]);
+      newNodes = [];
+      newEdges = [];
       setTitle('Kanvas Kosong Baru');
     } else if (type === 'flowchart') {
       const demo = getDiagramById('flowchart-demo-1');
-      setNodes(demo?.nodes || []);
-      setEdges(demo?.edges || []);
+      newNodes = demo?.nodes || [];
+      newEdges = demo?.edges || [];
       setTitle('Diagram Alir Baru');
     } else if (type === 'mindmap') {
       const demo = getDiagramById('mindmap-demo-2');
-      setNodes(demo?.nodes || []);
-      setEdges(demo?.edges || []);
+      newNodes = demo?.nodes || [];
+      newEdges = demo?.edges || [];
       setTitle('Pohon Mind Map Baru');
     }
 
+    setNodes(newNodes);
+    setEdges(newEdges);
+    setPages([{ id: 'page-1', name: 'Page 1', nodes: newNodes, edges: newEdges }]);
+    setActivePageId('page-1');
     setSelectedNode(null);
     setSelectedEdge(null);
     setSaveStatus('idle');
     setTimeout(() => fitView({ padding: 0.2 }), 100);
   };
 
-  // Muat Template Spesialis dari Modal Pustaka
+  // Muat Format / Template dari Modal Pustaka
   const handleSelectSpecialistTemplate = (template: CategoryTemplate) => {
     takeSnapshot();
     const newId = `diag_${template.id}_${Date.now()}`;
     setCurrentId(newId);
-    setTitle(`Template ${template.name}`);
-    setNodes(template.nodes || []);
-    setEdges(template.edges || []);
+    let templateNodes: Node[] = [];
+    let templateEdges: Edge[] = [];
+
+    if (template.id === 'blank') {
+      setTitle('Kanvas Kosong Baru');
+      templateNodes = [];
+      templateEdges = [];
+    } else {
+      setTitle(`Template ${template.name}`);
+      templateNodes = template.nodes || [];
+      templateEdges = template.edges || [];
+    }
+
+    setNodes(templateNodes);
+    setEdges(templateEdges);
+    setPages([{ id: 'page-1', name: 'Page 1', nodes: templateNodes, edges: templateEdges }]);
+    setActivePageId('page-1');
     setSelectedNode(null);
     setSelectedEdge(null);
     setSaveStatus('idle');
@@ -513,6 +780,10 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   // Simpan Manual
   const handleManualSave = async () => {
     setSaveStatus('saving');
+    const currentPages = pages.map((p) =>
+      p.id === activePageId ? { ...p, nodes, edges } : p
+    );
+
     saveDiagramToStorage({
       id: currentId,
       title,
@@ -523,6 +794,8 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       type: 'custom',
       nodes,
       edges,
+      pages: currentPages,
+      activePageId,
     });
 
     if (isSupabaseConfigured && supabase) {
@@ -560,8 +833,8 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
           >
             <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 flex items-center justify-center transition-transform group-hover:scale-105 duration-200">
               <Image
-                src="/logo.png"
-                alt="GALUR Logo"
+                src={APP_LOGO_URL}
+                alt="GALUR Logo - Macan Tutul Jawa"
                 width={56}
                 height={56}
                 className="w-full h-full object-contain filter drop-shadow-sm"
@@ -571,8 +844,11 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
             <div className="hidden sm:block">
               <div className="flex items-center gap-1.5 font-black text-base tracking-tight text-[#0b4632]">
                 GALUR
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
                   Studio
+                </span>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300">
+                  {APP_VERSION}
                 </span>
               </div>
               <div className="text-[9px] text-slate-400 font-medium tracking-tight -mt-0.5 hidden lg:block">
@@ -583,96 +859,232 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
 
           <div className="h-5 w-[1px] bg-slate-200 mx-0.5" />
 
-          {/* Menu Buat Diagram Baru */}
-          <div className="relative">
+          {/* Menu Buat Diagram Baru Terpadu */}
+          <div className="relative flex items-center">
+            {/* Tombol Utama: Langsung Buka Dialog Pilih Format Diagram Baru */}
             <button
               type="button"
-              onClick={() => setIsNewMenuOpen(!isNewMenuOpen)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0b4632] hover:bg-[#073022] text-amber-300 text-xs font-bold shadow-xs transition-all cursor-pointer"
-              title="Buat Diagram Baru"
+              onClick={() => setIsTemplateModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-l-lg bg-[#0b4632] hover:bg-[#073022] text-amber-300 text-xs font-bold shadow-xs transition-all cursor-pointer border-r border-emerald-900/60"
+              title="Buat Diagram Baru (Buka Pilihan Format & Template Lengkap)"
             >
               <FilePlus className="w-3.5 h-3.5 text-amber-300" />
               <span>Diagram Baru</span>
-              <ChevronDown className="w-3 h-3 opacity-70" />
+            </button>
+
+            {/* Tombol Panah: Menu Pilihan Cepat */}
+            <button
+              type="button"
+              onClick={() => setIsNewMenuOpen(!isNewMenuOpen)}
+              className="px-1.5 py-1.5 rounded-r-lg bg-[#0b4632] hover:bg-[#073022] text-amber-300 text-xs font-bold shadow-xs transition-all cursor-pointer"
+              title="Menu Cepat Diagram Baru"
+            >
+              <ChevronDown className="w-3.5 h-3.5 opacity-80" />
             </button>
 
             {isNewMenuOpen && (
-              <div className="absolute left-0 top-full mt-1.5 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 animate-in fade-in zoom-in-95 duration-100">
+              <div className="absolute left-0 top-full mt-1.5 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 animate-in fade-in zoom-in-95 duration-100">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2.5 py-1">
-                  Pilihan Diagram Baru
+                  Pilihan Diagram Cepat
                 </div>
 
+                {/* 1. Kanvas Kosong */}
                 <button
-                  onClick={() => handleCreateNew('blank')}
+                  onClick={() => {
+                    handleCreateNew('blank');
+                    setIsNewMenuOpen(false);
+                  }}
                   className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left hover:bg-slate-100 text-xs font-medium text-slate-700 transition-colors"
                 >
                   <div className="w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
                     <FilePlus className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <div className="font-semibold">Kanvas Kosong</div>
-                    <div className="text-[10px] text-slate-400">Lembar putih bersih</div>
+                    <div className="font-semibold text-slate-900">Kanvas Kosong</div>
+                    <div className="text-[10px] text-slate-400">Mulai dari lembar putih bersih</div>
                   </div>
                 </button>
 
+                {/* 2. Fishbone Diagram */}
                 <button
-                  onClick={() => handleCreateNew('flowchart')}
+                  onClick={() => {
+                    const t = getTemplateByCategory('fishbone');
+                    if (t) handleSelectSpecialistTemplate(t);
+                    setIsNewMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left hover:bg-rose-50 text-xs font-medium text-slate-700 transition-colors"
+                >
+                  <div className="w-6 h-6 rounded-lg bg-rose-100 flex items-center justify-center text-rose-700">
+                    <Fish className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-rose-950">Diagram Tulang Ikan (Fishbone)</div>
+                    <div className="text-[10px] text-rose-700">Analisis akar masalah 6M</div>
+                  </div>
+                </button>
+
+                {/* 3. SWOT Matrix */}
+                <button
+                  onClick={() => {
+                    const t = getTemplateByCategory('swot');
+                    if (t) handleSelectSpecialistTemplate(t);
+                    setIsNewMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left hover:bg-amber-50 text-xs font-medium text-slate-700 transition-colors"
+                >
+                  <div className="w-6 h-6 rounded-lg bg-amber-100 flex items-center justify-center text-[#ea9932]">
+                    <Target className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-amber-950">Analisis SWOT 4 Kuadran</div>
+                    <div className="text-[10px] text-amber-700">Evaluasi strategis S / W / O / T</div>
+                  </div>
+                </button>
+
+                {/* 4. Lean Canvas */}
+                <button
+                  onClick={() => {
+                    const t = getTemplateByCategory('lean_canvas');
+                    if (t) handleSelectSpecialistTemplate(t);
+                    setIsNewMenuOpen(false);
+                  }}
                   className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left hover:bg-emerald-50 text-xs font-medium text-slate-700 transition-colors"
                 >
                   <div className="w-6 h-6 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700">
+                    <LayoutTemplate className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-emerald-950">Lean Canvas Inovasi</div>
+                    <div className="text-[10px] text-emerald-700">9 blok solusi & model bisnis</div>
+                  </div>
+                </button>
+
+                
+                {/* 4b. Business Model Canvas (Strategic • AI) */}
+                <button
+                  onClick={() => {
+                    const t = getTemplateByCategory('bmc');
+                    if (t) handleSelectSpecialistTemplate(t);
+                    setIsNewMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left hover:bg-sky-50 text-xs font-medium text-slate-700 transition-colors cursor-pointer"
+                >
+                  <div className="w-6 h-6 rounded-lg bg-sky-100 flex items-center justify-center text-sky-700">
+                    <LayoutGrid className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sky-950 flex items-center gap-1">
+                      <span>Business Model Canvas</span>
+                      <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-purple-100 text-purple-700 border border-purple-200">AI</span>
+                    </div>
+                    <div className="text-[10px] text-sky-700">9 blok arsitektur bisnis Alexander Osterwalder</div>
+                  </div>
+                </button>
+
+                {/* 5. Flowchart */}
+                <button
+                  onClick={() => {
+                    handleCreateNew('flowchart');
+                    setIsNewMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left hover:bg-blue-50 text-xs font-medium text-slate-700 transition-colors cursor-pointer"
+                >
+                  <div className="w-6 h-6 rounded-lg bg-blue-100 flex items-center justify-center text-blue-700">
                     <GitFork className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <div className="font-semibold text-emerald-900">Template Flowchart</div>
+                    <div className="font-semibold text-blue-900">Template Flowchart</div>
                     <div className="text-[10px] text-slate-400">Alur keputusan Visio</div>
                   </div>
                 </button>
 
+                {/* 5b. Swimlane (Alur Lintas Fungsi) */}
                 <button
-                  onClick={() => handleCreateNew('mindmap')}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left hover:bg-amber-50 text-xs font-medium text-slate-700 transition-colors"
+                  onClick={() => {
+                    const t = getTemplateByCategory('swimlane');
+                    if (t) handleSelectSpecialistTemplate(t);
+                    setIsNewMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left hover:bg-sky-50 text-xs font-medium text-slate-700 transition-colors cursor-pointer"
                 >
-                  <div className="w-6 h-6 rounded-lg bg-amber-100 flex items-center justify-center text-amber-700">
+                  <div className="w-6 h-6 rounded-lg bg-sky-100 flex items-center justify-center text-sky-700">
+                    <Layers className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-sky-950">Swimlane (Alur Antar Fungsi)</div>
+                    <div className="text-[10px] text-sky-700">Alur departemen, peran & SOP</div>
+                  </div>
+                </button>
+
+                
+                {/* 5c. Service Blueprint (Cetak Biru Layanan) */}
+                <button
+                  onClick={() => {
+                    const t = getTemplateByCategory('service_blueprint');
+                    if (t) handleSelectSpecialistTemplate(t);
+                    setIsNewMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left hover:bg-orange-50 text-xs font-medium text-slate-700 transition-colors cursor-pointer"
+                >
+                  <div className="w-6 h-6 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600">
+                    <Workflow className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-orange-950">Service Blueprint</div>
+                    <div className="text-[10px] text-orange-700">Cetak biru layanan & garis interaksi</div>
+                  </div>
+                </button>
+
+                {/* 6. Mind Map */}
+                <button
+                  onClick={() => {
+                    handleCreateNew('mindmap');
+                    setIsNewMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left hover:bg-emerald-50 text-xs font-medium text-slate-700 transition-colors"
+                >
+                  <div className="w-6 h-6 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700">
                     <Network className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <div className="font-semibold text-amber-900">Template Mind Map</div>
-                    <div className="text-[10px] text-slate-400">Pohon ide brainstorming</div>
+                    <div className="font-semibold text-emerald-900">Template Mind Map</div>
+                    <div className="text-[10px] text-slate-400">Pohon ide & brainstorming</div>
                   </div>
                 </button>
 
                 <div className="my-1 border-t border-slate-100" />
 
+                {/* Buka Dialog Pemilih Format Lengkap */}
                 <button
                   onClick={() => {
                     setIsNewMenuOpen(false);
                     setIsTemplateModalOpen(true);
                   }}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left hover:bg-amber-50/80 text-xs font-medium text-slate-800 transition-colors bg-amber-50/40 border border-amber-200/50"
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2.5 rounded-xl text-left hover:bg-amber-100/70 text-xs font-bold text-amber-950 transition-colors bg-amber-50/70 border border-amber-200/80 cursor-pointer"
                 >
-                  <div className="w-6 h-6 rounded-lg bg-[#ea9932] text-white flex items-center justify-center">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-100 fill-amber-100" />
+                  <div className="w-6 h-6 rounded-lg bg-[#0b4632] text-amber-300 flex items-center justify-center shadow-xs">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
                   </div>
-                  <div>
-                    <div className="font-bold text-amber-950">Template Spesialis (11)</div>
-                    <div className="text-[10px] text-amber-700">UML, ERD, SWOT, Org, dll.</div>
+                  <div className="flex-1 min-w-0">
+                    <div>Pustaka Format Lengkap...</div>
+                    <div className="text-[10px] font-normal text-amber-800">Pilih dari {SPECIALIST_CATEGORIES.length} format & diagram</div>
                   </div>
                 </button>
               </div>
             )}
           </div>
 
-          {/* Tombol Pustaka Template Spesialis */}
+          {/* Tombol Menu Pengaturan Lembar & Kanvas */}
           <button
             type="button"
-            onClick={() => setIsTemplateModalOpen(true)}
-            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-amber-500 hover:bg-amber-50/60 text-slate-700 hover:text-amber-800 text-xs font-semibold transition-all shadow-2xs cursor-pointer"
-            title="Pustaka Template Spesialis (UML, ERD, SWOT, dll. dari Gambar 3)"
+            onClick={() => setIsSettingsModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50/60 text-slate-700 hover:text-blue-800 text-xs font-semibold transition-all shadow-2xs cursor-pointer"
+            title="Pengaturan Lembar A4, Auto-Expand, Kisi Grid, dan Tema Kanvas"
           >
-            <LayoutTemplate className="w-3.5 h-3.5 text-amber-600" />
-            <span>Template Spesialis</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">
-              11
+            <Settings className="w-3.5 h-3.5 text-blue-600" />
+            <span className="hidden sm:inline">Pengaturan Kanvas</span>
+            <span className="px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-800 text-[10px] font-mono font-bold">
+              {pageConfig.pageSize}
             </span>
           </button>
 
@@ -788,46 +1200,81 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
           setEdgeType={setEdgeType}
         />
 
-        <div
-          ref={reactFlowWrapper}
-          className="flex-1 h-full w-full relative print-area bg-slate-50"
-          onDragOver={onDragOver}
-          onDrop={onDrop}
-        >
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            nodeTypes={nodeTypes}
-            edgeTypes={edgeTypes}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onReconnect={onReconnect}
-            onReconnectStart={onReconnectStart}
-            onReconnectEnd={onReconnectEnd}
-            edgesReconnectable={true}
-            reconnectRadius={10}
-            connectionMode={ConnectionMode.Loose}
-            onNodeClick={onNodeClick}
-            onEdgeClick={onEdgeClick}
-            onPaneClick={onPaneClick}
-            onNodesDelete={onNodesDelete}
-            onEdgesDelete={onEdgesDelete}
-            deleteKeyCode={['Backspace', 'Delete']}
-            fitView
-            snapToGrid
-            snapGrid={[15, 15]}
-            attributionPosition="bottom-right"
+        <div className="flex-1 flex flex-col h-full min-w-0 relative">
+          <div
+            ref={reactFlowWrapper}
+            className={`flex-1 w-full relative print-area transition-colors ${
+              pageConfig.canvasTheme === 'dark'
+                ? 'bg-slate-950'
+                : pageConfig.canvasTheme === 'emerald'
+                ? 'bg-[#edf5f0]'
+                : 'bg-slate-200/70'
+            }`}
+            onDragOver={onDragOver}
+            onDrop={onDrop}
           >
-            <Background variant={BackgroundVariant.Dots} gap={16} size={1} color="#cbd5e1" />
-            <Controls className="!bg-white !border-slate-200 !shadow-sm !rounded-xl overflow-hidden no-print" />
-            <MiniMap
-              className="!bg-white !border-slate-200 !shadow-md !rounded-xl overflow-hidden no-print"
-              nodeStrokeColor="#3b82f6"
-              nodeColor="#eff6ff"
-              maskColor="rgba(240, 244, 248, 0.7)"
-            />
-          </ReactFlow>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              onConnectStart={onConnectStart}
+              onConnectEnd={onConnectEnd}
+              onReconnect={onReconnect}
+              onReconnectStart={onReconnectStart}
+              onReconnectEnd={onReconnectEnd}
+              edgesReconnectable={true}
+              reconnectRadius={25}
+              connectionMode={ConnectionMode.Loose}
+              onNodeClick={onNodeClick}
+              onEdgeClick={onEdgeClick}
+              onPaneClick={onPaneClick}
+              onNodesDelete={onNodesDelete}
+              onEdgesDelete={onEdgesDelete}
+              deleteKeyCode={['Backspace', 'Delete']}
+              fitView
+              snapToGrid={pageConfig.snapToGrid}
+              snapGrid={[15, 15]}
+              attributionPosition="bottom-right"
+            >
+              {/* Lembar Halaman A4 Presisi dengan Fitur Auto-Expand Sesuai Perkembangan Diagram */}
+              <CanvasPageFrame config={pageConfig} nodes={nodes} />
+
+              {pageConfig.showGrid && (
+                <Background
+                  variant={pageConfig.gridVariant === 'lines' ? BackgroundVariant.Lines : BackgroundVariant.Dots}
+                  gap={pageConfig.gridSize}
+                  size={1}
+                  color={pageConfig.canvasTheme === 'dark' ? '#334155' : '#cbd5e1'}
+                />
+              )}
+              <MiniMap
+                className="!bg-white !border-slate-200 !shadow-md !rounded-xl overflow-hidden no-print"
+                nodeStrokeColor="#3b82f6"
+                nodeColor="#eff6ff"
+                maskColor="rgba(240, 244, 248, 0.7)"
+              />
+            </ReactFlow>
+          </div>
+
+          {/* DOCK BAR MULTI-HALAMAN & KONTROL (Sesuai Referensi Gambar) */}
+          <CanvasBottomBar
+            pages={pages}
+            activePageId={activePageId}
+            onSwitchPage={handleSwitchPage}
+            onAddPage={handleAddPage}
+            onRenamePage={handleRenamePage}
+            onDuplicatePage={handleDuplicatePage}
+            onDeletePage={handleDeletePage}
+            onUndo={handleUndo}
+            onRedo={handleRedo}
+            canUndo={past.length > 0}
+            canRedo={future.length > 0}
+            onOpenShortcutsHelp={() => setIsSettingsModalOpen(true)}
+          />
         </div>
 
         <PropertyPanel
@@ -837,6 +1284,10 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
           onDeleteNode={handleDeleteNode}
           onUpdateEdge={handleUpdateEdge}
           onDeleteEdge={handleDeleteEdge}
+          pageConfig={pageConfig}
+          onUpdatePageConfig={(updates) => setPageConfig((prev) => ({ ...prev, ...updates }))}
+          nodeCount={nodes.length}
+          edgeCount={edges.length}
         />
       </div>
 
@@ -852,6 +1303,15 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
         currentDiagramId={currentId}
         onLoadDiagram={handleLoadFromHistory}
         onNewDiagram={() => handleCreateNew('blank')}
+      />
+
+      <CanvasSettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        config={pageConfig}
+        onChangeConfig={(updates) => setPageConfig((prev) => ({ ...prev, ...updates }))}
+        nodeCount={nodes.length}
+        edgeCount={edges.length}
       />
 
       <TemplateModal

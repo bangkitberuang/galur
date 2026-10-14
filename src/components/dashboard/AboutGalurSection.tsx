@@ -21,8 +21,18 @@ import {
   Target,
   Trees,
   HelpCircle,
-  ExternalLink
+  ExternalLink,
+  History,
+  Tag
 } from 'lucide-react';
+import { 
+  APP_VERSION, 
+  APP_VERSION_CODENAME, 
+  APP_RELEASE_DATE, 
+  APP_CHANGELOG, 
+  APP_LOGO_URL 
+} from '@/lib/version';
+import GedungSateSilhouette from '@/components/common/GedungSateSilhouette';
 
 export default function AboutGalurSection() {
   const [copied, setCopied] = useState(false);
@@ -54,12 +64,17 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
         <div className="absolute top-0 right-0 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-400/10 rounded-full blur-2xl -ml-20 -mb-20 pointer-events-none" />
 
+        {/* Gedung Sate Cultural Landmark Silhouette (Low Opacity) */}
+        <div className="absolute inset-x-0 bottom-0 pointer-events-none opacity-[0.09] flex justify-center items-end overflow-hidden">
+          <GedungSateSilhouette className="w-full max-w-4xl text-emerald-100 scale-105 translate-y-6" opacity={1} />
+        </div>
+
         <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-8">
           {/* Mascot Logo Card */}
           <div className="shrink-0 flex flex-col items-center gap-3">
             <div className="w-36 h-36 sm:w-44 sm:h-44 shrink-0 flex items-center justify-center transition-transform hover:scale-105 duration-200">
               <Image
-                src="/logo.png"
+                src={APP_LOGO_URL}
                 alt="Maskot Macan Tutul Jawa Galur"
                 width={176}
                 height={176}
@@ -351,7 +366,7 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
           <div className="flex flex-col md:flex-row items-start gap-6">
             <div className="shrink-0 w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center transition-transform hover:scale-105 duration-200">
               <Image
-                src="/logo.png"
+                src={APP_LOGO_URL}
                 alt="Maskot Macan Tutul Jawa"
                 width={144}
                 height={144}
@@ -665,6 +680,68 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
           </div>
         </section>
       )}
+
+      {/* Version & Release History Card */}
+      <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-800 flex items-center justify-center border border-emerald-200 shadow-2xs">
+              <History className="w-5 h-5 text-emerald-700" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-black text-lg text-slate-800">Riwayat Versi Aplikasi</h3>
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300">
+                  {APP_VERSION}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 font-medium">
+                Edisi: <strong className="text-emerald-800">{APP_VERSION_CODENAME}</strong> • Rilis Terakhir: {APP_RELEASE_DATE}
+              </p>
+            </div>
+          </div>
+          <div className="px-3 py-1 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold">
+            Bangkit Beruang Ecosystem
+          </div>
+        </div>
+
+        {/* Changelog Timeline */}
+        <div className="space-y-4">
+          {APP_CHANGELOG.map((log) => (
+            <div
+              key={log.version}
+              className={`p-4 rounded-2xl border transition-all ${
+                log.version === APP_VERSION
+                  ? 'bg-emerald-50/50 border-emerald-300/80 shadow-2xs'
+                  : 'bg-slate-50/60 border-slate-200/70'
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-black font-mono px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 shadow-2xs">
+                    {log.version}
+                  </span>
+                  <span className="text-sm font-bold text-slate-800">{log.title}</span>
+                  {log.badge && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white shadow-2xs">
+                      {log.badge}
+                    </span>
+                  )}
+                </div>
+                <span className="text-[11px] font-medium text-slate-400">{log.date}</span>
+              </div>
+              <ul className="grid sm:grid-cols-2 gap-1.5 text-xs text-slate-600 pl-1">
+                {log.highlights.map((h, i) => (
+                  <li key={i} className="flex items-start gap-1.5">
+                    <span className="text-emerald-600 font-bold shrink-0">✓</span>
+                    <span>{h}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* CTA Footer inside About Section */}
       <div className="p-6 rounded-3xl bg-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-4">

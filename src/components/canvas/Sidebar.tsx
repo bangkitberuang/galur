@@ -1,352 +1,338 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
-  Square, 
-  GitFork, 
-  PlayCircle, 
-  FlipHorizontal, 
-  FileText, 
-  Table, 
-  Hexagon, 
-  CircleDot, 
-  Database, 
-  Cloud, 
-  Network, 
-  StickyNote, 
-  Type, 
+  Search, 
+  X, 
+  ChevronRight, 
+  ChevronDown, 
+  Plus, 
+  HelpCircle, 
+  Edit3, 
+  Boxes, 
   Waypoints, 
   Spline, 
   Minus,
-  ChevronDown,
-  ChevronRight,
-  Clock,
-  XCircle,
-  PlusCircle,
-  Tv,
-  ArrowRight,
-  Shuffle,
-  Triangle,
-  Layers,
-  Code2,
-  Users,
-  Target,
   Sparkles
 } from 'lucide-react';
+import { 
+  SHAPE_CATEGORIES, 
+  ShapeCategory, 
+  ShapeDefinition,
+  getSavedActiveCategories, 
+  saveActiveCategories 
+} from '@/lib/shapeLibraries';
+import MoreShapesModal from './MoreShapesModal';
 
 interface SidebarProps {
-  onAddNode: (type: string, label: string) => void;
+  onAddNode: (type: string, label: string, customData?: Record<string, any>) => void;
   edgeType: string;
   setEdgeType: (type: string) => void;
 }
 
 export default function Sidebar({ onAddNode, edgeType, setEdgeType }: SidebarProps) {
-  const [isFlowchartOpen, setIsFlowchartOpen] = useState(true);
-  const [isOtherOpen, setIsOtherOpen] = useState(true);
-  const [isSpecialistOpen, setIsSpecialistOpen] = useState(true);
+  const [activeCategoryIds, setActiveCategoryIds] = useState<string[]>([]);
+  const [openCategoryIds, setOpenCategoryIds] = useState<Record<string, boolean>>({
+    papan_coret: false,
+    umum: true,
+    dasar: true,
+    panah: false,
+    diagram_alir: true,
+    relasi_entitas: false,
+    uml: false,
+    problem_solving: true,
+  });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isMoreShapesModalOpen, setIsMoreShapesModalOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const onDragStart = (event: React.DragEvent, nodeType: string, defaultLabel: string) => {
-    event.dataTransfer.setData('application/reactflow', JSON.stringify({ type: nodeType, label: defaultLabel }));
+  // Load saved active categories on mount
+  useEffect(() => {
+    const saved = getSavedActiveCategories();
+    setActiveCategoryIds(saved);
+  }, []);
+
+  // Global keyboard shortcut: Pressing '/' anywhere focuses the search bar
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '/' && !isMoreShapesModalOpen) {
+        const activeEl = document.activeElement;
+        const isInput =
+          activeEl instanceof HTMLInputElement ||
+          activeEl instanceof HTMLTextAreaElement ||
+          activeEl?.getAttribute('contenteditable') === 'true';
+
+        if (!isInput) {
+          e.preventDefault();
+          searchInputRef.current?.focus();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMoreShapesModalOpen]);
+
+  const toggleCategory = (id: string) => {
+    setOpenCategoryIds((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
+  const handleApplyCategories = (newIds: string[]) => {
+    setActiveCategoryIds(newIds);
+    saveActiveCategories(newIds);
+  };
+
+  const onDragStart = (
+    event: React.DragEvent,
+    nodeType: string,
+    defaultLabel: string,
+    customData?: Record<string, any>
+  ) => {
+    event.dataTransfer.setData(
+      'application/reactflow',
+      JSON.stringify({ type: nodeType, label: defaultLabel, customData })
+    );
     event.dataTransfer.effectAllowed = 'move';
   };
 
-  // 21 Bentuk Flowchart Lengkap (Sesuai Gambar 1)
-  const flowchartShapes = [
-    { type: 'process', label: 'Proses', title: 'Proses (Rectangle)', icon: Square },
-    { type: 'decision', label: 'Keputusan?', title: 'Keputusan (Diamond)', icon: GitFork },
-    { type: 'document', label: 'Dokumen', title: 'Dokumen (Document)', icon: FileText },
-    { type: 'oval', label: 'Oval', title: 'Oval / Elips', icon: CircleDot },
-    { type: 'terminal', label: 'Mulai / Selesai', title: 'Terminator (Stadium)', icon: PlayCircle },
-    { type: 'hexagon', label: 'Persiapan', title: 'Persiapan / Loop (Hexagon)', icon: Hexagon },
+  // Filter categories and shapes based on search query
+  const displayedCategories = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    const active = SHAPE_CATEGORIES.filter((cat) => activeCategoryIds.includes(cat.id));
 
-    { type: 'delay', label: 'Delay', title: 'Penundaan (D-Shape)', icon: Clock },
-    { type: 'summing', label: '', title: 'Summing Junction (Lingkaran Silang X)', icon: XCircle },
-    { type: 'or_junction', label: '', title: 'Or Junction (Lingkaran Plus +)', icon: PlusCircle },
-    { type: 'parallelogram', label: 'Data I/O', title: 'Data Input/Output (Parallelogram)', icon: FlipHorizontal },
-    { type: 'database', label: 'Basis Data', title: 'Penyimpanan Data (Cylinder)', icon: Database },
-    { type: 'predefined', label: 'Sub-Proses', title: 'Sub-Proses Terdefinisi (Garis Ganda)', icon: Table },
+    if (!query) {
+      return active;
+    }
 
-    { type: 'connector', label: 'A', title: 'Konektor Bulat (On-Page)', icon: CircleDot },
-    { type: 'offpage', label: 'Hal 2', title: 'Konektor Luar Halaman (Off-Page)', icon: Layers },
-    { type: 'manual_input', label: 'Input Manual', title: 'Input Manual (Trapesium)', icon: FlipHorizontal },
-    { type: 'manual_op', label: 'Operasi Manual', title: 'Operasi Manual (Trapesium Terbalik)', icon: FlipHorizontal },
-    { type: 'merge', label: 'Gabung', title: 'Penggabungan / Merge (Segitiga Bawah)', icon: Triangle },
-    { type: 'extract', label: 'Ekstrak', title: 'Pemisahan / Extract (Segitiga Atas)', icon: Triangle },
+    return active
+      .map((cat) => {
+        const matchingShapes = cat.shapes.filter(
+          (shape) =>
+            shape.label.toLowerCase().includes(query) ||
+            shape.title.toLowerCase().includes(query) ||
+            shape.tags.some((tag) => tag.toLowerCase().includes(query))
+        );
+        return {
+          ...cat,
+          shapes: matchingShapes,
+        };
+      })
+      .filter((cat) => cat.shapes.length > 0);
+  }, [activeCategoryIds, searchQuery]);
 
-    { type: 'collate', label: 'Sortir', title: 'Sortir / Collate (Jam Pasir)', icon: Shuffle },
-    { type: 'display', label: 'Layar', title: 'Tampilan Layar (Display)', icon: Tv },
-    { type: 'block_arrow', label: 'Arah Alur', title: 'Panah Blok (Block Arrow)', icon: ArrowRight },
-  ];
+  const totalMatchingShapes = useMemo(() => {
+    return displayedCategories.reduce((acc, cat) => acc + cat.shapes.length, 0);
+  }, [displayedCategories]);
 
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col h-full shadow-xs select-none no-print">
-      {/* Header Info */}
-      <div className="p-3 border-b border-slate-100 flex items-center justify-between">
-        <div>
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">
-            Koleksi Bentuk (Stencil)
-          </h2>
-          <p className="text-[10px] text-slate-400">
-            Klik atau geser bentuk ke kanvas
-          </p>
+    <aside className="w-64 bg-[#1e232a] text-slate-200 border-r border-slate-800/80 flex flex-col h-full shadow-lg select-none no-print">
+      {/* 1. Search Bar: "Ketik / untuk mencari" */}
+      <div className="p-2.5 border-b border-slate-800/90 bg-[#191d24]">
+        <div className="relative flex items-center">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 pointer-events-none" />
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Ketik / untuk mencari"
+            className="w-full bg-[#14181d] text-slate-200 placeholder-slate-400 text-xs rounded-lg pl-8 pr-7 py-1.5 border border-slate-700/80 focus:border-blue-500 focus:outline-hidden transition-colors"
+          />
+          {searchQuery ? (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2 text-slate-400 hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          ) : (
+            <span className="absolute right-2 text-[10px] font-mono text-slate-400 bg-slate-800 px-1 py-0.2 rounded border border-slate-700 pointer-events-none">
+              /
+            </span>
+          )}
         </div>
+
+        {searchQuery.trim() && (
+          <div className="text-[10px] text-blue-400 pt-1.5 px-0.5 flex items-center justify-between">
+            <span>Ditemukan {totalMatchingShapes} bentuk</span>
+            <button
+              onClick={() => setSearchQuery('')}
+              className="hover:underline text-slate-400 cursor-pointer"
+            >
+              Reset
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Shapes Container */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-4">
-        {/* 1. SEKSI FLOWCHART (Grid 4-Kolom Sesuai Gambar 1) */}
-        <div className="space-y-1.5">
-          <button
-            onClick={() => setIsFlowchartOpen(!isFlowchartOpen)}
-            className="w-full flex items-center justify-between text-[11px] font-bold text-slate-700 hover:text-blue-600 uppercase tracking-wider px-1 py-1 rounded transition-colors"
-          >
-            <span className="flex items-center gap-1">
-              {isFlowchartOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-              Flowchart Lengkap ({flowchartShapes.length})
-            </span>
-          </button>
+      {/* 2. Shape Categories Accordion */}
+      <div className="flex-1 overflow-y-auto divide-y divide-slate-800/60 custom-scrollbar">
+        {displayedCategories.map((category) => {
+          const isOpen = searchQuery.trim() ? true : !!openCategoryIds[category.id];
 
-          {isFlowchartOpen && (
-            <div className="grid grid-cols-3 gap-1.5 pt-1">
-              {flowchartShapes.map((shape) => {
-                const Icon = shape.icon;
-                return (
-                  <div
-                    key={shape.type}
-                    draggable
-                    onDragStart={(e) => onDragStart(e, shape.type, shape.label)}
-                    onClick={() => onAddNode(shape.type, shape.label)}
-                    title={shape.title}
-                    className="h-14 p-1.5 rounded-xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 flex flex-col items-center justify-center cursor-grab active:cursor-grabbing transition-all group bg-white shadow-2xs hover:shadow-xs"
-                  >
-                    <Icon className="w-4 h-4 text-slate-600 group-hover:text-blue-600 group-hover:scale-110 transition-all mb-1" />
-                    <span className="text-[9px] font-medium text-slate-600 group-hover:text-blue-700 text-center leading-tight truncate w-full px-0.5">
-                      {shape.label || shape.title.split(' ')[0]}
+          return (
+            <div key={category.id} className="group/cat">
+              {/* Accordion Header */}
+              <button
+                type="button"
+                onClick={() => toggleCategory(category.id)}
+                className="w-full px-3 py-2 flex items-center justify-between text-left hover:bg-slate-800/50 transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-1.5 min-w-0">
+                  {isOpen ? (
+                    <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  ) : (
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  )}
+                  <span className="text-xs font-semibold text-slate-300 truncate group-hover/cat:text-white transition-colors">
+                    {category.name}
+                  </span>
+                </div>
+
+                {/* Aksesoris Header untuk Papan Coret */}
+                {category.id === 'papan_coret' && (
+                  <div className="flex items-center gap-1.5 text-slate-400 shrink-0">
+                    <span 
+                      title="Area coretan dan catatan cepat" 
+                      className="hover:text-blue-400"
+                    >
+                      <HelpCircle className="w-3.5 h-3.5" />
+                    </span>
+                    <span 
+                      title="Tambah Catatan Ide Baru"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onAddNode('stickynote', 'Catatan Baru');
+                      }}
+                      className="hover:text-amber-400 hover:scale-110 cursor-pointer transition-transform"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
                     </span>
                   </div>
-                );
-              })}
+                )}
+              </button>
+
+              {/* Accordion Content Grid */}
+              {isOpen && (
+                <div className="px-2.5 pb-2.5 pt-1 bg-[#181c22]/50">
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {category.shapes.map((shape) => {
+                      const Icon = shape.icon;
+                      return (
+                        <div
+                          key={shape.id}
+                          draggable
+                          onDragStart={(e) =>
+                            onDragStart(e, shape.type, shape.label, shape.defaultData)
+                          }
+                          onClick={() =>
+                            onAddNode(shape.type, shape.label, shape.defaultData)
+                          }
+                          title={shape.title}
+                          className="h-14 p-1 rounded-xl border border-slate-700/60 hover:border-blue-500 hover:bg-blue-900/20 bg-[#1e232a] flex flex-col items-center justify-center cursor-grab active:cursor-grabbing transition-all group/item shadow-2xs hover:shadow-xs"
+                        >
+                          <Icon className="w-4 h-4 text-slate-300 group-hover/item:text-blue-400 group-hover/item:scale-110 transition-transform mb-1" />
+                          <span className="text-[9px] font-medium text-slate-400 group-hover/item:text-slate-200 text-center leading-tight truncate w-full px-0.5">
+                            {shape.label || shape.title.split(' ')[0]}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          );
+        })}
 
-        {/* 2. SEKSI MIND MAP & LAINNYA */}
-        <div className="space-y-1.5 border-t border-slate-100 pt-3">
-          <button
-            onClick={() => setIsOtherOpen(!isOtherOpen)}
-            className="w-full flex items-center justify-between text-[11px] font-bold text-slate-700 hover:text-blue-600 uppercase tracking-wider px-1 py-1 rounded transition-colors"
-          >
-            <span className="flex items-center gap-1">
-              {isOtherOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-              Mind Map & Catatan
-            </span>
-          </button>
-
-          {isOtherOpen && (
-            <div className="space-y-1 pt-1">
-              {/* Mind Map Item */}
-              <div
-                draggable
-                onDragStart={(e) => onDragStart(e, 'mindmap', 'Topik Mind Map')}
-                onClick={() => onAddNode('mindmap', 'Topik Mind Map')}
-                className="flex items-center gap-2.5 p-2 rounded-xl border border-slate-100 hover:border-emerald-400 hover:bg-emerald-50/40 cursor-grab active:cursor-grabbing transition-all group"
-              >
-                <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 group-hover:bg-emerald-100 flex items-center justify-center text-emerald-600 transition-colors">
-                  <Network className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-semibold text-slate-700">Topik Mind Map</div>
-                  <div className="text-[10px] text-slate-400">Node cabang ide otomatis (+)</div>
-                </div>
-              </div>
-
-              {/* Sticky Note */}
-              <div
-                draggable
-                onDragStart={(e) => onDragStart(e, 'stickynote', 'Catatan Ide')}
-                onClick={() => onAddNode('stickynote', 'Catatan Ide')}
-                className="flex items-center gap-2.5 p-2 rounded-xl border border-slate-100 hover:border-amber-400 hover:bg-amber-50/40 cursor-grab active:cursor-grabbing transition-all group"
-              >
-                <div className="w-7 h-7 rounded-lg bg-amber-50 border border-amber-200 group-hover:bg-amber-100 flex items-center justify-center text-amber-600 transition-colors">
-                  <StickyNote className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-semibold text-slate-700">Catatan Tempel</div>
-                  <div className="text-[10px] text-slate-400">Memo warna kuning</div>
-                </div>
-              </div>
-
-              {/* Teks Bebas */}
-              <div
-                draggable
-                onDragStart={(e) => onDragStart(e, 'text', 'Label Teks')}
-                onClick={() => onAddNode('text', 'Label Teks')}
-                className="flex items-center gap-2.5 p-2 rounded-xl border border-slate-100 hover:border-blue-400 hover:bg-blue-50/40 cursor-grab active:cursor-grabbing transition-all group"
-              >
-                <div className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-200 group-hover:bg-blue-100 flex items-center justify-center text-slate-600 transition-colors">
-                  <Type className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-semibold text-slate-700">Teks Melayang</div>
-                  <div className="text-[10px] text-slate-400">Label keterangan bebas</div>
-                </div>
-              </div>
-
-              {/* Cloud Service */}
-              <div
-                draggable
-                onDragStart={(e) => onDragStart(e, 'cloud', 'Layanan Cloud')}
-                onClick={() => onAddNode('cloud', 'Layanan Cloud')}
-                className="flex items-center gap-2.5 p-2 rounded-xl border border-slate-100 hover:border-sky-400 hover:bg-sky-50/40 cursor-grab active:cursor-grabbing transition-all group"
-              >
-                <div className="w-7 h-7 rounded-lg bg-sky-50 border border-sky-200 group-hover:bg-sky-100 flex items-center justify-center text-sky-600 transition-colors">
-                  <Cloud className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-semibold text-slate-700">Layanan Cloud</div>
-                  <div className="text-[10px] text-slate-400">Server atau API luar</div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* 3. SEKSI BENTUK SPESIALIS (GAMBAR 3: UML, ERD, ORG, SWOT) */}
-        <div className="space-y-1.5 border-t border-slate-100 pt-3">
-          <button
-            onClick={() => setIsSpecialistOpen(!isSpecialistOpen)}
-            className="w-full flex items-center justify-between text-[11px] font-bold text-slate-700 hover:text-emerald-700 uppercase tracking-wider px-1 py-1 rounded transition-colors"
-          >
-            <span className="flex items-center gap-1">
-              {isSpecialistOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-              Bentuk Spesialis (Gambar 3)
-            </span>
-            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800">
-              4
-            </span>
-          </button>
-
-          {isSpecialistOpen && (
-            <div className="space-y-1 pt-1">
-              {/* UML Class */}
-              <div
-                draggable
-                onDragStart={(e) => onDragStart(e, 'uml_class', 'KelasUML')}
-                onClick={() => onAddNode('uml_class', 'KelasUML')}
-                className="flex items-center gap-2.5 p-2 rounded-xl border border-slate-100 hover:border-blue-500 hover:bg-blue-50/40 cursor-grab active:cursor-grabbing transition-all group"
-              >
-                <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-200 group-hover:bg-blue-100 flex items-center justify-center text-blue-600 transition-colors">
-                  <Code2 className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-semibold text-slate-700">UML Class</div>
-                  <div className="text-[10px] text-slate-400">Atribut & Metode OOP</div>
-                </div>
-              </div>
-
-              {/* ERD Table */}
-              <div
-                draggable
-                onDragStart={(e) => onDragStart(e, 'erd_entity', 'tabel_erd')}
-                onClick={() => onAddNode('erd_entity', 'tabel_erd')}
-                className="flex items-center gap-2.5 p-2 rounded-xl border border-slate-100 hover:border-emerald-500 hover:bg-emerald-50/40 cursor-grab active:cursor-grabbing transition-all group"
-              >
-                <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 group-hover:bg-emerald-100 flex items-center justify-center text-emerald-700 transition-colors">
-                  <Database className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-semibold text-slate-700">Tabel ERD (Entity)</div>
-                  <div className="text-[10px] text-slate-400">Kolom PK, FK & Tipe Data</div>
-                </div>
-              </div>
-
-              {/* Org Chart Node */}
-              <div
-                draggable
-                onDragStart={(e) => onDragStart(e, 'org_node', 'Nama Pejabat')}
-                onClick={() => onAddNode('org_node', 'Nama Pejabat')}
-                className="flex items-center gap-2.5 p-2 rounded-xl border border-slate-100 hover:border-amber-500 hover:bg-amber-50/40 cursor-grab active:cursor-grabbing transition-all group"
-              >
-                <div className="w-7 h-7 rounded-lg bg-amber-50 border border-amber-200 group-hover:bg-amber-100 flex items-center justify-center text-amber-700 transition-colors">
-                  <Users className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-semibold text-slate-700">Bagan Organisasi</div>
-                  <div className="text-[10px] text-slate-400">Kartu Avatar & Jabatan</div>
-                </div>
-              </div>
-
-              {/* SWOT Card */}
-              <div
-                draggable
-                onDragStart={(e) => onDragStart(e, 'swot_card', 'Strengths')}
-                onClick={() => onAddNode('swot_card', 'Strengths')}
-                className="flex items-center gap-2.5 p-2 rounded-xl border border-slate-100 hover:border-orange-500 hover:bg-orange-50/40 cursor-grab active:cursor-grabbing transition-all group"
-              >
-                <div className="w-7 h-7 rounded-lg bg-orange-50 border border-orange-200 group-hover:bg-orange-100 flex items-center justify-center text-[#ea9932] transition-colors">
-                  <Target className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-semibold text-slate-700">Kartu Analisis SWOT</div>
-                  <div className="text-[10px] text-slate-400">Kuadran S / W / O / T</div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        {displayedCategories.length === 0 && (
+          <div className="p-6 text-center text-xs text-slate-400">
+            <p>Tidak ada bentuk yang cocok dengan pencarian &ldquo;{searchQuery}&rdquo;</p>
+            <button
+              onClick={() => setIsMoreShapesModalOpen(true)}
+              className="mt-3 text-xs text-blue-400 hover:underline font-bold"
+            >
+              Lihat di Koleksi Lainnya
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Connector Style Switcher */}
-      <div className="p-3 border-t border-slate-100 bg-slate-50/70">
-        <div className="text-[11px] font-semibold text-slate-600 mb-2 flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <Waypoints className="w-3.5 h-3.5 text-emerald-700" />
-            <span>Gaya Garis Konektor</span>
+      {/* 3. Bottom Action: "+ Bentuk Lainnya" */}
+      <div className="p-2.5 border-t border-slate-800 bg-[#191d24] space-y-2.5">
+        <button
+          type="button"
+          onClick={() => setIsMoreShapesModalOpen(true)}
+          className="w-full py-2 px-3 rounded-xl bg-[#004a75] hover:bg-[#005f96] active:bg-[#003e63] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg transition-all cursor-pointer"
+        >
+          <Plus className="w-3.5 h-3.5 stroke-[3]" />
+          <span>Bentuk Lainnya</span>
+        </button>
+
+        {/* Gaya Garis Konektor */}
+        <div className="pt-2 border-t border-slate-800/80">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between">
+            <div className="flex items-center gap-1">
+              <Waypoints className="w-3 h-3 text-emerald-400" />
+              <span>Gaya Garis</span>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-1">
+            <button
+              type="button"
+              onClick={() => setEdgeType('step')}
+              className={`py-1 rounded-lg border text-[10px] flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                edgeType === 'step'
+                  ? 'bg-emerald-600 border-emerald-500 text-white font-bold shadow-2xs'
+                  : 'bg-[#14181d] border-slate-700/80 text-slate-400 hover:text-white hover:border-slate-600'
+              }`}
+              title="Garis Siku Patah (Visio Standard)"
+            >
+              <span>Siku</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setEdgeType('default')}
+              className={`py-1 rounded-lg border text-[10px] flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                edgeType === 'default'
+                  ? 'bg-emerald-600 border-emerald-500 text-white font-bold shadow-2xs'
+                  : 'bg-[#14181d] border-slate-700/80 text-slate-400 hover:text-white hover:border-slate-600'
+              }`}
+              title="Garis Melengkung Halus (Bezier)"
+            >
+              <Spline className="w-3 h-3" />
+              <span>Lengkung</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setEdgeType('straight')}
+              className={`py-1 rounded-lg border text-[10px] flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                edgeType === 'straight'
+                  ? 'bg-emerald-600 border-emerald-500 text-white font-bold shadow-2xs'
+                  : 'bg-[#14181d] border-slate-700/80 text-slate-400 hover:text-white hover:border-slate-600'
+              }`}
+              title="Garis Lurus"
+            >
+              <Minus className="w-3 h-3" />
+              <span>Lurus</span>
+            </button>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-1">
-          <button
-            type="button"
-            onClick={() => setEdgeType('step')}
-            className={`py-1.5 px-2 rounded-lg border text-[11px] flex items-center justify-center gap-1 transition-all ${
-              edgeType === 'step'
-                ? 'bg-[#0b4632] border-[#0b4632] text-amber-300 shadow-2xs font-bold'
-                : 'bg-white border-slate-200 text-slate-600 hover:border-emerald-300'
-            }`}
-            title="Garis Siku Patah (Visio Standard)"
-          >
-            <span>Siku</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setEdgeType('default')}
-            className={`py-1.5 px-2 rounded-lg border text-[11px] flex items-center justify-center gap-1 transition-all ${
-              edgeType === 'default'
-                ? 'bg-[#0b4632] border-[#0b4632] text-amber-300 shadow-2xs font-bold'
-                : 'bg-white border-slate-200 text-slate-600 hover:border-emerald-300'
-            }`}
-            title="Garis Melengkung Halus (Bezier)"
-          >
-            <Spline className="w-3 h-3" />
-            <span>Lengkung</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setEdgeType('straight')}
-            className={`py-1.5 px-2 rounded-lg border text-[11px] flex items-center justify-center gap-1 transition-all ${
-              edgeType === 'straight'
-                ? 'bg-[#0b4632] border-[#0b4632] text-amber-300 shadow-2xs font-bold'
-                : 'bg-white border-slate-200 text-slate-600 hover:border-emerald-300'
-            }`}
-            title="Garis Lurus"
-          >
-            <Minus className="w-3 h-3" />
-            <span>Lurus</span>
-          </button>
-        </div>
       </div>
+
+      {/* 4. Modal "Bentuk Lainnya" (Pilih Koleksi Bentuk / Shape Libraries) */}
+      <MoreShapesModal
+        isOpen={isMoreShapesModalOpen}
+        onClose={() => setIsMoreShapesModalOpen(false)}
+        activeCategories={activeCategoryIds}
+        onApplyCategories={handleApplyCategories}
+      />
     </aside>
   );
 }

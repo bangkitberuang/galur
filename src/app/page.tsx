@@ -17,17 +17,33 @@ import {
   Palette,
   CheckCircle2
 } from 'lucide-react';
+import { APP_VERSION, APP_VERSION_CODENAME, APP_LOGO_URL } from '@/lib/version';
+import GedungSateSilhouette from '@/components/common/GedungSateSilhouette';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#fcfdfb] text-slate-800 flex flex-col selection:bg-emerald-700 selection:text-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#edf5f0] via-[#fcfdfb] to-[#f4f7f3] text-slate-800 flex flex-col selection:bg-emerald-700 selection:text-white relative overflow-x-hidden">
+      {/* ======================================================== */}
+      {/* LATAR BELAKANG GRADASI & CAHAYA AMBIEN TATAR SUNDA        */}
+      {/* ======================================================== */}
+      <div className="absolute top-0 inset-x-0 h-[860px] pointer-events-none -z-10 overflow-hidden">
+        {/* Glow Utama Hijau Sunda */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[550px] bg-gradient-to-b from-emerald-200/50 via-emerald-100/25 to-transparent rounded-full blur-3xl" />
+        {/* Glow Hangat Emas / Amber */}
+        <div className="absolute top-24 right-1/4 w-[450px] h-[450px] bg-amber-200/35 rounded-full blur-3xl" />
+        {/* Glow Teal Lembut */}
+        <div className="absolute top-48 left-1/5 w-[420px] h-[420px] bg-teal-100/40 rounded-full blur-3xl" />
+        {/* Grid Titik Halus Arsitektural */}
+        <div className="absolute inset-0 bg-[radial-gradient(#0b4632_0.8px,transparent_0.8px)] [background-size:24px_24px] opacity-15" />
+      </div>
+
       {/* Top Navbar */}
       <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-6 md:px-12 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center gap-3.5">
           <div className="w-14 h-14 sm:w-16 sm:h-16 shrink-0 transition-transform hover:scale-105 duration-200">
             <Image
-              src="/logo.png"
-              alt="GALUR Logo"
+              src={APP_LOGO_URL}
+              alt="GALUR Logo - Macan Tutul Jawa"
               width={64}
               height={64}
               className="w-full h-full object-contain filter drop-shadow-md"
@@ -37,8 +53,9 @@ export default function LandingPage() {
           <div>
             <div className="flex items-center gap-2">
               <span className="font-black text-2xl tracking-tight text-[#0b4632]">GALUR</span>
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                v1.0
+              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 shadow-2xs flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>{APP_VERSION}</span>
               </span>
             </div>
             <p className="text-xs text-slate-500 font-medium tracking-wide">
@@ -72,11 +89,18 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="relative py-16 px-6 md:px-12 max-w-6xl mx-auto text-center space-y-6">
+        {/* ======================================================== */}
+        {/* SILUET IKONIK GEDUNG SATE JAWA BARAT (OPACITY RENDAH)    */}
+        {/* ======================================================== */}
+        <div className="absolute inset-x-0 bottom-4 sm:bottom-8 pointer-events-none -z-10 flex justify-center items-end opacity-[0.10] sm:opacity-[0.13] overflow-hidden">
+          <GedungSateSilhouette className="w-full max-w-5xl text-emerald-950 scale-105 sm:scale-110 translate-y-6 sm:translate-y-10" opacity={1} />
+        </div>
+
         {/* Mascot & Badge Tagline */}
         <div className="flex flex-col items-center gap-5">
           <div className="relative w-48 h-48 sm:w-60 sm:h-60 md:w-64 md:h-64 transition-transform hover:scale-105 duration-300">
             <Image
-              src="/logo.png"
+              src={APP_LOGO_URL}
               alt="Maskot Macan Tutul Jawa Galur"
               width={256}
               height={256}
@@ -85,7 +109,7 @@ export default function LandingPage() {
             />
           </div>
 
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-emerald-50 border border-emerald-200 text-[#0b4632] text-xs sm:text-sm font-bold shadow-xs">
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/90 backdrop-blur-xs border border-emerald-300/80 text-[#0b4632] text-xs sm:text-sm font-bold shadow-xs">
             <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500" />
             <span>Garis Alur, Ngajentrekeun Struktur</span>
           </div>
@@ -268,62 +292,69 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="mt-auto bg-[#072419] text-emerald-100/70 py-10 px-6 md:px-12 border-t border-emerald-900/50 text-center space-y-3">
-        <div className="flex items-center justify-center gap-3 text-white font-extrabold text-base">
-          <div className="w-14 h-14 shrink-0 flex items-center justify-center">
-            <Image
-              src="/logo.png"
-              alt="GALUR Logo"
-              width={56}
-              height={56}
-              className="w-full h-full object-contain filter drop-shadow-lg"
-            />
-          </div>
-          <span className="text-white tracking-wide font-black text-xl">GALUR</span>
-        </div>
-        <p className="text-xs text-amber-300 font-semibold italic">
-          &ldquo;GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.&rdquo;
-        </p>
-        <div className="flex items-center justify-center gap-4 text-xs font-semibold text-emerald-200/80 pt-1">
-          <Link href="/dashboard" className="hover:text-amber-300 transition-colors">
-            Dashboard Studio
-          </Link>
-          <span>•</span>
-          <Link href="/dashboard?tab=about" className="hover:text-amber-300 transition-colors">
-            Filosofi & Tentang GALUR
-          </Link>
-          <span>•</span>
-          <Link href="/editor" className="hover:text-amber-300 transition-colors">
-            Editor Diagram
-          </Link>
-        </div>
-        {/* Official BANGKIT Beruang Ecosystem Badge */}
-        <div className="footer-brand-container flex items-center justify-center pt-2">
-          <div className="ecosystem-badge inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-800/80 bg-emerald-950/70 hover:border-emerald-600 hover:bg-emerald-900/60 shadow-2xs transition-all duration-200 hover:scale-105 hover:shadow-md cursor-default">
-            <div className="w-4.5 h-4.5 shrink-0 flex items-center justify-center">
+      {/* Footer Memanjang & Ramping (Sleek Horizontal Bar) */}
+      <footer className="mt-auto bg-[#072419] text-emerald-100/70 py-3.5 sm:py-4 px-4 sm:px-8 md:px-12 border-t border-emerald-900/60 select-none">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 md:gap-6">
+          {/* Sisi Kiri: Identitas Brand, Versi & Slogan */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            <div className="w-8 h-8 shrink-0 flex items-center justify-center">
               <Image
-                src="/logo.png"
-                alt="Beruang Icon"
-                width={18}
-                height={18}
-                className="w-full h-full object-contain filter drop-shadow-xs"
+                src={APP_LOGO_URL}
+                alt="GALUR Logo"
+                width={32}
+                height={32}
+                className="w-full h-full object-contain filter drop-shadow-md"
               />
             </div>
-            <span className="ecosystem-tag text-[10px] font-black uppercase tracking-wider text-white bg-[#059669] px-2 py-0.5 rounded-full leading-none shadow-xs">
-              BANGKIT
+            <span className="text-white tracking-wide font-black text-base">GALUR</span>
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-amber-300 border border-emerald-400/30 leading-none">
+              {APP_VERSION}
             </span>
-            <span className="ecosystem-name text-xs font-bold tracking-tight text-emerald-100">
-              Beruang Ecosystem
+            <span className="hidden xl:inline text-[11px] text-emerald-200/60 italic border-l border-emerald-800/80 pl-2.5">
+              &ldquo;Merangkai gagasan, memperjelas alur, membangun pemahaman&rdquo;
             </span>
           </div>
-        </div>
 
-        <p className="text-[11px] text-emerald-200/70 max-w-lg mx-auto pt-1 leading-relaxed">
-          Dirancang untuk kemudahan pembuatan diagram teknikal dan pemikiran terstruktur, dari{' '}
-          <strong className="text-amber-300 font-bold">Bangkit Beruang</strong> untuk{' '}
-          <strong className="text-white font-bold">Jawa Barat</strong>.
-        </p>
+          {/* Sisi Tengah: Navigasi Tautan Cepat */}
+          <div className="flex items-center flex-wrap justify-center gap-x-4 gap-y-1 text-xs font-semibold text-emerald-200/80">
+            <Link href="/dashboard" className="hover:text-amber-300 transition-colors">
+              Dashboard Studio
+            </Link>
+            <span className="opacity-40">•</span>
+            <Link href="/dashboard?tab=about" className="hover:text-amber-300 transition-colors">
+              Filosofi & Tentang GALUR
+            </Link>
+            <span className="opacity-40">•</span>
+            <Link href="/editor" className="hover:text-amber-300 transition-colors">
+              Editor Diagram
+            </Link>
+          </div>
+
+          {/* Sisi Kanan: Official Ecosystem Badge & Attribution */}
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="ecosystem-badge inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-800/80 bg-emerald-950/70 hover:border-emerald-600 hover:bg-emerald-900/60 transition-all cursor-default text-xs">
+              <div className="w-3.5 h-3.5 shrink-0 flex items-center justify-center">
+                <Image
+                  src={APP_LOGO_URL}
+                  alt="Beruang Icon"
+                  width={14}
+                  height={14}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <span className="text-[9px] font-black uppercase tracking-wider text-white bg-[#059669] px-1.5 py-0.2 rounded-full leading-none">
+                BANGKIT
+              </span>
+              <span className="text-[11px] font-bold tracking-tight text-emerald-100">
+                Beruang Ecosystem
+              </span>
+            </div>
+
+            <p className="text-[11px] text-emerald-200/60 hidden sm:inline leading-none">
+              Bangkit Beruang untuk <strong className="text-white font-bold">Jawa Barat</strong>
+            </p>
+          </div>
+        </div>
       </footer>
     </div>
   );

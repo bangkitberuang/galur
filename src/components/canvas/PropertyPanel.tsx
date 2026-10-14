@@ -6,25 +6,47 @@ import {
   Palette, 
   Type, 
   Sliders, 
-  Waypoints, 
+  Waypoints,
+  Spline,
   Minus, 
   Plus,
   ArrowRight, 
+  ArrowLeft,
+  ArrowUp,
+  ArrowDown,
+  MoveHorizontal,
+  MoveVertical,
   AlignLeft,
   AlignCenter,
   AlignRight,
   AlignJustify,
-  ArrowUp,
-  ArrowDown,
   Maximize2,
   RotateCw,
   Sun,
   Database,
   Layers,
   Sparkles,
-  RotateCcw
+  RotateCcw,
+  FileText,
+  Grid,
+  Eye,
+  Moon,
+  Leaf,
+  GitFork,
+  Check,
+  Smile,
+  Upload,
+  Search,
+  Image as ImageIcon
 } from 'lucide-react';
-import { MarkerType } from '@xyflow/react';
+import { MarkerType, useReactFlow } from '@xyflow/react';
+import { CanvasPageConfig, DEFAULT_PAGE_CONFIG } from './CanvasPageFrame';
+import { 
+  NodeIconDisplay, 
+  ICON_CATEGORIES, 
+  POPULAR_LOGO_PRESETS, 
+  POPULAR_EMOJI_PRESETS 
+} from './nodes/NodeIconDisplay';
 
 interface PropertyPanelProps {
   selectedNode: any | null;
@@ -33,6 +55,10 @@ interface PropertyPanelProps {
   onDeleteNode: (nodeId: string) => void;
   onUpdateEdge: (edgeId: string, updates: any) => void;
   onDeleteEdge: (edgeId: string) => void;
+  pageConfig?: CanvasPageConfig;
+  onUpdatePageConfig?: (updates: Partial<CanvasPageConfig>) => void;
+  nodeCount?: number;
+  edgeCount?: number;
 }
 
 export default function PropertyPanel({
@@ -42,18 +68,224 @@ export default function PropertyPanel({
   onDeleteNode,
   onUpdateEdge,
   onDeleteEdge,
+  pageConfig,
+  onUpdatePageConfig,
+  nodeCount = 0,
+  edgeCount = 0,
 }: PropertyPanelProps) {
-  // 0. JIKA TIDAK ADA YANG DIPILIH
+  // State Pengaturan Ikon, Emoticon & Logo
+  const [iconTab, setIconTab] = React.useState<'icon' | 'emoji' | 'logo'>('icon');
+  const [iconCategoryIndex, setIconCategoryIndex] = React.useState(0);
+  const [iconSearch, setIconSearch] = React.useState('');
+  const [customEmojiInput, setCustomEmojiInput] = React.useState('');
+  const [customLogoUrl, setCustomLogoUrl] = React.useState('');
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // 0. JIKA TIDAK ADA YANG DIPILIH: TAMPILKAN PENGATURAN DIAGRAM & LEMBAR KANVAS (MIRIP DRAW.IO)
   if (!selectedNode && !selectedEdge) {
+    const activeConfig = pageConfig || DEFAULT_PAGE_CONFIG;
+
     return (
-      <aside className="w-72 bg-white border-l border-slate-200 p-6 flex flex-col justify-center items-center text-center text-slate-400 no-print">
-        <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
-          <Sliders className="w-6 h-6 text-slate-400" />
+      <aside className="w-72 bg-white border-l border-slate-200 flex flex-col h-full shadow-xs no-print select-none">
+        {/* Header Diagram Settings */}
+        <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+          <div className="flex items-center gap-2">
+            <Sliders className="w-4 h-4 text-blue-600" />
+            <div>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+                Pengaturan Diagram
+              </h2>
+              <span className="text-[10px] text-slate-400 font-medium">
+                Lembar Kanvas & Kisi
+              </span>
+            </div>
+          </div>
+          <span className="text-[10px] font-mono font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+            {activeConfig.pageSize}
+          </span>
         </div>
-        <p className="text-xs font-bold text-slate-700">Panel Properti Bentuk</p>
-        <p className="text-[11px] mt-1.5 text-slate-500 leading-relaxed max-w-[210px]">
-          Klik salah satu <strong>objek bentuk</strong> atau <strong>garis konektor</strong> di kanvas untuk mengatur ukuran, warna, teks, garis, dan gayanya secara detail.
-        </p>
+
+        <div className="flex-1 overflow-y-auto p-3.5 space-y-4">
+          {/* OPSI LIHAT (CHECKBOX SEPERTI DRAW.IO) */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+              <Eye className="w-3.5 h-3.5 text-blue-600" />
+              <span>Lihat (Tampilan)</span>
+            </label>
+            <div className="space-y-1 bg-slate-50/70 p-2 rounded-xl border border-slate-200/80">
+              <label className="flex items-center gap-2 text-xs font-medium text-slate-700 hover:text-slate-900 cursor-pointer py-1 px-1 rounded hover:bg-slate-100/60 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={activeConfig.showPageFrame}
+                  onChange={(e) => onUpdatePageConfig?.({ showPageFrame: e.target.checked })}
+                  className="rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 cursor-pointer"
+                />
+                <span>Tampilan Halaman (Batas A4)</span>
+              </label>
+
+              <label className="flex items-center gap-2 text-xs font-medium text-slate-700 hover:text-slate-900 cursor-pointer py-1 px-1 rounded hover:bg-slate-100/60 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={activeConfig.showGrid}
+                  onChange={(e) => onUpdatePageConfig?.({ showGrid: e.target.checked })}
+                  className="rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 cursor-pointer"
+                />
+                <span>Kisi-Kisi (Grid)</span>
+              </label>
+
+              <label className="flex items-center gap-2 text-xs font-medium text-slate-700 hover:text-slate-900 cursor-pointer py-1 px-1 rounded hover:bg-slate-100/60 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={activeConfig.showMarginGuides}
+                  onChange={(e) => onUpdatePageConfig?.({ showMarginGuides: e.target.checked })}
+                  className="rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 cursor-pointer"
+                />
+                <span>Panduan Margin Cetak</span>
+              </label>
+
+              <label className="flex items-center gap-2 text-xs font-medium text-slate-700 hover:text-slate-900 cursor-pointer py-1 px-1 rounded hover:bg-slate-100/60 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={activeConfig.snapToGrid}
+                  onChange={(e) => onUpdatePageConfig?.({ snapToGrid: e.target.checked })}
+                  className="rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 cursor-pointer"
+                />
+                <span>Kunci Titik Kisi (Snap to Grid)</span>
+              </label>
+            </div>
+          </div>
+
+          {/* UKURAN KERTAS (PAPER SIZE) */}
+          <div className="space-y-1.5 pt-2 border-t border-slate-100">
+            <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5 text-blue-600" />
+              <span>Ukuran Kertas</span>
+            </label>
+            <div className="grid grid-cols-2 gap-1.5">
+              {[
+                { id: 'A4', label: 'A4 (Standar)', desc: '210×297 mm' },
+                { id: 'A3', label: 'A3 (Besar)', desc: '297×420 mm' },
+                { id: 'Letter', label: 'Letter', desc: '8.5×11 in' },
+                { id: 'infinite', label: 'Tak Terbatas', desc: 'Kanvas Bebas' },
+              ].map((fmt) => (
+                <button
+                  key={fmt.id}
+                  type="button"
+                  onClick={() => onUpdatePageConfig?.({ pageSize: fmt.id as any })}
+                  className={`p-2 rounded-xl border text-left transition-all cursor-pointer ${
+                    activeConfig.pageSize === fmt.id
+                      ? 'bg-blue-50 border-blue-500 text-blue-900 font-bold shadow-2xs'
+                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="text-xs">{fmt.label}</div>
+                  <div className="text-[9px] text-slate-400 font-normal">{fmt.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ORIENTASI & AUTO-EXPAND */}
+          <div className="space-y-2 pt-2 border-t border-slate-100">
+            <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+              Orientasi Kertas
+            </label>
+            <div className="grid grid-cols-2 gap-1.5">
+              <button
+                type="button"
+                onClick={() => onUpdatePageConfig?.({ orientation: 'portrait' })}
+                className={`py-1.5 px-2 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  activeConfig.orientation === 'portrait'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                    : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <div className="w-2.5 h-3.5 border border-current rounded-2xs" />
+                <span>Potret</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => onUpdatePageConfig?.({ orientation: 'landscape' })}
+                className={`py-1.5 px-2 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  activeConfig.orientation === 'landscape'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                    : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <div className="w-3.5 h-2.5 border border-current rounded-2xs" />
+                <span>Lanskap</span>
+              </button>
+            </div>
+
+            {/* Mode Auto-Expand */}
+            <div
+              onClick={() => onUpdatePageConfig?.({ autoExpand: !activeConfig.autoExpand })}
+              className={`p-2.5 rounded-xl border flex items-start gap-2 cursor-pointer transition-all mt-2 ${
+                activeConfig.autoExpand
+                  ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
+                  : 'bg-slate-50 border-slate-200 text-slate-600'
+              }`}
+            >
+              <input
+                type="checkbox"
+                checked={activeConfig.autoExpand}
+                onChange={() => {}}
+                className="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+              />
+              <div>
+                <div className="font-bold text-xs">Membesar Otomatis (Auto-Expand)</div>
+                <div className="text-[10px] text-slate-500 leading-tight mt-0.5">
+                  Menambah lembar A4 otomatis saat diagram meluas
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* TEMA VISUAL KANVAS */}
+          <div className="space-y-1.5 pt-2 border-t border-slate-100">
+            <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span>Tema Kanvas</span>
+            </label>
+            <div className="grid grid-cols-3 gap-1">
+              {[
+                { id: 'light', label: 'Putih', icon: Sun },
+                { id: 'dark', label: 'Gelap', icon: Moon },
+                { id: 'emerald', label: 'Sunda', icon: Leaf },
+              ].map((t) => {
+                const IconComponent = t.icon;
+                const isTSelected = activeConfig.canvasTheme === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => onUpdatePageConfig?.({ canvasTheme: t.id as any })}
+                    className={`py-1.5 px-2 rounded-xl border text-[11px] font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                      isTSelected
+                        ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-2xs font-bold'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    <IconComponent className="w-3 h-3" />
+                    <span>{t.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* STATISTIK RINGKAS */}
+          <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px] text-slate-600 space-y-1">
+            <div className="flex items-center justify-between">
+              <span>Jumlah Objek Bentuk:</span>
+              <strong className="text-slate-900 font-mono">{nodeCount}</strong>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>Jumlah Garis Konektor:</span>
+              <strong className="text-slate-900 font-mono">{edgeCount}</strong>
+            </div>
+          </div>
+        </div>
       </aside>
     );
   }
@@ -68,6 +300,8 @@ export default function PropertyPanel({
     const hasMarker = Boolean(selectedEdge.markerEnd);
     const edgeStyleType = selectedEdge.type || 'smoothstep';
     const currentOffset = typeof selectedEdge.data?.offset === 'number' ? selectedEdge.data.offset : 25;
+    const currentShiftX = typeof selectedEdge.data?.shiftX === 'number' ? selectedEdge.data.shiftX : 0;
+    const currentShiftY = typeof selectedEdge.data?.shiftY === 'number' ? selectedEdge.data.shiftY : 0;
 
     const handleUpdateOffset = (val: number) => {
       const clamped = Math.max(10, Math.min(350, Math.round(val)));
@@ -75,6 +309,73 @@ export default function PropertyPanel({
         data: {
           ...(selectedEdge.data || {}),
           offset: clamped,
+        },
+      });
+    };
+
+    const handleUpdateShiftX = (val: number) => {
+      const clamped = Math.max(-400, Math.min(400, Math.round(val)));
+      onUpdateEdge(edgeId, {
+        data: {
+          ...(selectedEdge.data || {}),
+          shiftX: clamped,
+        },
+      });
+    };
+
+    const handleUpdateShiftY = (val: number) => {
+      const clamped = Math.max(-400, Math.min(400, Math.round(val)));
+      onUpdateEdge(edgeId, {
+        data: {
+          ...(selectedEdge.data || {}),
+          shiftY: clamped,
+        },
+      });
+    };
+
+    const { getNode } = useReactFlow();
+    const handleAutoRouteHandles = () => {
+      const srcNode = getNode(selectedEdge.source);
+      const tgtNode = getNode(selectedEdge.target);
+      if (!srcNode || !tgtNode) return;
+
+      const dx = tgtNode.position.x - srcNode.position.x;
+      const dy = tgtNode.position.y - srcNode.position.y;
+
+      let srcH = 'r-out';
+      let tgtH = 'l-out';
+
+      if (Math.abs(dx) >= Math.abs(dy)) {
+        if (dx >= 0) {
+          srcH = 'r-out';
+          tgtH = 'l-out';
+        } else {
+          srcH = 'l-out';
+          tgtH = 'r-out';
+        }
+      } else {
+        if (dy >= 0) {
+          srcH = 'b-out';
+          tgtH = 't-out';
+        } else {
+          srcH = 't-out';
+          tgtH = 'b-out';
+        }
+      }
+
+      onUpdateEdge(edgeId, {
+        sourceHandle: srcH,
+        targetHandle: tgtH,
+      });
+    };
+
+    const handleResetSiku = () => {
+      onUpdateEdge(edgeId, {
+        data: {
+          ...(selectedEdge.data || {}),
+          shiftX: 0,
+          shiftY: 0,
+          offset: 25,
         },
       });
     };
@@ -175,32 +476,113 @@ export default function PropertyPanel({
             </div>
           </div>
 
-          {/* Gaya Jalur Garis */}
+          {/* Bentuk Jalur Garis (Lengkung, Lurus, Siku) */}
           <div>
-            <label className="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
-              Bentuk Jalur Garis
+            <label className="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+              <span>Bentuk Jalur Garis</span>
+              <span className="text-[10px] text-blue-600 font-bold lowercase">
+                {edgeStyleType === 'default' || edgeStyleType === 'bezier' ? 'kurva lengkung' : edgeStyleType === 'straight' ? 'garis lurus' : 'siku-siku'}
+              </span>
             </label>
-            <div className="grid grid-cols-3 gap-1">
+            <div className="grid grid-cols-3 gap-1.5">
               {[
-                { id: 'smoothstep', label: 'Lengkung' },
-                { id: 'step', label: 'Siku-Siku' },
-                { id: 'straight', label: 'Lurus' },
-              ].map((st) => (
-                <button
-                  key={st.id}
-                  type="button"
-                  onClick={() => onUpdateEdge(edgeId, { type: st.id })}
-                  className={`py-1.5 rounded-lg border text-[11px] font-medium transition-all ${
-                    edgeStyleType === st.id
-                      ? 'bg-blue-600 border-blue-600 text-white font-semibold'
-                      : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
-                  }`}
-                >
-                  {st.label}
-                </button>
-              ))}
+                { id: 'default', label: 'Lengkung', desc: 'Kurva Bezier' },
+                { id: 'straight', label: 'Lurus', desc: 'Garis Lurus' },
+                { id: 'smoothstep', label: 'Siku-Siku', desc: 'Siku Ortogonal' },
+              ].map((st) => {
+                const isActive = 
+                  (st.id === 'default' && (edgeStyleType === 'default' || edgeStyleType === 'bezier')) ||
+                  (st.id === 'straight' && edgeStyleType === 'straight') ||
+                  (st.id === 'smoothstep' && (edgeStyleType === 'smoothstep' || edgeStyleType === 'step'));
+
+                return (
+                  <button
+                    key={st.id}
+                    type="button"
+                    onClick={() => onUpdateEdge(edgeId, { type: st.id, selected: true })}
+                    className={`py-2 px-1 rounded-xl border text-center transition-all cursor-pointer ${
+                      isActive
+                        ? 'bg-blue-600 border-blue-600 text-white font-bold shadow-xs'
+                        : 'bg-white border-slate-200 text-slate-700 hover:border-blue-400 hover:bg-blue-50/50'
+                    }`}
+                  >
+                    <div className="text-xs font-bold leading-tight">{st.label}</div>
+                    <div className={`text-[9px] mt-0.5 ${isActive ? 'text-blue-100' : 'text-slate-400'}`}>
+                      {st.desc}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
+
+          {/* Kelengkungan Kustom (Aktif bila tipe Lengkung / Bezier) */}
+          {(edgeStyleType === 'default' || edgeStyleType === 'bezier') && (
+            <div className="p-3 bg-blue-50/70 rounded-2xl border border-blue-200/80 space-y-2.5 animate-in fade-in duration-100">
+              <div className="flex items-center justify-between text-[11px] font-bold text-blue-900">
+                <span className="flex items-center gap-1.5">
+                  <Spline className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Kelengkungan Kustom</span>
+                </span>
+                <span className="font-mono text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-bold">
+                  {Math.round((typeof selectedEdge.data?.curvature === 'number' ? selectedEdge.data.curvature : 0.25) * 100)}%
+                </span>
+              </div>
+
+              {/* Slider Kelengkungan */}
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={typeof selectedEdge.data?.curvature === 'number' ? selectedEdge.data.curvature : 0.25}
+                onChange={(e) =>
+                  onUpdateEdge(edgeId, {
+                    data: {
+                      ...(selectedEdge.data || {}),
+                      curvature: parseFloat(e.target.value),
+                    },
+                  })
+                }
+                className="w-full h-1.5 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+              />
+
+              {/* Preset Tombol Cepat */}
+              <div className="grid grid-cols-4 gap-1 text-[10px] font-semibold">
+                {[
+                  { val: 0, label: 'Lurus (0%)' },
+                  { val: 0.25, label: 'Alami (25%)' },
+                  { val: 0.5, label: 'Lengkung (50%)' },
+                  { val: 0.8, label: 'Ekstrem (80%)' },
+                ].map((p) => {
+                  const currentCurv = typeof selectedEdge.data?.curvature === 'number' ? selectedEdge.data.curvature : 0.25;
+                  const isCurrent = Math.abs(currentCurv - p.val) < 0.05;
+
+                  return (
+                    <button
+                      key={p.val}
+                      type="button"
+                      onClick={() =>
+                        onUpdateEdge(edgeId, {
+                          data: {
+                            ...(selectedEdge.data || {}),
+                            curvature: p.val,
+                          },
+                        })
+                      }
+                      className={`py-1 rounded-lg border text-center transition-colors cursor-pointer ${
+                        isCurrent
+                          ? 'bg-blue-600 border-blue-600 text-white font-bold'
+                          : 'bg-white hover:bg-blue-100/70 border-blue-200 text-blue-900'
+                      }`}
+                    >
+                      {p.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Ketebalan Garis */}
           <div>
@@ -303,47 +685,310 @@ export default function PropertyPanel({
             </div>
           </div>
 
-          {/* Posisi & Jarak Lekukan Garis (Offset) */}
-          <div className="pt-2 border-t border-slate-100 space-y-2.5">
+          {/* ======================================================== */}
+          {/* PENGATURAN TITIK SAMBUNGAN GARIS (ASAL & TUJUAN)         */}
+          {/* ======================================================== */}
+          <div className="pt-2 border-t border-slate-100 space-y-3">
             <div className="flex items-center justify-between">
-              <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
-                Posisi Jalur (Offset)
+              <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                <GitFork className="w-3.5 h-3.5 text-blue-600" />
+                <span>Titik Sambungan Garis</span>
               </label>
-              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200">
-                {currentOffset}px
-              </span>
-            </div>
-
-            {/* Tombol Geser Cepat Naik / Turun */}
-            <div className="grid grid-cols-2 gap-1.5">
               <button
                 type="button"
-                onClick={() => handleUpdateOffset(currentOffset - 15)}
-                className="py-1.5 px-2 rounded-lg border border-slate-200 hover:border-blue-400 hover:bg-blue-50 text-xs font-semibold text-slate-700 transition-all flex items-center justify-center gap-1 cursor-pointer"
+                onClick={handleAutoRouteHandles}
+                title="Sesuaikan titik sambungan secara otomatis berdasarkan posisi kedua bentuk"
+                className="text-[10px] font-semibold text-blue-700 hover:bg-blue-50 px-2 py-0.5 rounded border border-blue-200 transition-colors flex items-center gap-1 cursor-pointer"
               >
-                <ArrowUp className="w-3.5 h-3.5 text-blue-600" />
-                <span>Geser Naik (-15px)</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleUpdateOffset(currentOffset + 15)}
-                className="py-1.5 px-2 rounded-lg border border-slate-200 hover:border-blue-400 hover:bg-blue-50 text-xs font-semibold text-slate-700 transition-all flex items-center justify-center gap-1 cursor-pointer"
-              >
-                <ArrowDown className="w-3.5 h-3.5 text-blue-600" />
-                <span>Geser Turun (+15px)</span>
+                <Sparkles className="w-2.5 h-2.5 text-amber-500" />
+                <span>Otomatis</span>
               </button>
             </div>
 
-            {/* Range Slider */}
-            <input
-              type="range"
-              min={10}
-              max={250}
-              step={5}
-              value={currentOffset}
-              onChange={(e) => handleUpdateOffset(Number(e.target.value))}
-              className="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg appearance-none mt-1"
-            />
+            {/* 1. Titik Awal (Asal Garis) */}
+            <div className="space-y-1 bg-slate-50 p-2.5 rounded-lg border border-slate-200/80">
+              <div className="text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1 flex items-center justify-between">
+                <span>Titik Asal / Awal Garis</span>
+                <span className="text-blue-600 font-mono text-[10px] lowercase">
+                  {selectedEdge.sourceHandle || 'r-out'}
+                </span>
+              </div>
+              <div className="grid grid-cols-4 gap-1">
+                {[
+                  { id: 't-out', label: '⬆ Atas', title: 'Keluar dari sisi Atas' },
+                  { id: 'r-out', label: '➡ Kanan', title: 'Keluar dari sisi Kanan' },
+                  { id: 'b-out', label: '⬇ Bawah', title: 'Keluar dari sisi Bawah' },
+                  { id: 'l-out', label: '⬅ Kiri', title: 'Keluar dari sisi Kiri' },
+                ].map((h) => {
+                  const isActive = (selectedEdge.sourceHandle || 'r-out').startsWith(h.id.charAt(0));
+                  return (
+                    <button
+                      key={h.id}
+                      type="button"
+                      title={h.title}
+                      onClick={() => onUpdateEdge(edgeId, { sourceHandle: h.id })}
+                      className={`py-1.5 px-1 rounded-md text-[10px] font-semibold text-center transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-blue-600 text-white shadow-xs font-bold'
+                          : 'bg-white border border-slate-200 text-slate-700 hover:bg-blue-50 hover:border-blue-300'
+                      }`}
+                    >
+                      {h.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 2. Titik Tujuan (Akhir Garis) */}
+            <div className="space-y-1 bg-slate-50 p-2.5 rounded-lg border border-slate-200/80">
+              <div className="text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1 flex items-center justify-between">
+                <span>Titik Target / Akhir Garis</span>
+                <span className="text-blue-600 font-mono text-[10px] lowercase">
+                  {selectedEdge.targetHandle || 'l-out'}
+                </span>
+              </div>
+              <div className="grid grid-cols-4 gap-1">
+                {[
+                  { id: 't-out', label: '⬆ Atas', title: 'Masuk ke sisi Atas' },
+                  { id: 'r-out', label: '➡ Kanan', title: 'Masuk ke sisi Kanan' },
+                  { id: 'b-out', label: '⬇ Bawah', title: 'Masuk ke sisi Bawah' },
+                  { id: 'l-out', label: '⬅ Kiri', title: 'Masuk ke sisi Kiri' },
+                ].map((h) => {
+                  const isActive = (selectedEdge.targetHandle || 'l-out').startsWith(h.id.charAt(0));
+                  return (
+                    <button
+                      key={h.id}
+                      type="button"
+                      title={h.title}
+                      onClick={() => onUpdateEdge(edgeId, { targetHandle: h.id })}
+                      className={`py-1.5 px-1 rounded-md text-[10px] font-semibold text-center transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-blue-600 text-white shadow-xs font-bold'
+                          : 'bg-white border border-slate-200 text-slate-700 hover:bg-blue-50 hover:border-blue-300'
+                      }`}
+                    >
+                      {h.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* ======================================================== */}
+          {/* PENGATURAN POSISI 3 SIKU GARIS (KIRI/KANAN & ATAS/BAWAH)  */}
+          {/* ======================================================== */}
+          <div className="pt-2 border-t border-slate-100 space-y-3.5">
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                <Waypoints className="w-3.5 h-3.5 text-blue-600" />
+                <span>Posisi 3 Siku Garis</span>
+              </label>
+              <button
+                type="button"
+                onClick={handleResetSiku}
+                title="Kembalikan posisi siku ke tengah & default (25px)"
+                className="text-[10px] font-semibold text-slate-500 hover:text-amber-700 hover:bg-amber-50 px-2 py-0.5 rounded border border-slate-200 transition-colors flex items-center gap-1 cursor-pointer"
+              >
+                <RotateCcw className="w-2.5 h-2.5" />
+                <span>Reset</span>
+              </button>
+            </div>
+
+            {/* 1. Siku Vertikal: Geser Kiri / Kanan */}
+            <div className="space-y-1.5 bg-slate-50/80 p-2.5 rounded-lg border border-slate-200/70">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
+                  <MoveHorizontal className="w-3 h-3 text-blue-600" />
+                  <span>Siku Vertikal (↔ Kiri / Kanan)</span>
+                </span>
+                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                  {currentShiftX === 0 ? '0px (Tengah)' : `${currentShiftX > 0 ? '+' : ''}${currentShiftX}px`}
+                </span>
+              </div>
+
+              {/* Stepper Kiri / Kanan */}
+              <div className="grid grid-cols-2 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleUpdateShiftX(currentShiftX - 20)}
+                  className="py-1 px-2 rounded-md border border-slate-200 hover:border-blue-400 hover:bg-blue-50 text-[11px] font-semibold text-slate-700 transition-all flex items-center justify-center gap-1 cursor-pointer"
+                >
+                  <ArrowLeft className="w-3 h-3 text-blue-600" />
+                  <span>Kiri (-20px)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleUpdateShiftX(currentShiftX + 20)}
+                  className="py-1 px-2 rounded-md border border-slate-200 hover:border-blue-400 hover:bg-blue-50 text-[11px] font-semibold text-slate-700 transition-all flex items-center justify-center gap-1 cursor-pointer"
+                >
+                  <span>Kanan (+20px)</span>
+                  <ArrowRight className="w-3 h-3 text-blue-600" />
+                </button>
+              </div>
+
+              {/* Presets Kiri / Kanan */}
+              <div className="grid grid-cols-4 gap-1 pt-0.5">
+                {[
+                  { val: -80, label: '-80px' },
+                  { val: -40, label: '-40px' },
+                  { val: 0, label: 'Tengah' },
+                  { val: 40, label: '+40px' },
+                ].map((p) => (
+                  <button
+                    key={p.val}
+                    type="button"
+                    onClick={() => handleUpdateShiftX(p.val)}
+                    className={`py-0.5 text-[10px] font-mono rounded border transition-all cursor-pointer ${
+                      currentShiftX === p.val
+                        ? 'bg-blue-600 text-white border-blue-600 font-bold'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Range Slider ShiftX */}
+              <input
+                type="range"
+                min={-250}
+                max={250}
+                step={5}
+                value={currentShiftX}
+                onChange={(e) => handleUpdateShiftX(Number(e.target.value))}
+                className="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg appearance-none mt-1"
+              />
+            </div>
+
+            {/* 2. Siku Horisontal: Geser Atas / Bawah */}
+            <div className="space-y-1.5 bg-slate-50/80 p-2.5 rounded-lg border border-slate-200/70">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
+                  <MoveVertical className="w-3 h-3 text-blue-600" />
+                  <span>Siku Horisontal (↕ Atas / Bawah)</span>
+                </span>
+                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                  {currentShiftY === 0 ? '0px (Tengah)' : `${currentShiftY > 0 ? '+' : ''}${currentShiftY}px`}
+                </span>
+              </div>
+
+              {/* Stepper Atas / Bawah */}
+              <div className="grid grid-cols-2 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleUpdateShiftY(currentShiftY - 15)}
+                  className="py-1 px-2 rounded-md border border-slate-200 hover:border-blue-400 hover:bg-blue-50 text-[11px] font-semibold text-slate-700 transition-all flex items-center justify-center gap-1 cursor-pointer"
+                >
+                  <ArrowUp className="w-3 h-3 text-blue-600" />
+                  <span>Naik (-15px)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleUpdateShiftY(currentShiftY + 15)}
+                  className="py-1 px-2 rounded-md border border-slate-200 hover:border-blue-400 hover:bg-blue-50 text-[11px] font-semibold text-slate-700 transition-all flex items-center justify-center gap-1 cursor-pointer"
+                >
+                  <ArrowDown className="w-3 h-3 text-blue-600" />
+                  <span>Turun (+15px)</span>
+                </button>
+              </div>
+
+              {/* Presets Atas / Bawah */}
+              <div className="grid grid-cols-4 gap-1 pt-0.5">
+                {[
+                  { val: -60, label: '-60px' },
+                  { val: -30, label: '-30px' },
+                  { val: 0, label: 'Tengah' },
+                  { val: 30, label: '+30px' },
+                ].map((p) => (
+                  <button
+                    key={p.val}
+                    type="button"
+                    onClick={() => handleUpdateShiftY(p.val)}
+                    className={`py-0.5 text-[10px] font-mono rounded border transition-all cursor-pointer ${
+                      currentShiftY === p.val
+                        ? 'bg-blue-600 text-white border-blue-600 font-bold'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Range Slider ShiftY */}
+              <input
+                type="range"
+                min={-250}
+                max={250}
+                step={5}
+                value={currentShiftY}
+                onChange={(e) => handleUpdateShiftY(Number(e.target.value))}
+                className="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg appearance-none mt-1"
+              />
+            </div>
+
+            {/* 3. Jarak Siku Handle (Offset Garis) */}
+            <div className="space-y-1.5 bg-slate-50/80 p-2.5 rounded-lg border border-slate-200/70">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-semibold text-slate-700">
+                  Jarak Siku Handle (Offset)
+                </span>
+                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                  {currentOffset}px
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleUpdateOffset(currentOffset - 10)}
+                  className="py-1 px-2 rounded-md border border-slate-200 hover:border-blue-400 hover:bg-blue-50 text-[11px] font-semibold text-slate-700 transition-all flex items-center justify-center gap-1 cursor-pointer"
+                >
+                  <Minus className="w-3 h-3 text-blue-600" />
+                  <span>Rapatkan (-10px)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleUpdateOffset(currentOffset + 10)}
+                  className="py-1 px-2 rounded-md border border-slate-200 hover:border-blue-400 hover:bg-blue-50 text-[11px] font-semibold text-slate-700 transition-all flex items-center justify-center gap-1 cursor-pointer"
+                >
+                  <Plus className="w-3 h-3 text-blue-600" />
+                  <span>Jauhkan (+10px)</span>
+                </button>
+              </div>
+
+              {/* Presets Offset */}
+              <div className="grid grid-cols-4 gap-1 pt-0.5">
+                {[15, 25, 45, 75].map((off) => (
+                  <button
+                    key={off}
+                    type="button"
+                    onClick={() => handleUpdateOffset(off)}
+                    className={`py-0.5 text-[10px] font-mono rounded border transition-all cursor-pointer ${
+                      currentOffset === off
+                        ? 'bg-blue-600 text-white border-blue-600 font-bold'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    {off}px
+                  </button>
+                ))}
+              </div>
+
+              {/* Range Slider Offset */}
+              <input
+                type="range"
+                min={10}
+                max={250}
+                step={5}
+                value={currentOffset}
+                onChange={(e) => handleUpdateOffset(Number(e.target.value))}
+                className="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg appearance-none mt-1"
+              />
+            </div>
           </div>
         </div>
       </aside>
@@ -358,6 +1003,37 @@ export default function PropertyPanel({
   const currentBorder = data.borderColor || '#3b82f6';
   const currentText = data.textColor || '#0f172a';
 
+  // Perhitungan Ikon Aktif & Filter
+  const effectiveIcon =
+    data.icon ||
+    (type === 'database'
+      ? 'database'
+      : type === 'cloud'
+      ? 'cloud'
+      : type === 'terminal'
+      ? 'playcircle'
+      : type === 'document'
+      ? 'filetext'
+      : undefined);
+
+  const hasActiveIcon =
+    (data.icon && data.icon !== 'none') ||
+    (!data.icon &&
+      ['database', 'cloud', 'terminal', 'document'].includes(type) &&
+      data.icon !== 'none') ||
+    Boolean(data.emoji) ||
+    Boolean(data.iconUrl);
+
+  const activeIconCategory = ICON_CATEGORIES[iconCategoryIndex] || ICON_CATEGORIES[0];
+  const allIcons = ICON_CATEGORIES.flatMap((c) => c.icons);
+  const filteredIcons = iconSearch.trim()
+    ? allIcons.filter(
+        (i) =>
+          i.label.toLowerCase().includes(iconSearch.toLowerCase()) ||
+          i.id.toLowerCase().includes(iconSearch.toLowerCase())
+      )
+    : activeIconCategory.icons;
+
   // Dimensi Bentuk (Lebar x Tinggi)
   const defaultWidthByType: Record<string, number> = {
     decision: 120,
@@ -370,6 +1046,11 @@ export default function PropertyPanel({
     connector: 50,
     summing: 65,
     or_junction: 65,
+    fishbone_head: 270,
+    fishbone_category: 240,
+    canvas_block: 240,
+    why_step: 260,
+    priority_card: 260,
   };
   const defaultHeightByType: Record<string, number> = {
     decision: 90,
@@ -382,6 +1063,11 @@ export default function PropertyPanel({
     connector: 50,
     summing: 65,
     or_junction: 65,
+    fishbone_head: 120,
+    fishbone_category: 140,
+    canvas_block: 180,
+    why_step: 130,
+    priority_card: 180,
   };
 
   const currentWidth = data.width !== undefined
@@ -816,6 +1502,420 @@ export default function PropertyPanel({
                 />
               </div>
             </div>
+          ) : type === 'fishbone_head' ? (
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Masalah Utama / Akibat (Problem)
+                </label>
+                <textarea
+                  rows={2}
+                  value={data.problem || data.label || ''}
+                  onChange={(e) => onUpdateNode(id, { problem: e.target.value, label: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-bold focus:ring-2 focus:ring-rose-500"
+                  placeholder="Misal: Keterlambatan Pengiriman Layanan..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                  Dampak / Metrik KPI
+                </label>
+                <input
+                  type="text"
+                  value={data.subtitle || data.metric || ''}
+                  onChange={(e) => onUpdateNode(id, { subtitle: e.target.value, metric: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:ring-2 focus:ring-rose-500"
+                  placeholder="Dampak: CSAT Turun 28%..."
+                />
+              </div>
+            </div>
+          ) : type === 'fishbone_category' ? (
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Kategori 6M (Ishikawa)
+                </label>
+                <input
+                  type="text"
+                  value={data.category || data.label || ''}
+                  onChange={(e) => onUpdateNode(id, { category: e.target.value, label: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-bold focus:ring-2 focus:ring-blue-500"
+                  placeholder="1. MAN / MANUSIA"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                  Sub-Judul Aspek
+                </label>
+                <input
+                  type="text"
+                  value={data.title || ''}
+                  onChange={(e) => onUpdateNode(id, { title: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500"
+                  placeholder="Keahlian & Beban Kerja"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                  Daftar Penyebab (1 baris per poin)
+                </label>
+                <textarea
+                  rows={4}
+                  value={Array.isArray(data.items) ? data.items.join('\n') : ''}
+                  onChange={(e) =>
+                    onUpdateNode(id, {
+                      items: e.target.value.split('\n').filter((line: string) => line.trim().length > 0),
+                    })
+                  }
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 leading-relaxed"
+                  placeholder="Tulis penyebab di sini..."
+                />
+              </div>
+            </div>
+          ) : type === 'canvas_block' ? (
+            <div className="space-y-3">
+              <div className="grid grid-cols-3 gap-2">
+                <div className="col-span-1">
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                    No. / Kode
+                  </label>
+                  <input
+                    type="text"
+                    value={data.badgeNumber || data.number || ''}
+                    onChange={(e) => onUpdateNode(id, { badgeNumber: e.target.value, number: e.target.value })}
+                    className="w-full px-2 py-1.5 text-xs rounded-lg border border-slate-200 font-bold text-center focus:ring-2 focus:ring-emerald-500"
+                    placeholder="1"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                    Judul Blok
+                  </label>
+                  <input
+                    type="text"
+                    value={data.title || data.label || ''}
+                    onChange={(e) => onUpdateNode(id, { title: e.target.value, label: e.target.value })}
+                    className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-bold focus:ring-2 focus:ring-emerald-500"
+                    placeholder="Problem"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                  Pertanyaan Panduan / Subtitle
+                </label>
+                <input
+                  type="text"
+                  value={data.subtitle || data.prompt || ''}
+                  onChange={(e) => onUpdateNode(id, { subtitle: e.target.value, prompt: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:ring-2 focus:ring-emerald-500"
+                  placeholder="3 masalah terbesar pelanggan..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                  Poin Analisis Kanvas (1 baris per poin)
+                </label>
+                <textarea
+                  rows={5}
+                  value={Array.isArray(data.items) ? data.items.join('\n') : ''}
+                  onChange={(e) =>
+                    onUpdateNode(id, {
+                      items: e.target.value.split('\n').filter((line: string) => line.trim().length > 0),
+                    })
+                  }
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 leading-relaxed"
+                  placeholder="Tulis poin di sini..."
+                />
+              </div>
+            </div>
+          ) : type === 'why_step' ? (
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                  Nomor Langkah Mengapa
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={data.stepNumber || 1}
+                  onChange={(e) => onUpdateNode(id, { stepNumber: Number(e.target.value) })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-bold focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Pertanyaan Mengapa
+                </label>
+                <textarea
+                  rows={2}
+                  value={data.question || ''}
+                  onChange={(e) => onUpdateNode(id, { question: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-bold focus:ring-2 focus:ring-teal-500"
+                  placeholder="Mengapa aplikasi down...?"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                  Jawaban / Temuan
+                </label>
+                <textarea
+                  rows={2}
+                  value={data.answer || data.label || ''}
+                  onChange={(e) => onUpdateNode(id, { answer: e.target.value, label: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal-500"
+                  placeholder="Uraian temuan..."
+                />
+              </div>
+
+              <div className="p-2.5 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(data.isRootCause)}
+                    onChange={(e) => onUpdateNode(id, { isRootCause: e.target.checked })}
+                    className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
+                  />
+                  <span className="font-bold text-xs text-slate-800">Tandai sebagai Akar Masalah Utama</span>
+                </label>
+
+                {data.isRootCause && (
+                  <div>
+                    <label className="block text-[10px] font-semibold text-emerald-800 uppercase tracking-wider mb-1">
+                      Solusi Permanen (Countermeasure)
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={data.solution || ''}
+                      onChange={(e) => onUpdateNode(id, { solution: e.target.value })}
+                      className="w-full px-3 py-1.5 text-xs rounded-lg border border-emerald-300 bg-emerald-50/40 font-medium text-emerald-950 focus:ring-2 focus:ring-emerald-500"
+                      placeholder="Langkah perbaikan permanen..."
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : type === 'priority_card' ? (
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                  Kuadran / Label
+                </label>
+                <input
+                  type="text"
+                  value={data.quadrant || ''}
+                  onChange={(e) => onUpdateNode(id, { quadrant: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-bold focus:ring-2 focus:ring-amber-500"
+                  placeholder="Q1: LAKUKAN SEGERA"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Judul Kuadran
+                </label>
+                <input
+                  type="text"
+                  value={data.title || data.label || ''}
+                  onChange={(e) => onUpdateNode(id, { title: e.target.value, label: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-bold focus:ring-2 focus:ring-amber-500"
+                  placeholder="Mendesak & Sangat Penting"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                  Subtitle / Keterangan
+                </label>
+                <input
+                  type="text"
+                  value={data.subtitle || ''}
+                  onChange={(e) => onUpdateNode(id, { subtitle: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:ring-2 focus:ring-amber-500"
+                  placeholder="Krisis operasional..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                  Daftar Tugas / Inisiatif (1 baris per poin)
+                </label>
+                <textarea
+                  rows={4}
+                  value={Array.isArray(data.items) ? data.items.join('\n') : ''}
+                  onChange={(e) =>
+                    onUpdateNode(id, {
+                      items: e.target.value.split('\n').filter((line: string) => line.trim().length > 0),
+                    })
+                  }
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-amber-500 leading-relaxed"
+                  placeholder="Tulis inisiatif di sini..."
+                />
+              </div>
+            </div>
+          ) : type === 'swimlane_group' ? (
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Judul Swimlane
+                </label>
+                <input
+                  type="text"
+                  value={data.title || data.label || ''}
+                  onChange={(e) => onUpdateNode(id, { title: e.target.value, label: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-bold focus:ring-2 focus:ring-blue-500"
+                  placeholder="ALUR PROSES LINTAS FUNGSI"
+                />
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={data.showTitle !== false}
+                    onChange={(e) => onUpdateNode(id, { showTitle: e.target.checked })}
+                    className="rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 cursor-pointer"
+                  />
+                  <span>Tampilkan Bar Judul Atas</span>
+                </label>
+              </div>
+
+              {/* Daftar Jalur Fungsi */}
+              <div className="space-y-2 pt-2 border-t border-slate-100">
+                <div className="flex items-center justify-between">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                    Daftar Jalur Fungsi ({(data.lanes || []).length || 4})
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const currentLanes = data.lanes || [
+                        { id: 'customer', name: 'Customer', color: '#0284c7', height: 160 },
+                        { id: 'sales', name: 'Sales', color: '#0d9488', height: 160 },
+                        { id: 'management', name: 'Management', color: '#4f46e5', height: 160 },
+                        { id: 'credit', name: 'Credit department', color: '#db2777', height: 160 },
+                      ];
+                      const newLane = {
+                        id: `lane-${Date.now()}`,
+                        name: `Jalur ${currentLanes.length + 1}`,
+                        color: '#64748b',
+                        height: 160,
+                      };
+                      onUpdateNode(id, { lanes: [...currentLanes, newLane] });
+                    }}
+                    className="text-[10px] font-bold text-blue-600 hover:text-blue-800 cursor-pointer"
+                  >
+                    + Tambah Jalur
+                  </button>
+                </div>
+
+                <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                  {(data.lanes || [
+                    { id: 'customer', name: 'Customer', color: '#0284c7', height: 160 },
+                    { id: 'sales', name: 'Sales', color: '#0d9488', height: 160 },
+                    { id: 'management', name: 'Management', color: '#4f46e5', height: 160 },
+                    { id: 'credit', name: 'Credit department', color: '#db2777', height: 160 },
+                  ]).map((lane: any, idx: number, arr: any[]) => (
+                    <div key={lane.id || idx} className="p-2 rounded-xl border border-slate-200 bg-slate-50/70 space-y-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="color"
+                          value={lane.color || '#3b82f6'}
+                          onChange={(e) => {
+                            const updated = arr.map((l, i) => i === idx ? { ...l, color: e.target.value } : l);
+                            onUpdateNode(id, { lanes: updated });
+                          }}
+                          className="w-6 h-6 rounded border border-slate-300 cursor-pointer shrink-0"
+                          title="Warna Header Jalur"
+                        />
+                        <input
+                          type="text"
+                          value={lane.name}
+                          onChange={(e) => {
+                            const updated = arr.map((l, i) => i === idx ? { ...l, name: e.target.value } : l);
+                            onUpdateNode(id, { lanes: updated });
+                          }}
+                          className="flex-1 px-2 py-1 text-xs rounded border border-slate-200 font-bold bg-white"
+                          placeholder="Nama Jalur..."
+                        />
+                        {arr.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = arr.filter((_, i) => i !== idx);
+                              onUpdateNode(id, { lanes: updated });
+                            }}
+                            className="p-1 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
+                            title="Hapus Jalur Ini"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : type === 'process_legend' ? (
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Judul Legenda
+                </label>
+                <input
+                  type="text"
+                  value={data.title || data.label || ''}
+                  onChange={(e) => onUpdateNode(id, { title: e.target.value, label: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-bold focus:ring-2 focus:ring-blue-500"
+                  placeholder="Process flow shapes"
+                />
+              </div>
+
+              {/* Daftar Item Legenda */}
+              <div className="space-y-2 pt-2 border-t border-slate-100">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  Item Peran / Warna
+                </label>
+                <div className="space-y-1.5">
+                  {(data.items || [
+                    { label: 'Customer', color: '#0284c7' },
+                    { label: 'Sales', color: '#0d9488' },
+                    { label: 'Management', color: '#4f46e5' },
+                    { label: 'Credit department', color: '#db2777' },
+                  ]).map((item: any, idx: number, arr: any[]) => (
+                    <div key={idx} className="flex items-center gap-1.5">
+                      <input
+                        type="color"
+                        value={item.color || '#3b82f6'}
+                        onChange={(e) => {
+                          const updated = arr.map((it, i) => i === idx ? { ...it, color: e.target.value } : it);
+                          onUpdateNode(id, { items: updated });
+                        }}
+                        className="w-6 h-6 rounded border border-slate-300 cursor-pointer shrink-0"
+                      />
+                      <input
+                        type="text"
+                        value={item.label}
+                        onChange={(e) => {
+                          const updated = arr.map((it, i) => i === idx ? { ...it, label: e.target.value } : it);
+                          onUpdateNode(id, { items: updated });
+                        }}
+                        className="flex-1 px-2 py-1 text-xs rounded border border-slate-200 font-semibold bg-white"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           ) : (
             <>
               {/* Teks Label Standar */}
@@ -858,8 +1958,455 @@ export default function PropertyPanel({
                   />
                 </div>
               )}
+
+              {/* Lencana Status Alur (✓ Disetujui / ✕ Ditolak) */}
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                  Lencana Status (Status Badge)
+                </label>
+                <div className="grid grid-cols-3 gap-1">
+                  <button
+                    type="button"
+                    onClick={() => onUpdateNode(id, { statusBadge: undefined })}
+                    className={`py-1 px-1.5 rounded-lg border text-xs font-medium transition-all cursor-pointer ${
+                      !data.statusBadge
+                        ? 'bg-slate-100 border-slate-300 text-slate-800 font-bold'
+                        : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
+                    }`}
+                  >
+                    Tanpa
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onUpdateNode(id, { statusBadge: 'success' })}
+                    className={`py-1 px-1.5 rounded-lg border text-xs font-medium flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                      data.statusBadge === 'success'
+                        ? 'bg-emerald-50 border-emerald-500 text-emerald-800 font-bold shadow-2xs'
+                        : 'bg-white border-slate-200 text-emerald-700 hover:bg-emerald-50/50'
+                    }`}
+                  >
+                    <span className="w-3.5 h-3.5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold">✓</span>
+                    <span>Setuju</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onUpdateNode(id, { statusBadge: 'error' })}
+                    className={`py-1 px-1.5 rounded-lg border text-xs font-medium flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                      data.statusBadge === 'error'
+                        ? 'bg-rose-50 border-rose-500 text-rose-800 font-bold shadow-2xs'
+                        : 'bg-white border-slate-200 text-rose-700 hover:bg-rose-50/50'
+                    }`}
+                  >
+                    <span className="w-3.5 h-3.5 rounded-full bg-rose-500 text-white flex items-center justify-center text-[10px] font-bold">✕</span>
+                    <span>Ditolak</span>
+                  </button>
+                </div>
+              </div>
             </>
           )}
+
+          {/* ======================================================== */}
+          {/* SEKSI: IKON, EMOTICON & LOGO                              */}
+          {/* ======================================================== */}
+          <div id="property-icon-section" className="pt-2.5 border-t border-slate-100 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                <Smile className="w-3.5 h-3.5 text-amber-500" />
+                <span>Ikon, Emoticon & Logo</span>
+              </label>
+              {hasActiveIcon && (
+                <button
+                  type="button"
+                  onClick={() => onUpdateNode(id, { icon: 'none', emoji: undefined, iconUrl: undefined })}
+                  className="text-[10px] text-red-500 hover:text-red-700 hover:underline font-medium cursor-pointer"
+                  title="Hapus / Sembunyikan ikon dari bentuk ini"
+                >
+                  Hapus Ikon
+                </button>
+              )}
+            </div>
+
+            {/* Active Icon Preview Badge */}
+            {hasActiveIcon ? (
+              <div className="flex items-center justify-between p-2 rounded-lg bg-amber-50/70 border border-amber-200/80">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="w-7 h-7 rounded-md bg-white border border-amber-200 flex items-center justify-center shadow-2xs shrink-0">
+                    <NodeIconDisplay
+                      icon={data.icon}
+                      emoji={data.emoji}
+                      iconUrl={data.iconUrl}
+                      color={data.iconColor}
+                      defaultIcon={type === 'database' ? 'database' : type === 'cloud' ? 'cloud' : undefined}
+                      defaultColor={type === 'database' ? '#9333ea' : '#16a34a'}
+                      size="md"
+                    />
+                  </div>
+                  <div className="truncate">
+                    <div className="text-[11px] font-bold text-slate-800 truncate">
+                      {data.emoji ? `Emoji: ${data.emoji}` : data.iconUrl ? 'Logo Kustom / Gambar' : `Ikon: ${data.icon || effectiveIcon}`}
+                    </div>
+                    <div className="text-[10px] text-slate-500">Aktif pada bentuk</div>
+                  </div>
+                </div>
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-200 text-amber-900 font-bold shrink-0">
+                  Terpasang
+                </span>
+              </div>
+            ) : (
+              <div className="p-2 rounded-lg bg-slate-50 border border-slate-200 text-center text-[11px] text-slate-500">
+                Bentuk ini belum memiliki ikon atau logo.
+              </div>
+            )}
+
+            {/* Tab Pemilihan: Ikon Vektor | Emoji / Emoticon | Logo & URL */}
+            <div className="grid grid-cols-3 gap-1 p-0.5 bg-slate-100 rounded-lg">
+              <button
+                type="button"
+                onClick={() => setIconTab('icon')}
+                className={`py-1 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
+                  iconTab === 'icon' ? 'bg-white text-blue-700 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Ikon Vektor
+              </button>
+              <button
+                type="button"
+                onClick={() => setIconTab('emoji')}
+                className={`py-1 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
+                  iconTab === 'emoji' ? 'bg-white text-blue-700 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Emoji/Emoticon
+              </button>
+              <button
+                type="button"
+                onClick={() => setIconTab('logo')}
+                className={`py-1 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
+                  iconTab === 'logo' ? 'bg-white text-blue-700 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Logo & URL
+              </button>
+            </div>
+
+            {/* TAB 1: IKON VEKTOR LUCIDE */}
+            {iconTab === 'icon' && (
+              <div className="space-y-2">
+                {/* Search Ikon */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={iconSearch}
+                    onChange={(e) => setIconSearch(e.target.value)}
+                    placeholder="Cari ikon (db, server, cloud, code)..."
+                    className="w-full pl-7 pr-2 py-1 text-[11px] rounded-md border border-slate-200 focus:outline-hidden focus:ring-1 focus:ring-blue-500"
+                  />
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2 pointer-events-none" />
+                </div>
+
+                {/* Kategori Tab Mini */}
+                {!iconSearch && (
+                  <div className="flex gap-1 overflow-x-auto pb-1 custom-scrollbar">
+                    {ICON_CATEGORIES.map((cat, idx) => (
+                      <button
+                        key={cat.name}
+                        type="button"
+                        onClick={() => setIconCategoryIndex(idx)}
+                        className={`text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap cursor-pointer transition-colors ${
+                          iconCategoryIndex === idx
+                            ? 'bg-blue-600 text-white font-bold'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
+                      >
+                        {cat.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Grid Ikon */}
+                <div className="grid grid-cols-4 gap-1 max-h-36 overflow-y-auto p-1 bg-slate-50/70 border border-slate-200/80 rounded-lg custom-scrollbar">
+                  {filteredIcons.map((item) => {
+                    const IconComp = item.icon;
+                    const isSelected = (data.icon || effectiveIcon) === item.id && !data.emoji && !data.iconUrl;
+
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => {
+                          onUpdateNode(id, {
+                            icon: item.id,
+                            emoji: undefined,
+                            iconUrl: undefined,
+                            iconColor: data.iconColor || (item.id === 'database' ? '#9333ea' : item.id === 'cloud' ? '#16a34a' : undefined),
+                          });
+                        }}
+                        className={`p-1.5 rounded-md flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-500 font-bold'
+                            : 'bg-white hover:bg-blue-50/60 text-slate-700 border border-slate-200/60'
+                        }`}
+                        title={item.label}
+                      >
+                        <IconComp className="w-4 h-4" />
+                        <span className="text-[9px] truncate w-full text-center leading-tight">
+                          {item.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: EMOJI & EMOTICON */}
+            {iconTab === 'emoji' && (
+              <div className="space-y-2">
+                {/* Input Langsung Emoji / Emoticon */}
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                    Ketik / Tempel Emoji Bebas:
+                  </label>
+                  <div className="flex gap-1">
+                    <input
+                      type="text"
+                      value={customEmojiInput || data.emoji || ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setCustomEmojiInput(val);
+                        if (val.trim()) {
+                          onUpdateNode(id, { emoji: val.trim(), icon: undefined, iconUrl: undefined });
+                        }
+                      }}
+                      placeholder="Contoh: 🐘, 🗄️, 🚀, ^_^"
+                      className="flex-1 px-2 py-1 text-xs rounded-md border border-slate-200 focus:outline-hidden focus:ring-1 focus:ring-blue-500 font-medium"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (customEmojiInput.trim()) {
+                          onUpdateNode(id, { emoji: customEmojiInput.trim(), icon: undefined, iconUrl: undefined });
+                        }
+                      }}
+                      className="px-2 py-1 text-[10px] font-bold bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors cursor-pointer"
+                    >
+                      Terapkan
+                    </button>
+                  </div>
+                </div>
+
+                {/* Preset Kategori Emoji Populer */}
+                <div className="space-y-1.5 max-h-36 overflow-y-auto p-1 bg-slate-50/70 border border-slate-200/80 rounded-lg custom-scrollbar">
+                  {POPULAR_EMOJI_PRESETS.map((group) => (
+                    <div key={group.group}>
+                      <div className="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-0.5 px-0.5">
+                        {group.group}
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {group.emojis.map((em) => (
+                          <button
+                            key={em}
+                            type="button"
+                            onClick={() => {
+                              setCustomEmojiInput(em);
+                              onUpdateNode(id, { emoji: em, icon: undefined, iconUrl: undefined });
+                            }}
+                            className={`w-7 h-7 text-sm rounded-md flex items-center justify-center transition-all cursor-pointer ${
+                              data.emoji === em
+                                ? 'bg-amber-100 ring-2 ring-amber-500 scale-110 shadow-2xs'
+                                : 'bg-white hover:bg-amber-50 border border-slate-200/60'
+                            }`}
+                            title={em}
+                          >
+                            {em}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 3: LOGO & GAMBAR KUSTOM */}
+            {iconTab === 'logo' && (
+              <div className="space-y-2">
+                {/* Upload File Gambar dari Komputer */}
+                <div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                          onUpdateNode(id, {
+                            iconUrl: reader.result as string,
+                            icon: undefined,
+                            emoji: undefined,
+                          });
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full py-1.5 px-2 rounded-lg border border-dashed border-blue-400 bg-blue-50/50 hover:bg-blue-50 text-blue-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <Upload className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Unggah Logo dari Komputer (PNG/SVG)</span>
+                  </button>
+                </div>
+
+                {/* Input URL Gambar */}
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                    Atau Masukkan URL Logo / Gambar:
+                  </label>
+                  <div className="flex gap-1">
+                    <input
+                      type="text"
+                      value={customLogoUrl || data.iconUrl || ''}
+                      onChange={(e) => setCustomLogoUrl(e.target.value)}
+                      placeholder="https://... /logo.png"
+                      className="flex-1 px-2 py-1 text-[11px] rounded-md border border-slate-200 focus:outline-hidden focus:ring-1 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (customLogoUrl.trim()) {
+                          onUpdateNode(id, {
+                            iconUrl: customLogoUrl.trim(),
+                            icon: undefined,
+                            emoji: undefined,
+                          });
+                        }
+                      }}
+                      className="px-2 py-1 text-[10px] font-bold bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer"
+                    >
+                      Pasang
+                    </button>
+                  </div>
+                </div>
+
+                {/* Preset Logo Populer (PostgreSQL, MySQL, Redis, AWS, Docker, dll) */}
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 mb-1">
+                    Pilihan Cepat Logo Teknologi Populer:
+                  </label>
+                  <div className="grid grid-cols-3 gap-1 max-h-32 overflow-y-auto p-1 bg-slate-50/70 border border-slate-200/80 rounded-lg custom-scrollbar">
+                    {POPULAR_LOGO_PRESETS.map((logo) => {
+                      const isSelected = data.iconUrl === logo.iconUrl;
+                      return (
+                        <button
+                          key={logo.name}
+                          type="button"
+                          onClick={() => {
+                            setCustomLogoUrl(logo.iconUrl);
+                            onUpdateNode(id, {
+                              iconUrl: logo.iconUrl,
+                              icon: undefined,
+                              emoji: undefined,
+                            });
+                          }}
+                          className={`p-1.5 rounded-md flex items-center gap-1.5 transition-all cursor-pointer ${
+                            isSelected
+                              ? 'bg-blue-100 ring-2 ring-blue-500 font-bold text-blue-900'
+                              : 'bg-white hover:bg-blue-50/50 border border-slate-200/60 text-slate-700'
+                          }`}
+                          title={logo.name}
+                        >
+                          <img
+                            src={logo.iconUrl}
+                            alt={logo.name}
+                            className="w-4 h-4 object-contain shrink-0"
+                          />
+                          <span className="text-[10px] truncate">{logo.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* OPSI WARNA & UKURAN IKON (Jika Ikon Aktif) */}
+            {hasActiveIcon && (
+              <div className="pt-2 border-t border-slate-100 space-y-2">
+                {/* Warna Ikon (khusus Ikon Vektor) */}
+                {!data.emoji && !data.iconUrl && (
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 mb-1">
+                      Warna Ikon
+                    </label>
+                    <div className="flex items-center gap-1 flex-wrap">
+                      {[
+                        { color: '#9333ea', label: 'Ungu Database' },
+                        { color: '#2563eb', label: 'Biru Sistem' },
+                        { color: '#059669', label: 'Emerald' },
+                        { color: '#d97706', label: 'Amber/Gold' },
+                        { color: '#dc2626', label: 'Merah' },
+                        { color: '#475569', label: 'Slate' },
+                        { color: '#0f172a', label: 'Hitam' },
+                      ].map((c) => (
+                        <button
+                          key={c.color}
+                          type="button"
+                          onClick={() => onUpdateNode(id, { iconColor: c.color })}
+                          style={{ backgroundColor: c.color }}
+                          className={`w-5 h-5 rounded-full cursor-pointer transition-transform hover:scale-110 shadow-2xs ${
+                            data.iconColor === c.color ? 'ring-2 ring-offset-1 ring-blue-500 scale-110' : ''
+                          }`}
+                          title={c.label}
+                        />
+                      ))}
+                      <input
+                        type="color"
+                        value={data.iconColor || '#9333ea'}
+                        onChange={(e) => onUpdateNode(id, { iconColor: e.target.value })}
+                        className="w-5 h-5 rounded-full cursor-pointer border-0 p-0 bg-transparent"
+                        title="Pilih Warna Ikon Kustom"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Ukuran Ikon */}
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 mb-1">
+                    Ukuran Ikon
+                  </label>
+                  <div className="grid grid-cols-4 gap-1">
+                    {[
+                      { id: 'sm', label: 'Kecil' },
+                      { id: 'md', label: 'Sedang' },
+                      { id: 'lg', label: 'Besar' },
+                      { id: 'xl', label: 'Ekstra' },
+                    ].map((sz) => (
+                      <button
+                        key={sz.id}
+                        type="button"
+                        onClick={() => onUpdateNode(id, { iconSize: sz.id })}
+                        className={`py-0.5 text-[10px] rounded-md border transition-all cursor-pointer ${
+                          (data.iconSize || 'md') === sz.id
+                            ? 'bg-blue-50 border-blue-500 text-blue-700 font-bold'
+                            : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        {sz.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* ======================================================== */}

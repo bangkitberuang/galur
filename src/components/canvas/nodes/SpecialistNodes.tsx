@@ -11,7 +11,13 @@ import {
   Target, 
   Layers,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  AlertTriangle,
+  Lightbulb,
+  HelpCircle,
+  CheckCircle2,
+  Activity,
+  Plus
 } from 'lucide-react';
 import { getNodeTextStyles, getNodeShapeStyles } from '@/lib/nodeStyles';
 
@@ -69,108 +75,110 @@ const NodeQuickActions = ({ id, selected }: { id: string; selected?: boolean }) 
 // 8 Handles Standard Helper (8 Titik Hubung Mengelilingi Objek: 4 Sisi Utama + 4 Sudut)
 const StandardHandles = () => (
   <>
-    {/* 1. Atas - Kiri (Top-Left) */}
-    <Handle
-      type="source"
-      position={Position.Top}
-      id="top-left"
-      title="Titik Hubung Atas Kiri"
-      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5"
-      style={{ left: '18%' }}
-    />
-
-    {/* 2. Atas - Tengah (Top-Center) */}
-    <Handle
-      type="source"
-      position={Position.Top}
-      id="t-out"
-      title="Titik Hubung Atas"
-      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5"
-      style={{ left: '50%' }}
-    />
+    {/* 1. Kanan - Tengah (Primary Right) */}
     <Handle
       type="target"
-      position={Position.Top}
-      id="t-in"
-      style={{ left: '50%', pointerEvents: 'none', opacity: 0 }}
+      position={Position.Right}
+      id="r-in"
+      title="Titik Masuk Kanan"
+      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5 transition-all"
+      style={{ top: '50%', zIndex: 1 }}
     />
-
-    {/* 3. Atas - Kanan (Top-Right) */}
-    <Handle
-      type="source"
-      position={Position.Top}
-      id="top-right"
-      title="Titik Hubung Atas Kanan"
-      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5"
-      style={{ left: '82%' }}
-    />
-
-    {/* 4. Kanan - Tengah (Right-Center) */}
     <Handle
       type="source"
       position={Position.Right}
       id="r-out"
       title="Titik Hubung Kanan"
-      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5"
-      style={{ top: '50%' }}
+      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5 transition-all cursor-crosshair"
+      style={{ top: '50%', zIndex: 10 }}
     />
+
+    {/* 2. Kiri - Tengah (Primary Left) */}
     <Handle
       type="target"
-      position={Position.Right}
-      id="r-in"
-      style={{ top: '50%', pointerEvents: 'none', opacity: 0 }}
+      position={Position.Left}
+      id="l-in"
+      title="Titik Masuk Kiri"
+      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5 transition-all"
+      style={{ top: '50%', zIndex: 1 }}
     />
-
-    {/* 5. Bawah - Kanan (Bottom-Right) */}
-    <Handle
-      type="source"
-      position={Position.Bottom}
-      id="bottom-right"
-      title="Titik Hubung Bawah Kanan"
-      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5"
-      style={{ left: '82%' }}
-    />
-
-    {/* 6. Bawah - Tengah (Bottom-Center) */}
-    <Handle
-      type="source"
-      position={Position.Bottom}
-      id="b-out"
-      title="Titik Hubung Bawah"
-      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5"
-      style={{ left: '50%' }}
-    />
-    <Handle
-      type="target"
-      position={Position.Bottom}
-      id="b-in"
-      style={{ left: '50%', pointerEvents: 'none', opacity: 0 }}
-    />
-
-    {/* 7. Bawah - Kiri (Bottom-Left) */}
-    <Handle
-      type="source"
-      position={Position.Bottom}
-      id="bottom-left"
-      title="Titik Hubung Bawah Kiri"
-      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5"
-      style={{ left: '18%' }}
-    />
-
-    {/* 8. Kiri - Tengah (Left-Center) */}
     <Handle
       type="source"
       position={Position.Left}
       id="l-out"
       title="Titik Hubung Kiri"
-      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5"
-      style={{ top: '50%' }}
+      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5 transition-all cursor-crosshair"
+      style={{ top: '50%', zIndex: 10 }}
     />
+
+    {/* 3. Atas - Tengah (Primary Top) */}
     <Handle
       type="target"
-      position={Position.Left}
-      id="l-in"
-      style={{ top: '50%', pointerEvents: 'none', opacity: 0 }}
+      position={Position.Top}
+      id="t-in"
+      title="Titik Masuk Atas"
+      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5 transition-all"
+      style={{ left: '50%', zIndex: 1 }}
+    />
+    <Handle
+      type="source"
+      position={Position.Top}
+      id="t-out"
+      title="Titik Hubung Atas"
+      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5 transition-all cursor-crosshair"
+      style={{ left: '50%', zIndex: 10 }}
+    />
+
+    {/* 4. Bawah - Tengah (Primary Bottom) */}
+    <Handle
+      type="target"
+      position={Position.Bottom}
+      id="b-in"
+      title="Titik Masuk Bawah"
+      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5 transition-all"
+      style={{ left: '50%', zIndex: 1 }}
+    />
+    <Handle
+      type="source"
+      position={Position.Bottom}
+      id="b-out"
+      title="Titik Hubung Bawah"
+      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5 transition-all cursor-crosshair"
+      style={{ left: '50%', zIndex: 10 }}
+    />
+
+    {/* 5. Sudut-Sudut (Corners) */}
+    <Handle
+      type="source"
+      position={Position.Top}
+      id="top-left"
+      title="Titik Hubung Atas Kiri"
+      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5 cursor-crosshair"
+      style={{ left: '18%', zIndex: 10 }}
+    />
+    <Handle
+      type="source"
+      position={Position.Top}
+      id="top-right"
+      title="Titik Hubung Atas Kanan"
+      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5 cursor-crosshair"
+      style={{ left: '82%', zIndex: 10 }}
+    />
+    <Handle
+      type="source"
+      position={Position.Bottom}
+      id="bottom-left"
+      title="Titik Hubung Bawah Kiri"
+      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5 cursor-crosshair"
+      style={{ left: '18%', zIndex: 10 }}
+    />
+    <Handle
+      type="source"
+      position={Position.Bottom}
+      id="bottom-right"
+      title="Titik Hubung Bawah Kanan"
+      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5 cursor-crosshair"
+      style={{ left: '82%', zIndex: 10 }}
     />
   </>
 );
@@ -540,9 +548,554 @@ export const SWOTCardNode = memo((props: any) => {
 });
 SWOTCardNode.displayName = 'SWOTCardNode';
 
+// 5. FISHBONE HEAD NODE (Kepala Ikan - Akibat / Masalah Utama Ishikawa)
+export const FishboneHeadNode = memo((props: any) => {
+  const { id, data, selected } = props;
+  const problem = data.label || data.problem || 'Akibat / Masalah Utama';
+  const subtitle = data.subtitle || data.metric || 'Definisikan masalah yang ingin dipecahkan';
+  const color = data.color || '#fff1f2';
+  const borderColor = data.borderColor || '#e11d48';
+  const headerColor = data.headerColor || '#be123c';
+
+  return (
+    <div
+      className={`relative min-w-[250px] max-w-[290px] p-4 rounded-2xl border-2 shadow-lg transition-all select-none ${
+        selected ? 'ring-3 ring-rose-500 shadow-xl scale-102' : ''
+      }`}
+      style={{ backgroundColor: color, borderColor: borderColor }}
+    >
+      <NodeQuickActions id={id} selected={selected} />
+      <StandardHandles />
+
+      {/* Fish Head Badge */}
+      <div className="flex items-center gap-1.5 mb-2">
+        <span 
+          className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider text-white flex items-center gap-1 shadow-xs"
+          style={{ backgroundColor: headerColor }}
+        >
+          <AlertTriangle className="w-3 h-3" />
+          <span>Masalah Utama</span>
+        </span>
+        <span className="text-[10px] font-bold text-rose-700">Akibat (Effect)</span>
+      </div>
+
+      {/* Problem Statement */}
+      <div className="text-sm font-extrabold text-slate-900 leading-snug">
+        {problem}
+      </div>
+
+      {/* Subtitle / KPI Metric */}
+      {subtitle && (
+        <div className="mt-2.5 pt-2 border-t border-rose-200/80 text-[11px] font-semibold text-rose-800 leading-tight flex items-center gap-1.5">
+          <Activity className="w-3.5 h-3.5 shrink-0 text-rose-600" />
+          <span className="truncate">{subtitle}</span>
+        </div>
+      )}
+    </div>
+  );
+});
+FishboneHeadNode.displayName = 'FishboneHeadNode';
+
+// 6. FISHBONE CATEGORY NODE (Tulang Cabang 6M: Man, Machine, Method, Material, Measurement, Milieu)
+export const FishboneCategoryNode = memo((props: any) => {
+  const { id, data, selected } = props;
+  const category = data.category || data.label || 'KATEGORI (6M)';
+  const title = data.title || '';
+  const items: string[] = Array.isArray(data.items) && data.items.length > 0
+    ? data.items
+    : ['Penyebab spesifik 1', 'Penyebab spesifik 2'];
+  const color = data.color || '#f8fafc';
+  const borderColor = data.borderColor || '#3b82f6';
+  const headerColor = data.headerColor || '#2563eb';
+
+  return (
+    <div
+      className={`relative min-w-[220px] max-w-[260px] p-3 rounded-xl border-2 shadow-md transition-all select-none ${
+        selected ? 'ring-3 ring-blue-500 shadow-xl scale-102' : ''
+      }`}
+      style={{ backgroundColor: color, borderColor: borderColor }}
+    >
+      <NodeQuickActions id={id} selected={selected} />
+      <StandardHandles />
+
+      {/* Header Badge */}
+      <div className="flex items-center justify-between gap-1 mb-2">
+        <span
+          className="px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider text-white shadow-2xs"
+          style={{ backgroundColor: headerColor }}
+        >
+          {category}
+        </span>
+        {title && <span className="text-[11px] font-bold text-slate-700 truncate">{title}</span>}
+      </div>
+
+      {/* Sub-causes List */}
+      <ul className="space-y-1.5 text-xs text-slate-700 leading-relaxed">
+        {items.map((item, idx) => (
+          <li key={idx} className="flex items-start gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ backgroundColor: borderColor }} />
+            <span className="font-medium text-[11px] leading-tight">{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+});
+FishboneCategoryNode.displayName = 'FishboneCategoryNode';
+
+// 7. CANVAS BLOCK NODE (Blok Universal untuk Lean Canvas, Business Model Canvas, Value Proposition Canvas)
+export const CanvasBlockNode = memo((props: any) => {
+  const { id, data, selected } = props;
+  const badgeNumber = data.badgeNumber || data.number || '';
+  const title = data.label || data.title || 'Blok Kanvas';
+  const subtitle = data.subtitle || data.prompt || '';
+  const items: string[] = Array.isArray(data.items) && data.items.length > 0
+    ? data.items
+    : ['Poin analisis 1', 'Poin analisis 2'];
+  const color = data.color || '#ffffff';
+  const borderColor = data.borderColor || '#cbd5e1';
+  const headerColor = data.headerColor || '#0b4632';
+
+  return (
+    <div
+      className={`relative min-w-[220px] max-w-[290px] p-3.5 rounded-2xl border-2 shadow-sm transition-all select-none flex flex-col justify-start ${
+        selected ? 'ring-3 ring-emerald-600 shadow-xl scale-101' : ''
+      }`}
+      style={{ backgroundColor: color, borderColor: borderColor }}
+    >
+      <NodeQuickActions id={id} selected={selected} />
+      <StandardHandles />
+
+      {/* Block Header */}
+      <div className="flex items-center gap-2 mb-1">
+        {badgeNumber && (
+          <span 
+            className="w-5 h-5 rounded-md text-[10px] font-black text-white flex items-center justify-center shrink-0 shadow-2xs"
+            style={{ backgroundColor: headerColor }}
+          >
+            {badgeNumber}
+          </span>
+        )}
+        <h4 className="font-extrabold text-xs text-slate-900 tracking-tight leading-tight">
+          {title}
+        </h4>
+      </div>
+
+      {/* Subtitle / Guiding Question */}
+      {subtitle && (
+        <p className="text-[10px] font-semibold text-slate-500 mb-2 leading-tight">
+          {subtitle}
+        </p>
+      )}
+
+      {/* Bullet / Sticky Items */}
+      <div className="space-y-1.5 mt-1 flex-1">
+        {items.map((item, idx) => (
+          <div
+            key={idx}
+            className="p-1.5 rounded-lg bg-slate-50/80 border border-slate-200/70 text-[11px] font-medium text-slate-700 leading-snug flex items-start gap-1.5 shadow-3xs"
+          >
+            <span className="text-emerald-700 font-bold mt-0.5">•</span>
+            <span>{item}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+});
+CanvasBlockNode.displayName = 'CanvasBlockNode';
+
+// 8. 5-WHYS STEP NODE (Rantai Analisis Kausalitas Bertingkat Toyota TPS)
+export const WhyStepNode = memo((props: any) => {
+  const { id, data, selected } = props;
+  const stepNumber = data.stepNumber || data.step || 1;
+  const question = data.question || `Mengapa #${stepNumber}?`;
+  const answer = data.label || data.answer || 'Uraian penyebab pada level ini...';
+  const isRootCause = Boolean(data.isRootCause || stepNumber === 5);
+  const solution = data.solution || '';
+  const color = data.color || (isRootCause ? '#ecfdf5' : '#ffffff');
+  const borderColor = data.borderColor || (isRootCause ? '#059669' : '#e2e8f0');
+
+  return (
+    <div
+      className={`relative min-w-[240px] max-w-[300px] p-4 rounded-2xl border-2 shadow-md transition-all select-none ${
+        selected ? 'ring-3 ring-emerald-600 shadow-xl scale-102' : ''
+      }`}
+      style={{ backgroundColor: color, borderColor: borderColor }}
+    >
+      <NodeQuickActions id={id} selected={selected} />
+      <StandardHandles />
+
+      {/* Step Header */}
+      <div className="flex items-center justify-between gap-1 mb-2">
+        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1 ${
+          isRootCause ? 'bg-emerald-700 text-white shadow-xs' : 'bg-slate-200 text-slate-800'
+        }`}>
+          {isRootCause ? <CheckCircle2 className="w-3 h-3" /> : <HelpCircle className="w-3 h-3 text-slate-600" />}
+          <span>{isRootCause ? 'Akar Masalah (Root Cause)' : `Mengapa #${stepNumber}`}</span>
+        </span>
+      </div>
+
+      {/* Question */}
+      <div className="text-xs font-bold text-slate-800 mb-1 leading-snug">
+        {question}
+      </div>
+
+      {/* Answer / Finding */}
+      <div className="p-2 rounded-xl bg-white/90 border border-slate-200 text-xs font-medium text-slate-700 leading-snug shadow-3xs">
+        {answer}
+      </div>
+
+      {/* Countermeasure / Solusi jika Root Cause */}
+      {isRootCause && solution && (
+        <div className="mt-2.5 pt-2 border-t border-emerald-200 text-[11px] font-semibold text-emerald-900 bg-emerald-100/60 p-2 rounded-xl">
+          <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-black text-emerald-800 mb-0.5">
+            <Lightbulb className="w-3 h-3 text-amber-500 fill-amber-500" />
+            <span>Tindakan Solutif (Kaizen)</span>
+          </div>
+          <p className="leading-snug">{solution}</p>
+        </div>
+      )}
+    </div>
+  );
+});
+WhyStepNode.displayName = 'WhyStepNode';
+
+// 9. PRIORITY MATRIX CARD NODE (Kuadran Matriks Eisenhower & Dampak vs Usaha)
+export const PriorityCardNode = memo((props: any) => {
+  const { id, data, selected } = props;
+  const quadrant = (data.quadrant || 'Q1').toUpperCase();
+  const title = data.label || data.title || 'Kuadran Prioritas';
+  const subtitle = data.subtitle || '';
+  const items: string[] = Array.isArray(data.items) && data.items.length > 0
+    ? data.items
+    : ['Tugas / Inisiatif 1', 'Tugas / Inisiatif 2'];
+  const color = data.color || '#ffffff';
+  const borderColor = data.borderColor || '#cbd5e1';
+  const badgeColor = data.badgeColor || '#0b4632';
+
+  return (
+    <div
+      className={`relative min-w-[240px] max-w-[280px] p-4 rounded-2xl border-2 shadow-md transition-all select-none ${
+        selected ? 'ring-3 ring-emerald-600 shadow-xl scale-102' : ''
+      }`}
+      style={{ backgroundColor: color, borderColor: borderColor }}
+    >
+      <NodeQuickActions id={id} selected={selected} />
+      <StandardHandles />
+
+      {/* Quadrant Badge */}
+      <div className="flex items-center justify-between gap-1 mb-2">
+        <span 
+          className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider text-white shadow-xs"
+          style={{ backgroundColor: badgeColor }}
+        >
+          {quadrant}
+        </span>
+        {subtitle && <span className="text-[10px] font-bold text-slate-500 truncate">{subtitle}</span>}
+      </div>
+
+      <h4 className="font-extrabold text-sm text-slate-900 tracking-tight leading-tight mb-2">
+        {title}
+      </h4>
+
+      {/* Action Items */}
+      <div className="space-y-1.5">
+        {items.map((item, idx) => (
+          <div
+            key={idx}
+            className="p-1.5 rounded-lg bg-slate-50/80 border border-slate-200/80 text-xs font-medium text-slate-700 leading-snug flex items-start gap-1.5"
+          >
+            <span className="text-amber-600 font-bold">•</span>
+            <span>{item}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+});
+PriorityCardNode.displayName = 'PriorityCardNode';
+
+// ========================================================
+// 10. Swimlane Group Node (Wadah Jalur Kolam Antar-Fungsi)
+// ========================================================
+export interface SwimlaneLane {
+  id: string;
+  name: string;
+  color: string;
+  height?: number;
+  textColor?: string;
+  dividerLabel?: string;
+}
+
+export const SwimlaneGroupNode = memo((props: any) => {
+  const { id, data, selected } = props;
+  const { setNodes } = useReactFlow();
+
+  const defaultLanes: SwimlaneLane[] = [
+    { id: 'customer', name: 'Customer', color: '#0284c7', height: 160 },
+    { id: 'sales', name: 'Sales', color: '#0d9488', height: 160 },
+    { id: 'management', name: 'Management', color: '#4f46e5', height: 160 },
+    { id: 'credit', name: 'Credit department', color: '#db2777', height: 160 },
+  ];
+
+  const lanes: SwimlaneLane[] = Array.isArray(data.lanes) && data.lanes.length > 0 
+    ? data.lanes 
+    : defaultLanes;
+
+  const totalWidth = data.width ? Number(data.width) : 1120;
+  const headerWidth = data.headerWidth ? Number(data.headerWidth) : (data.isServiceBlueprint ? 120 : 60);
+  const headerOrientation = data.headerOrientation || (headerWidth >= 90 ? 'horizontal' : 'vertical');
+  const showTitle = data.showTitle !== false;
+  const titleText = data.label || data.title || 'ALUR PROSES LINTAS FUNGSI (SWIMLANE)';
+
+  const [editingLaneId, setEditingLaneId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState('');
+
+  const handleStartRename = (lane: SwimlaneLane, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingLaneId(lane.id);
+    setEditingName(lane.name);
+  };
+
+  const handleSaveRename = (laneId: string) => {
+    const trimmed = editingName.trim();
+    if (trimmed.length > 0) {
+      setNodes((nds) =>
+        nds.map((n) => {
+          if (n.id === id) {
+            const updated = lanes.map((l) =>
+              l.id === laneId ? { ...l, name: trimmed } : l
+            );
+            return { ...n, data: { ...n.data, lanes: updated } };
+          }
+          return n;
+        })
+      );
+    }
+    setEditingLaneId(null);
+  };
+
+  const handleAddLane = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newLane: SwimlaneLane = {
+      id: `lane-${Date.now()}`,
+      name: `Jalur Baru ${lanes.length + 1}`,
+      color: '#64748b',
+      height: 160,
+    };
+    setNodes((nds) =>
+      nds.map((n) => {
+        if (n.id === id) {
+          return {
+            ...n,
+            data: {
+              ...n.data,
+              lanes: [...lanes, newLane],
+            },
+          };
+        }
+        return n;
+      })
+    );
+  };
+
+  return (
+    <div
+      className={`relative rounded-2xl border-2 border-slate-300 bg-white/70 backdrop-blur-2xs shadow-sm overflow-visible transition-all ${
+        selected ? 'ring-2 ring-blue-500 shadow-md border-blue-400' : ''
+      }`}
+      style={{ width: totalWidth, zIndex: -1 }}
+    >
+      <NodeQuickActions id={id} selected={selected} />
+
+      {/* Header Judul Container Swimlane */}
+      {showTitle && (
+        <div className="h-8 bg-slate-100/90 border-b border-slate-200 px-4 rounded-t-2xl flex items-center justify-between text-xs font-bold text-slate-700 tracking-wider uppercase">
+          <div className="flex items-center gap-2">
+            <Layers className="w-3.5 h-3.5 text-blue-600" />
+            <span>{titleText}</span>
+          </div>
+          <button
+            type="button"
+            onClick={handleAddLane}
+            className="flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-800 bg-white hover:bg-blue-50 px-2 py-0.5 rounded border border-blue-200 transition-colors shadow-2xs cursor-pointer"
+            title="Tambah Jalur Fungsi Baru"
+          >
+            <Plus className="w-3 h-3" />
+            <span>Tambah Jalur</span>
+          </button>
+        </div>
+      )}
+
+      {/* Baris Jalur-Jalur Horizontal */}
+      <div className="flex flex-col divide-y divide-slate-200">
+        {lanes.map((lane, idx) => {
+          const laneHeight = lane.height || 160;
+          const isEditing = editingLaneId === lane.id;
+          const isFirst = idx === 0;
+          const isLast = idx === lanes.length - 1;
+          const defaultTextColor = headerOrientation === 'horizontal' ? '#0f172a' : '#ffffff';
+          const textColor = lane.textColor || defaultTextColor;
+
+          return (
+            <div
+              key={lane.id || idx}
+              className="flex w-full relative"
+              style={{ height: laneHeight }}
+            >
+              {/* Kolom Header Jalur (Kiri) */}
+              <div
+                className={`shrink-0 flex items-center justify-center relative cursor-pointer group select-none transition-all hover:brightness-105 ${
+                  isFirst && !showTitle ? 'rounded-tl-2xl' : ''
+                } ${isLast ? 'rounded-bl-2xl' : ''}`}
+                style={{ 
+                  backgroundColor: lane.color,
+                  width: headerWidth,
+                  color: textColor,
+                }}
+                title="Klik ganda untuk mengubah nama jalur"
+                onDoubleClick={(e) => handleStartRename(lane, e)}
+              >
+                {isEditing ? (
+                  <div
+                    className="p-1.5 bg-white rounded-md shadow-lg border border-slate-300 z-30 flex flex-col items-center"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <input
+                      autoFocus
+                      type="text"
+                      value={editingName}
+                      onChange={(e) => setEditingName(e.target.value)}
+                      onBlur={() => handleSaveRename(lane.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSaveRename(lane.id);
+                        if (e.key === 'Escape') setEditingLaneId(null);
+                      }}
+                      className="px-1.5 py-1 text-xs font-bold text-slate-800 border border-blue-500 rounded focus:outline-hidden w-28 text-center"
+                    />
+                    <span className="text-[9px] text-slate-400 mt-0.5">Tekan Enter</span>
+                  </div>
+                ) : headerOrientation === 'horizontal' ? (
+                  <div className="flex items-center justify-center h-full w-full px-2">
+                    <span 
+                      className="font-black text-xs sm:text-[13px] tracking-tight text-center leading-snug drop-shadow-2xs break-words"
+                      style={{ color: textColor }}
+                    >
+                      {lane.name}
+                    </span>
+                  </div>
+                ) : (
+                  <div
+                    className="flex items-center justify-center h-full w-full px-1"
+                    style={{
+                      writingMode: 'vertical-rl',
+                      transform: 'rotate(180deg)',
+                    }}
+                  >
+                    <span 
+                      className="font-bold text-xs tracking-wider uppercase text-center drop-shadow-xs truncate max-h-[140px]"
+                      style={{ color: textColor }}
+                    >
+                      {lane.name}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Label Pembatas Jalur (Khusus Service Blueprint: Line of interaction, Line of visibility, Line of internal interaction) */}
+              {lane.dividerLabel && !isLast && (
+                <div 
+                  className="absolute -bottom-3 left-0 -translate-x-full pr-2 z-40 pointer-events-auto flex items-center select-none"
+                  title={lane.dividerLabel}
+                >
+                  <div className="px-2.5 py-1 rounded-xl bg-white border border-slate-400/80 shadow-xs text-[10px] font-bold text-slate-800 whitespace-nowrap hover:border-blue-500 transition-colors">
+                    {lane.dividerLabel}
+                  </div>
+                  <div className="w-2.5 h-[1.5px] bg-slate-400" />
+                </div>
+              )}
+
+              {/* Area Badan Jalur (Transparan & pointer-events-none agar objek di dalamnya leluasa diklik & digeser) */}
+              <div
+                className={`flex-1 h-full relative pointer-events-none ${
+                  isLast ? 'rounded-br-2xl' : ''
+                } ${
+                  idx % 2 === 0 ? 'bg-white/40' : 'bg-slate-50/50'
+                }`}
+              >
+                {/* Garis tengah panduan halus */}
+                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 border-b border-dashed border-slate-200/60 pointer-events-none" />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+});
+SwimlaneGroupNode.displayName = 'SwimlaneGroupNode';
+
+// ========================================================
+// 11. Process Legend Node (Legenda Bentuk & Warna Alur)
+// ========================================================
+export const ProcessLegendNode = memo((props: any) => {
+  const { id, data, selected } = props;
+
+  const defaultItems = [
+    { label: 'Customer', color: '#0284c7' },
+    { label: 'Sales', color: '#0d9488' },
+    { label: 'Management', color: '#4f46e5' },
+    { label: 'Credit department', color: '#db2777' },
+  ];
+
+  const items = Array.isArray(data.items) && data.items.length > 0 ? data.items : defaultItems;
+  const title = data.title || data.label || 'Process flow shapes';
+
+  return (
+    <div
+      className={`relative px-4 py-3 rounded-2xl bg-white/95 backdrop-blur-xs border border-slate-200 shadow-md min-w-[200px] transition-all select-none ${
+        selected ? 'ring-2 ring-blue-500 shadow-lg border-blue-400' : ''
+      }`}
+    >
+      <NodeQuickActions id={id} selected={selected} />
+      <StandardHandles />
+
+      {/* Header Legenda */}
+      <div className="text-[11px] font-bold text-slate-800 uppercase tracking-wider mb-2.5 pb-1.5 border-b border-slate-100 flex items-center gap-1.5">
+        <Activity className="w-3.5 h-3.5 text-blue-600" />
+        <span>{title}</span>
+      </div>
+
+      {/* Daftar Indikator Peran / Bentuk */}
+      <div className="space-y-1.5">
+        {items.map((item: any, idx: number) => (
+          <div key={idx} className="flex items-center gap-2.5 text-xs font-semibold text-slate-700">
+            <span
+              className="w-3 h-3 rounded-full shrink-0 shadow-2xs border border-black/10"
+              style={{ backgroundColor: item.color || '#3b82f6' }}
+            />
+            <span className="truncate">{item.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+});
+ProcessLegendNode.displayName = 'ProcessLegendNode';
+
 export const specialistNodeTypes = {
   uml_class: UMLClassNode,
   erd_entity: ERDEntityNode,
   org_node: OrgNode,
   swot_card: SWOTCardNode,
+  fishbone_head: FishboneHeadNode,
+  fishbone_category: FishboneCategoryNode,
+  canvas_block: CanvasBlockNode,
+  why_step: WhyStepNode,
+  priority_card: PriorityCardNode,
+  swimlane_group: SwimlaneGroupNode,
+  process_legend: ProcessLegendNode,
 };
+
+

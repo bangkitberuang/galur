@@ -2,8 +2,9 @@
 
 import React, { memo, useState } from 'react';
 import { Handle, Position, NodeToolbar, useReactFlow } from '@xyflow/react';
-import { Trash2, Copy } from 'lucide-react';
+import { Trash2, Copy, Smile } from 'lucide-react';
 import { getNodeTextStyles, getNodeShapeStyles, getSvgStrokeProps } from '@/lib/nodeStyles';
+import { NodeIconDisplay } from './NodeIconDisplay';
 
 // Floating Quick Action Toolbar (Hapus & Duplikat Cepat)
 const NodeQuickActions = ({ id, selected }: { id: string; selected?: boolean }) => {
@@ -43,6 +44,18 @@ const NodeQuickActions = ({ id, selected }: { id: string; selected?: boolean }) 
       >
         <Copy className="w-3.5 h-3.5" />
       </button>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          const el = document.getElementById('property-icon-section');
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }}
+        className="p-1 rounded-md text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer"
+        title="Atur Ikon, Emoticon & Logo di Panel Properti"
+      >
+        <Smile className="w-3.5 h-3.5" />
+      </button>
       <div className="w-[1px] h-3.5 bg-slate-200 mx-0.5" />
       <button
         type="button"
@@ -59,108 +72,110 @@ const NodeQuickActions = ({ id, selected }: { id: string; selected?: boolean }) 
 // 8 Handles Standard Helper (8 Titik Hubung Mengelilingi Objek: 4 Sisi Utama + 4 Sudut)
 const StandardHandles = () => (
   <>
-    {/* 1. Atas - Kiri (Top-Left) */}
-    <Handle
-      type="source"
-      position={Position.Top}
-      id="top-left"
-      title="Titik Hubung Atas Kiri"
-      className="!bg-blue-500 hover:!bg-amber-500 !w-2.5 !h-2.5"
-      style={{ left: '18%' }}
-    />
-
-    {/* 2. Atas - Tengah (Top-Center) */}
-    <Handle
-      type="source"
-      position={Position.Top}
-      id="t-out"
-      title="Titik Hubung Atas"
-      className="!bg-blue-500 hover:!bg-amber-500 !w-2.5 !h-2.5"
-      style={{ left: '50%' }}
-    />
+    {/* 1. Kanan - Tengah (Right-Center) */}
     <Handle
       type="target"
-      position={Position.Top}
-      id="t-in"
-      style={{ left: '50%', pointerEvents: 'none', opacity: 0 }}
+      position={Position.Right}
+      id="r-in"
+      title="Titik Hubung Kanan (Target)"
+      className="!opacity-0 !w-4 !h-4 pointer-events-auto"
+      style={{ top: '50%', zIndex: 1 }}
     />
-
-    {/* 3. Atas - Kanan (Top-Right) */}
-    <Handle
-      type="source"
-      position={Position.Top}
-      id="top-right"
-      title="Titik Hubung Atas Kanan"
-      className="!bg-blue-500 hover:!bg-amber-500 !w-2.5 !h-2.5"
-      style={{ left: '82%' }}
-    />
-
-    {/* 4. Kanan - Tengah (Right-Center) */}
     <Handle
       type="source"
       position={Position.Right}
       id="r-out"
       title="Titik Hubung Kanan"
-      className="!bg-blue-500 hover:!bg-amber-500 !w-2.5 !h-2.5"
-      style={{ top: '50%' }}
+      className="!bg-blue-500 hover:!bg-amber-500 !w-3 !h-3 hover:scale-125 transition-transform cursor-crosshair"
+      style={{ top: '50%', zIndex: 10 }}
     />
+
+    {/* 2. Kiri - Tengah (Left-Center) */}
     <Handle
       type="target"
-      position={Position.Right}
-      id="r-in"
-      style={{ top: '50%', pointerEvents: 'none', opacity: 0 }}
+      position={Position.Left}
+      id="l-in"
+      title="Titik Hubung Kiri (Target)"
+      className="!opacity-0 !w-4 !h-4 pointer-events-auto"
+      style={{ top: '50%', zIndex: 1 }}
     />
-
-    {/* 5. Bawah - Kanan (Bottom-Right) */}
-    <Handle
-      type="source"
-      position={Position.Bottom}
-      id="bottom-right"
-      title="Titik Hubung Bawah Kanan"
-      className="!bg-blue-500 hover:!bg-amber-500 !w-2.5 !h-2.5"
-      style={{ left: '82%' }}
-    />
-
-    {/* 6. Bawah - Tengah (Bottom-Center) */}
-    <Handle
-      type="source"
-      position={Position.Bottom}
-      id="b-out"
-      title="Titik Hubung Bawah"
-      className="!bg-blue-500 hover:!bg-amber-500 !w-2.5 !h-2.5"
-      style={{ left: '50%' }}
-    />
-    <Handle
-      type="target"
-      position={Position.Bottom}
-      id="b-in"
-      style={{ left: '50%', pointerEvents: 'none', opacity: 0 }}
-    />
-
-    {/* 7. Bawah - Kiri (Bottom-Left) */}
-    <Handle
-      type="source"
-      position={Position.Bottom}
-      id="bottom-left"
-      title="Titik Hubung Bawah Kiri"
-      className="!bg-blue-500 hover:!bg-amber-500 !w-2.5 !h-2.5"
-      style={{ left: '18%' }}
-    />
-
-    {/* 8. Kiri - Tengah (Left-Center) */}
     <Handle
       type="source"
       position={Position.Left}
       id="l-out"
       title="Titik Hubung Kiri"
-      className="!bg-blue-500 hover:!bg-amber-500 !w-2.5 !h-2.5"
-      style={{ top: '50%' }}
+      className="!bg-blue-500 hover:!bg-amber-500 !w-3 !h-3 hover:scale-125 transition-transform cursor-crosshair"
+      style={{ top: '50%', zIndex: 10 }}
     />
+
+    {/* 3. Atas - Tengah (Top-Center) */}
     <Handle
       type="target"
-      position={Position.Left}
-      id="l-in"
-      style={{ top: '50%', pointerEvents: 'none', opacity: 0 }}
+      position={Position.Top}
+      id="t-in"
+      title="Titik Hubung Atas (Target)"
+      className="!opacity-0 !w-4 !h-4 pointer-events-auto"
+      style={{ left: '50%', zIndex: 1 }}
+    />
+    <Handle
+      type="source"
+      position={Position.Top}
+      id="t-out"
+      title="Titik Hubung Atas"
+      className="!bg-blue-500 hover:!bg-amber-500 !w-3 !h-3 hover:scale-125 transition-transform cursor-crosshair"
+      style={{ left: '50%', zIndex: 10 }}
+    />
+
+    {/* 4. Bawah - Tengah (Bottom-Center) */}
+    <Handle
+      type="target"
+      position={Position.Bottom}
+      id="b-in"
+      title="Titik Hubung Bawah (Target)"
+      className="!opacity-0 !w-4 !h-4 pointer-events-auto"
+      style={{ left: '50%', zIndex: 1 }}
+    />
+    <Handle
+      type="source"
+      position={Position.Bottom}
+      id="b-out"
+      title="Titik Hubung Bawah"
+      className="!bg-blue-500 hover:!bg-amber-500 !w-3 !h-3 hover:scale-125 transition-transform cursor-crosshair"
+      style={{ left: '50%', zIndex: 10 }}
+    />
+
+    {/* Sudut Tambahan: Top-Left, Top-Right, Bottom-Right, Bottom-Left */}
+    <Handle
+      type="source"
+      position={Position.Top}
+      id="top-left"
+      title="Titik Hubung Atas Kiri"
+      className="!bg-blue-500/80 hover:!bg-amber-500 !w-2.5 !h-2.5 cursor-crosshair"
+      style={{ left: '18%', zIndex: 10 }}
+    />
+    <Handle
+      type="source"
+      position={Position.Top}
+      id="top-right"
+      title="Titik Hubung Atas Kanan"
+      className="!bg-blue-500/80 hover:!bg-amber-500 !w-2.5 !h-2.5 cursor-crosshair"
+      style={{ left: '82%', zIndex: 10 }}
+    />
+    <Handle
+      type="source"
+      position={Position.Bottom}
+      id="bottom-right"
+      title="Titik Hubung Bawah Kanan"
+      className="!bg-blue-500/80 hover:!bg-amber-500 !w-2.5 !h-2.5 cursor-crosshair"
+      style={{ left: '82%', zIndex: 10 }}
+    />
+    <Handle
+      type="source"
+      position={Position.Bottom}
+      id="bottom-left"
+      title="Titik Hubung Bawah Kiri"
+      className="!bg-blue-500/80 hover:!bg-amber-500 !w-2.5 !h-2.5 cursor-crosshair"
+      style={{ left: '18%', zIndex: 10 }}
     />
   </>
 );
@@ -220,6 +235,23 @@ const SvgShapeWrapper = ({
     >
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
+      {/* Lencana Status Alur (✓ Disetujui / ✕ Ditolak) */}
+      {data?.statusBadge === 'success' && (
+        <div 
+          className="absolute -top-2.5 -right-2.5 z-30 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center font-black text-xs shadow-md border-2 border-white ring-1 ring-emerald-600 pointer-events-none select-none"
+          title="Status: Disetujui / Sukses (✓)"
+        >
+          ✓
+        </div>
+      )}
+      {data?.statusBadge === 'error' && (
+        <div 
+          className="absolute -top-2.5 -right-2.5 z-30 w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center font-black text-xs shadow-md border-2 border-white ring-1 ring-rose-600 pointer-events-none select-none"
+          title="Status: Ditolak / Gagal (✕)"
+        >
+          ✕
+        </div>
+      )}
       <svg
         viewBox={`0 0 ${width} ${height}`}
         className="absolute inset-0 w-full h-full overflow-visible pointer-events-none"
@@ -228,9 +260,20 @@ const SvgShapeWrapper = ({
         {children}
       </svg>
       <div
-        className="relative z-10 px-3 max-w-[88%] break-words leading-tight text-center"
+        className="relative z-10 px-3 max-w-[88%] break-words leading-tight text-center flex flex-col items-center justify-center"
         style={textStyles}
       >
+        {(data?.icon || data?.emoji || data?.iconUrl) && (
+          <NodeIconDisplay
+            icon={data?.icon}
+            emoji={data?.emoji}
+            iconUrl={data?.iconUrl}
+            color={data?.iconColor}
+            size={data?.iconSize || 'sm'}
+            defaultColor={textColor}
+            className="mb-0.5"
+          />
+        )}
         {isEditing ? (
           <input
             autoFocus

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, ArrowRight, LayoutGrid } from 'lucide-react';
 import AboutGalurSection from '@/components/dashboard/AboutGalurSection';
+import { APP_VERSION, APP_LOGO_URL } from '@/lib/version';
 
 export default function AboutPage() {
   return (
@@ -15,8 +16,8 @@ export default function AboutPage() {
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 flex items-center justify-center transition-transform group-hover:scale-105 duration-200">
               <Image
-                src="/logo.png"
-                alt="GALUR Logo"
+                src={APP_LOGO_URL}
+                alt="GALUR Logo - Macan Tutul Jawa"
                 width={56}
                 height={56}
                 className="w-full h-full object-contain filter drop-shadow-sm"
@@ -24,10 +25,15 @@ export default function AboutPage() {
               />
             </div>
             <div>
-              <span className="font-black text-xl tracking-tight text-[#0b4632]">GALUR</span>
-              <span className="hidden sm:inline-block text-xs text-amber-700 font-bold ml-2 px-2 py-0.5 bg-amber-50 rounded-full border border-amber-200">
-                Tentang & Filosofi
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="font-black text-xl tracking-tight text-[#0b4632]">GALUR</span>
+                <span className="hidden sm:inline-block text-xs text-amber-700 font-bold px-2 py-0.5 bg-amber-50 rounded-full border border-amber-200">
+                  Tentang & Filosofi
+                </span>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300">
+                  {APP_VERSION}
+                </span>
+              </div>
             </div>
           </Link>
         </div>
@@ -70,8 +76,8 @@ export default function AboutPage() {
         <div className="flex items-center justify-center gap-2.5 text-white font-extrabold text-sm">
           <div className="w-12 h-12 shrink-0 flex items-center justify-center">
             <Image
-              src="/logo.png"
-              alt="GALUR Logo"
+              src={APP_LOGO_URL}
+              alt="GALUR Logo - Macan Tutul Jawa"
               width={48}
               height={48}
               className="w-full h-full object-contain filter drop-shadow-md"
@@ -88,8 +94,8 @@ export default function AboutPage() {
           <div className="ecosystem-badge inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-800/80 bg-emerald-950/70 hover:border-emerald-600 hover:bg-emerald-900/60 shadow-2xs transition-all duration-200 hover:scale-105 hover:shadow-md cursor-default">
             <div className="w-4 h-4 shrink-0 flex items-center justify-center">
               <Image
-                src="/logo.png"
-                alt="Beruang Icon"
+                src={APP_LOGO_URL}
+                alt="Macan Tutul Jawa Icon"
                 width={16}
                 height={16}
                 className="w-full h-full object-contain filter drop-shadow-xs"

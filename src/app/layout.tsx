@@ -16,9 +16,9 @@ export const metadata: Metadata = {
   title: 'GALUR - Garis Alur, Ngajentrekeun Struktur | Diagram & Flowchart Builder',
   description: 'Garis Alur, Ngajentrekeun Struktur. Diagram alur teknis ala Visio dan Mind Map modern yang fleksibel.',
   icons: {
-    icon: '/icon.png',
-    shortcut: '/icon.png',
-    apple: '/logo.png',
+    icon: '/logo-v2.png',
+    shortcut: '/logo-v2.png',
+    apple: '/logo-v2.png',
   },
 };
 

@@ -35,6 +35,7 @@ import { getAllDiagramsMeta, deleteDiagramFromStorage } from '@/lib/diagramStora
 import { SPECIALIST_CATEGORIES } from '@/lib/specialistTemplates';
 import AboutGalurSection from '@/components/dashboard/AboutGalurSection';
 import EcosystemFooter from '@/components/common/EcosystemFooter';
+import { APP_VERSION, APP_LOGO_URL } from '@/lib/version';
 
 export default function DashboardPage() {
   const [diagrams, setDiagrams] = useState<DiagramRecord[]>([]);
@@ -154,8 +155,8 @@ export default function DashboardPage() {
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 flex items-center justify-center transition-transform group-hover:scale-105 duration-200">
               <Image
-                src="/logo.png"
-                alt="GALUR Logo"
+                src={APP_LOGO_URL}
+                alt="GALUR Logo - Macan Tutul Jawa"
                 width={56}
                 height={56}
                 className="w-full h-full object-contain filter drop-shadow-sm"
@@ -163,10 +164,15 @@ export default function DashboardPage() {
               />
             </div>
             <div>
-              <span className="font-black text-xl tracking-tight text-[#0b4632]">GALUR</span>
-              <span className="hidden sm:inline-block text-xs text-amber-700 font-bold ml-2 px-2 py-0.5 bg-amber-50 rounded-full border border-amber-200">
-                Dashboard Studio
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="font-black text-xl tracking-tight text-[#0b4632]">GALUR</span>
+                <span className="hidden sm:inline-block text-xs text-amber-700 font-bold px-2 py-0.5 bg-amber-50 rounded-full border border-amber-200">
+                  Dashboard Studio
+                </span>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300">
+                  {APP_VERSION}
+                </span>
+              </div>
             </div>
           </Link>
         </div>
@@ -214,90 +220,97 @@ export default function DashboardPage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-6xl w-full mx-auto p-6 md:p-8 space-y-8">
-        {/* Banner Slogan dengan Maskot Galur */}
-        <div className="bg-gradient-to-r from-[#0b4632] via-[#0d5940] to-[#072419] rounded-3xl p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border border-emerald-800/40">
-          <div className="flex items-center gap-6">
-            <div className="w-28 h-28 sm:w-36 sm:h-36 shrink-0 hidden sm:flex items-center justify-center transition-transform hover:scale-105 duration-200">
-              <Image
-                src="/logo.png"
-                alt="Maskot Galur"
-                width={144}
-                height={144}
-                className="w-full h-full object-contain filter drop-shadow-2xl"
-                priority
-              />
-            </div>
-            <div className="space-y-1.5 max-w-xl">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-amber-300 text-xs font-bold border border-white/10">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                <span>Diagram & Flowchart Builder</span>
-              </div>
-              <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white">
-                Garis Alur, Ngajentrekeun Struktur
-              </h1>
-              <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed">
-                Merangkai gagasan, memperjelas alur, dan membangun pemahaman. Parabot digital untuk menyusun flowchart, bagan organisasi, alur kerja teknis, hingga pohon mind map interaktif.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+      <main className="flex-1 max-w-6xl w-full mx-auto p-6 md:p-8 space-y-6">
+        {/* Dashboard Main View Tab Bar */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
-              onClick={() => setDashboardTab(dashboardTab === 'about' ? 'diagrams' : 'about')}
-              className={`flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl font-bold text-xs border backdrop-blur-md transition-all cursor-pointer ${
-                dashboardTab === 'about'
-                  ? 'bg-amber-400 text-[#0b4632] border-amber-300 shadow-md'
-                  : 'bg-white/10 hover:bg-white/20 text-emerald-100 hover:text-white border-white/20'
+              onClick={() => setDashboardTab('diagrams')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${
+                dashboardTab === 'diagrams'
+                  ? 'bg-[#0b4632] text-amber-300 shadow-md ring-2 ring-emerald-900/20'
+                  : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
-              <BookOpen className="w-4 h-4 text-amber-300" />
-              <span>{dashboardTab === 'about' ? 'Ke Studio Diagram' : 'Baca Filosofi GALUR'}</span>
+              <LayoutGrid className="w-4 h-4" />
+              <span>Studio Diagram & Template ({SPECIALIST_CATEGORIES.length})</span>
             </button>
-            <Link
-              href="/editor"
-              className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-[#0b4632] font-black text-sm shadow-lg hover:shadow-xl hover:scale-102 transition-all"
+
+            <button
+              onClick={() => setDashboardTab('about')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${
+                dashboardTab === 'about'
+                  ? 'bg-[#0b4632] text-amber-300 shadow-md ring-2 ring-emerald-900/20'
+                  : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              }`}
             >
-              <Plus className="w-4 h-4 text-[#0b4632] stroke-[3]" />
-              <span>Mulai Kanvas Baru</span>
-            </Link>
+              <BookOpen className="w-4 h-4 text-amber-500" />
+              <span>Tentang GALUR & Filosofi</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold hidden sm:inline">
+                6 Bagian Resmi
+              </span>
+            </button>
           </div>
-        </div>
 
-        {/* Dashboard Main View Tab Bar */}
-        <div className="flex items-center gap-3 border-b border-slate-200 pb-3">
-          <button
-            onClick={() => setDashboardTab('diagrams')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${
-              dashboardTab === 'diagrams'
-                ? 'bg-[#0b4632] text-amber-300 shadow-md ring-2 ring-emerald-900/20'
-                : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-            }`}
+          <Link
+            href="/editor"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-[#0b4632] font-black text-xs shadow-md transition-all hover:scale-102"
           >
-            <LayoutGrid className="w-4 h-4" />
-            <span>Studio Diagram & Template (11)</span>
-          </button>
-
-          <button
-            onClick={() => setDashboardTab('about')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${
-              dashboardTab === 'about'
-                ? 'bg-[#0b4632] text-amber-300 shadow-md ring-2 ring-emerald-900/20'
-                : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-            }`}
-          >
-            <BookOpen className="w-4 h-4 text-amber-500" />
-            <span>Tentang GALUR & Filosofi</span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold hidden sm:inline">
-              6 Bagian Resmi
-            </span>
-          </button>
+            <Plus className="w-3.5 h-3.5 text-[#0b4632] stroke-[3]" />
+            <span>Mulai Kanvas Baru</span>
+          </Link>
         </div>
 
         {dashboardTab === 'about' ? (
           <AboutGalurSection />
         ) : (
           <>
+            {/* Banner Slogan Studio dengan Maskot Galur (Hanya ditampilkan pada Tab Studio Diagram) */}
+            <div className="bg-gradient-to-r from-[#0b4632] via-[#0d5940] to-[#072419] rounded-3xl p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border border-emerald-800/40">
+              <div className="flex items-center gap-6">
+                <div className="w-28 h-28 sm:w-36 sm:h-36 shrink-0 hidden sm:flex items-center justify-center transition-transform hover:scale-105 duration-200">
+                  <Image
+                    src={APP_LOGO_URL}
+                    alt="Maskot Galur"
+                    width={144}
+                    height={144}
+                    className="w-full h-full object-contain filter drop-shadow-2xl"
+                    priority
+                  />
+                </div>
+                <div className="space-y-1.5 max-w-xl">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-amber-300 text-xs font-bold border border-white/10">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                    <span>Diagram & Flowchart Builder</span>
+                  </div>
+                  <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white">
+                    Garis Alur, Ngajentrekeun Struktur
+                  </h1>
+                  <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed">
+                    Merangkai gagasan, memperjelas alur, dan membangun pemahaman. Parabot digital untuk menyusun flowchart, bagan organisasi, alur kerja teknis, hingga pohon mind map interaktif.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setDashboardTab('about')}
+                  className="flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl font-bold text-xs border border-white/20 bg-white/10 hover:bg-white/20 text-emerald-100 hover:text-white backdrop-blur-md transition-all cursor-pointer"
+                >
+                  <BookOpen className="w-4 h-4 text-amber-300" />
+                  <span>Baca Filosofi GALUR</span>
+                </button>
+                <Link
+                  href="/editor"
+                  className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-[#0b4632] font-black text-sm shadow-lg hover:shadow-xl hover:scale-102 transition-all"
+                >
+                  <Plus className="w-4 h-4 text-[#0b4632] stroke-[3]" />
+                  <span>Mulai Kanvas Baru</span>
+                </Link>
+              </div>
+            </div>
+
             {/* Kategori & Template Spesialis (11 Kategori Sesuai Gambar 3) */}
             <section className="space-y-4">
           <div className="flex items-center justify-between">
@@ -307,7 +320,7 @@ export default function DashboardPage() {
                   Kategori & Template Spesialis
                 </h2>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-                  11 Kategori Lengkap
+                  {SPECIALIST_CATEGORIES.length} Format & Template Spesialis
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -335,6 +348,11 @@ export default function DashboardPage() {
                   }`}
                 >
                   <span>{cat.name}</span>
+                  {cat.isAI && (
+                    <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-purple-100 text-purple-700 border border-purple-200/80 shrink-0">
+                      AI
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -353,6 +371,12 @@ export default function DashboardPage() {
                     >
                       {currentCat.badge}
                     </span>
+                    {currentCat.isAI && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200 flex items-center gap-1 shadow-2xs">
+                        <Sparkles className="w-3 h-3 text-purple-600 fill-purple-600" />
+                        AI Framework
+                      </span>
+                    )}
                     <span className="text-xs text-slate-400 font-medium">
                       {currentCat.nodes.length} Bentuk Pre-configured • {currentCat.edges.length} Relasi Garis
                     </span>

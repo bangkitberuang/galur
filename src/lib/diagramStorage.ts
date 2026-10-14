@@ -1,6 +1,7 @@
 'use client';
 
 import { Node, Edge, MarkerType } from '@xyflow/react';
+import { getTemplateByCategory } from './specialistTemplates';
 
 export interface DiagramMetadata {
   id: string;
@@ -10,11 +11,21 @@ export interface DiagramMetadata {
   nodeCount: number;
   edgeCount: number;
   type: 'flowchart' | 'mindmap' | 'custom';
+  pageCount?: number;
+}
+
+export interface DiagramPage {
+  id: string;
+  name: string;
+  nodes: Node[];
+  edges: Edge[];
 }
 
 export interface DiagramContent extends DiagramMetadata {
   nodes: Node[];
   edges: Edge[];
+  pages?: DiagramPage[];
+  activePageId?: string;
 }
 
 const META_INDEX_KEY = 'galur_diagrams_index';
@@ -252,6 +263,8 @@ const defaultSwotNodes: Node[] = [
 export function initDefaultDiagramsIfEmpty(): DiagramMetadata[] {
   if (typeof window === 'undefined') return [];
 
+  const fishboneTemplate = getTemplateByCategory('fishbone');
+
   const initialList: DiagramContent[] = [
     {
       id: 'flowchart-demo-1',
@@ -286,20 +299,43 @@ export function initDefaultDiagramsIfEmpty(): DiagramMetadata[] {
       nodes: defaultSwotNodes,
       edges: [],
     },
+    {
+      id: 'fishbone-demo-4',
+      title: 'Diagram Tulang Ikan (Fishbone 6M Sebab-Akibat)',
+      updatedAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+      createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+      nodeCount: fishboneTemplate ? fishboneTemplate.nodes.length : 8,
+      edgeCount: fishboneTemplate ? fishboneTemplate.edges.length : 7,
+      type: 'custom',
+      nodes: fishboneTemplate ? fishboneTemplate.nodes : [],
+      edges: fishboneTemplate ? fishboneTemplate.edges : [],
+    },
   ];
 
   const rawIndex = localStorage.getItem(META_INDEX_KEY);
   if (rawIndex) {
     try {
-      const parsed: DiagramMetadata[] = JSON.parse(rawIndex);
+      let parsed: DiagramMetadata[] = JSON.parse(rawIndex);
       if (Array.isArray(parsed) && parsed.length > 0) {
+        let changed = false;
         // Pastikan demo SWOT selalu tersedia
         if (!parsed.some((d) => d.id === 'swot-demo-3')) {
           const swotDiagram = initialList.find((d) => d.id === 'swot-demo-3')!;
           localStorage.setItem(`galur_diagram_${swotDiagram.id}`, JSON.stringify(swotDiagram));
-          const updatedIndex = [swotDiagram, ...parsed].map(({ nodes, edges, ...meta }: any) => meta);
-          localStorage.setItem(META_INDEX_KEY, JSON.stringify(updatedIndex));
-          return updatedIndex;
+          const { nodes, edges, ...meta } = swotDiagram;
+          parsed = [meta, ...parsed];
+          changed = true;
+        }
+        // Pastikan demo Fishbone selalu tersedia
+        if (!parsed.some((d) => d.id === 'fishbone-demo-4') && fishboneTemplate) {
+          const fishboneDiagram = initialList.find((d) => d.id === 'fishbone-demo-4')!;
+          localStorage.setItem(`galur_diagram_${fishboneDiagram.id}`, JSON.stringify(fishboneDiagram));
+          const { nodes, edges, ...meta } = fishboneDiagram;
+          parsed = [meta, ...parsed];
+          changed = true;
+        }
+        if (changed) {
+          localStorage.setItem(META_INDEX_KEY, JSON.stringify(parsed));
         }
         return parsed;
       }
@@ -359,6 +395,7 @@ export function saveDiagramToStorage(diagram: DiagramContent): void {
     updatedAt: now,
     nodeCount: diagram.nodes?.length || 0,
     edgeCount: diagram.edges?.length || 0,
+    pageCount: diagram.pages?.length || 1,
   };
 
   // 1. Simpan konten lengkap
@@ -376,6 +413,7 @@ export function saveDiagramToStorage(diagram: DiagramContent): void {
     nodeCount: diagram.nodes?.length || 0,
     edgeCount: diagram.edges?.length || 0,
     type: diagram.type || 'custom',
+    pageCount: diagram.pages?.length || 1,
   };
 
   if (index >= 0) {

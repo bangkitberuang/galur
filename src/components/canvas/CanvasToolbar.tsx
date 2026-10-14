@@ -207,6 +207,15 @@ export default function CanvasToolbar({
     }
   };
 
+  const currentSelectedEdge = selectedEdge || edges.find((e) => e.selected);
+  const activeRouteType = currentSelectedEdge
+    ? currentSelectedEdge.type === 'straight'
+      ? 'straight'
+      : currentSelectedEdge.type === 'default' || currentSelectedEdge.type === 'bezier'
+      ? 'default'
+      : 'step'
+    : edgeType;
+
   return (
     <div className="h-10 bg-white border-b border-slate-200 px-3 flex items-center justify-between text-xs text-slate-700 z-20 no-print select-none shadow-2xs">
       {/* SEKSI KIRI: GAYA GARIS & UJUNG PANAH (GAMBAR 2) */}
@@ -249,14 +258,15 @@ export default function CanvasToolbar({
             type="button"
             onClick={() => {
               setEdgeType('step');
-              if (selectedEdge) {
+              const target = selectedEdge || edges.find((e) => e.selected);
+              if (target) {
                 takeSnapshot();
-                setEdges((eds) => eds.map((e) => (e.id === selectedEdge.id ? { ...e, type: 'smoothstep' } : e)));
+                setEdges((eds) => eds.map((e) => (e.id === target.id ? { ...e, type: 'smoothstep', selected: true } : e)));
               }
             }}
             title="Gaya Garis Siku-siku Patah (Visio Standard)"
-            className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all ${
-              edgeType === 'step' ? 'bg-white text-emerald-800 shadow-2xs' : 'text-slate-600 hover:text-emerald-700'
+            className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all cursor-pointer ${
+              activeRouteType === 'step' ? 'bg-white text-emerald-800 shadow-2xs font-bold' : 'text-slate-600 hover:text-emerald-700'
             }`}
           >
             Siku
@@ -265,14 +275,15 @@ export default function CanvasToolbar({
             type="button"
             onClick={() => {
               setEdgeType('default');
-              if (selectedEdge) {
+              const target = selectedEdge || edges.find((e) => e.selected);
+              if (target) {
                 takeSnapshot();
-                setEdges((eds) => eds.map((e) => (e.id === selectedEdge.id ? { ...e, type: 'default' } : e)));
+                setEdges((eds) => eds.map((e) => (e.id === target.id ? { ...e, type: 'default', selected: true } : e)));
               }
             }}
             title="Gaya Garis Melengkung (Bezier)"
-            className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all ${
-              edgeType === 'default' ? 'bg-white text-emerald-800 shadow-2xs' : 'text-slate-600 hover:text-emerald-700'
+            className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all cursor-pointer ${
+              activeRouteType === 'default' ? 'bg-white text-emerald-800 shadow-2xs font-bold' : 'text-slate-600 hover:text-emerald-700'
             }`}
           >
             Lengkung
@@ -281,14 +292,15 @@ export default function CanvasToolbar({
             type="button"
             onClick={() => {
               setEdgeType('straight');
-              if (selectedEdge) {
+              const target = selectedEdge || edges.find((e) => e.selected);
+              if (target) {
                 takeSnapshot();
-                setEdges((eds) => eds.map((e) => (e.id === selectedEdge.id ? { ...e, type: 'straight' } : e)));
+                setEdges((eds) => eds.map((e) => (e.id === target.id ? { ...e, type: 'straight', selected: true } : e)));
               }
             }}
             title="Gaya Garis Lurus"
-            className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all ${
-              edgeType === 'straight' ? 'bg-white text-emerald-800 shadow-2xs' : 'text-slate-600 hover:text-emerald-700'
+            className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all cursor-pointer ${
+              activeRouteType === 'straight' ? 'bg-white text-emerald-800 shadow-2xs font-bold' : 'text-slate-600 hover:text-emerald-700'
             }`}
           >
             Lurus
