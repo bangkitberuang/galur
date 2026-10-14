@@ -5,25 +5,17 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { 
   Sparkles, 
-  BookOpen, 
   GitFork, 
-  Compass, 
   Layers, 
-  Heart, 
-  ShieldAlert, 
-  Palette, 
-  Quote, 
   Copy, 
   Check, 
   ArrowRight,
-  Leaf,
-  Users,
-  Target,
-  Trees,
-  HelpCircle,
-  ExternalLink,
+  ShieldCheck, 
   History,
-  Tag
+  Download,
+  Share2,
+  FileCode2,
+  ExternalLink
 } from 'lucide-react';
 import { 
   APP_VERSION, 
@@ -32,731 +24,200 @@ import {
   APP_CHANGELOG, 
   APP_LOGO_URL 
 } from '@/lib/version';
-import GedungSateSilhouette from '@/components/common/GedungSateSilhouette';
 
 export default function AboutGalurSection() {
   const [copied, setCopied] = useState(false);
-  const [activeSubTab, setActiveSubTab] = useState<'all' | 'deskripsi' | 'filosofi' | 'maskot' | 'konservasi' | 'visual' | 'narasi'>('all');
 
-  const officialNarrative = `GALUR — Garis Alur, Ngajentrekeun Struktur
+  const conciseSummary = `GALUR — Garis Alur, Ngajentrekeun Struktur.
+Aplikasi pembuat diagram presisi karya ekosistem Bangkit Beruang untuk merangkai gagasan, memperjelas alur proses kerja, dan membangun pemahaman visual yang terstruktur.`;
 
-GALUR adalah aplikasi pembuat diagram yang dirancang untuk membantu pengguna menyusun gagasan, memetakan proses, dan menjelaskan informasi melalui visualisasi yang jelas dan terstruktur. Mulai dari flowchart, bagan organisasi, alur proses kerja, mind map, hingga diagram konsep, GALUR hadir sebagai parabot digital untuk menyederhanakan kerumitan menjadi sesuatu yang mudah dipahami.
-
-Mengusung filosofi Garis Alur, Ngajentrekeun Struktur, GALUR percaya bahwa gagasan yang baik akan lebih mudah diwujudkan ketika hubungan, urutan, dan strukturnya dapat dipahami dengan jelas.
-
-Maskot Macan Tutul Jawa (Panthera pardus melas) menjadi bagian dari identitas GALUR sekaligus simbol ketajaman, kelincahan, dan kepedulian terhadap kelestarian alam Jawa Barat. Sebagai bagian dari ekosistem BANGKIT BERUANG, GALUR membawa semangat untuk terus berinovasi, menciptakan solusi yang bermanfaat, dan menjadikan teknologi sebagai parabot yang mempermudah kehidupan.
-
-Kekuatan identitas GALUR terletak pada perpaduan tiga hal: nama yang berakar pada nuansa bahasa Sunda, fungsi yang jelas sebagai alat visualisasi, dan maskot Macan Tutul Jawa yang memberi karakter ketajaman analisis sekaligus pesan kepedulian. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar BANGKIT BERUANG tentang berkarya melalui teknologi yang bermanfaat untuk Jawa Barat.
-
-GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
-
-  const handleCopyNarrative = () => {
-    navigator.clipboard.writeText(officialNarrative);
+  const handleCopySummary = () => {
+    navigator.clipboard.writeText(conciseSummary);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <div className="space-y-10 py-2">
-      {/* Hero Header Section */}
-      <div className="relative rounded-3xl bg-gradient-to-br from-[#072419] via-[#0b4632] to-[#0d5940] p-6 sm:p-10 text-white shadow-2xl border border-emerald-800/40 overflow-hidden">
-        {/* Decorative background glow */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-400/10 rounded-full blur-2xl -ml-20 -mb-20 pointer-events-none" />
+    <div className="space-y-6 max-w-5xl mx-auto py-2">
+      {/* 1. HERO HEADER: Ramping, Elegan & Profesional */}
+      <div className="relative rounded-3xl bg-gradient-to-br from-[#072419] via-[#0b4632] to-[#0d5940] p-6 sm:p-8 text-white shadow-xl border border-emerald-800/40 overflow-hidden">
+        {/* Glow Effects */}
+        <div className="absolute top-0 right-0 w-80 h-80 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-400/10 rounded-full blur-2xl pointer-events-none" />
 
-        {/* Gedung Sate Cultural Landmark Silhouette (Low Opacity) */}
-        <div className="absolute inset-x-0 bottom-0 pointer-events-none opacity-[0.09] flex justify-center items-end overflow-hidden">
-          <GedungSateSilhouette className="w-full max-w-4xl text-emerald-100 scale-105 translate-y-6" opacity={1} />
-        </div>
-
-        <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-8">
+        <div className="relative z-10 flex flex-col sm:flex-row items-center gap-6">
           {/* Mascot Logo Card */}
-          <div className="shrink-0 flex flex-col items-center gap-3">
-            <div className="w-36 h-36 sm:w-44 sm:h-44 shrink-0 flex items-center justify-center transition-transform hover:scale-105 duration-200">
-              <Image
-                src={APP_LOGO_URL}
-                alt="Maskot Macan Tutul Jawa Galur"
-                width={176}
-                height={176}
-                className="w-full h-full object-contain filter drop-shadow-2xl"
-                priority
-              />
-            </div>
-            <div className="text-center">
-              <span className="text-[11px] font-extrabold uppercase tracking-widest text-amber-300 bg-black/40 px-3.5 py-1 rounded-full border border-amber-300/30 shadow-xs">
-                BANGKIT BERUANG
-              </span>
-            </div>
+          <div className="shrink-0 w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center p-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 shadow-inner">
+            <Image
+              src={APP_LOGO_URL}
+              alt="GALUR Logo - Macan Tutul Jawa"
+              width={112}
+              height={112}
+              className="w-full h-full object-contain filter drop-shadow-md"
+              priority
+            />
           </div>
 
-          {/* Core Manifesto Text */}
-          <div className="space-y-3.5 text-center md:text-left flex-1">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-bold border border-amber-400/30">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-              <span>Manifesto & Filosofi Resmi</span>
+          {/* Core Info */}
+          <div className="space-y-2 text-center sm:text-left flex-1">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+              <span className="text-[11px] font-black uppercase tracking-wider bg-amber-400 text-slate-900 px-2.5 py-0.5 rounded-full shadow-2xs">
+                BANGKIT BERUANG
+              </span>
+              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30">
+                Edisi {APP_VERSION_CODENAME} ({APP_VERSION})
+              </span>
             </div>
 
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-white leading-tight">
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
               GALUR — <span className="text-amber-300">Garis Alur, Ngajentrekeun Struktur</span>
-            </h2>
+            </h1>
 
-            <p className="text-sm sm:text-base text-emerald-100/90 leading-relaxed max-w-3xl">
-              GALUR adalah aplikasi pembuat diagram yang dirancang untuk membantu pengguna menyusun gagasan, memetakan proses, dan menjelaskan informasi melalui visualisasi yang jelas dan terstruktur. Mulai dari flowchart, bagan organisasi, alur proses kerja, mind map, hingga diagram konsep, GALUR hadir sebagai parabot digital untuk menyederhanakan kerumitan menjadi sesuatu yang mudah dipahami.
+            <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed max-w-2xl font-normal">
+              Aplikasi visualisasi alur dan diagram profesional untuk merangkai gagasan, memetakan proses teknis, dan menyederhanakan kerumitan sistem menjadi struktur yang gamblang.
             </p>
 
-            <div className="p-4 rounded-2xl bg-black/25 border border-emerald-700/60 text-xs sm:text-sm text-emerald-100/90 leading-relaxed flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <p className="italic">
-                &ldquo;Mengusung filosofi <em>Garis Alur, Ngajentrekeun Struktur</em>, GALUR percaya bahwa gagasan yang baik akan lebih mudah diwujudkan ketika hubungan, urutan, dan strukturnya dapat dipahami dengan jelas.&rdquo;
-              </p>
-              <div className="shrink-0 px-3 py-1 rounded-xl bg-amber-400 text-[#0b4632] font-black text-xs tracking-tight shadow-xs">
-                BANGKIT BERUANG
-              </div>
+            <div className="pt-2 flex flex-wrap items-center justify-center sm:justify-start gap-3">
+              <Link
+                href="/editor"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-xs shadow-md transition-all hover:scale-102"
+              >
+                <span>Buka Studio Diagram</span>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-900" />
+              </Link>
+
+              <button
+                type="button"
+                onClick={handleCopySummary}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition-colors cursor-pointer"
+              >
+                {copied ? <Check className="w-3.5 h-3.5 text-amber-300" /> : <Copy className="w-3.5 h-3.5 text-slate-300" />}
+                <span>{copied ? 'Tersalin!' : 'Salin Ringkasan'}</span>
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Tiga Pilar Kekuatan Identitas Card */}
-      <div className="rounded-3xl bg-white border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-          <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold">
-              <Sparkles className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />
-              <span>Sintesis Identitas Merek</span>
-            </div>
-            <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              Tiga Pilar Kekuatan Identitas GALUR
-            </h3>
+      {/* 2. TIGA PILAR UTAMA: Grid 3 Kolom Singkat & Padat */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Pilar 1 */}
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2 hover:border-emerald-300 transition-colors">
+          <div className="w-8 h-8 rounded-xl bg-emerald-100 text-[#0b4632] flex items-center justify-center font-black text-xs">
+            01
           </div>
-          <span className="text-xs font-bold text-amber-800 bg-amber-50 px-3 py-1 rounded-xl border border-amber-200 self-start sm:self-auto">
-            Ekosistem Bangkit Beruang
+          <h3 className="font-extrabold text-slate-900 text-sm">
+            Filosofi Tatar Sunda
+          </h3>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Mengusung semboyan <em>&ldquo;Ngajentrekeun Struktur&rdquo;</em> (menjelaskan secara gamblang dan tertata). Menjadikan ide rumit mudah dipahami oleh siapa pun.
+          </p>
+        </div>
+
+        {/* Pilar 2 */}
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2 hover:border-amber-300 transition-colors">
+          <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-black text-xs">
+            02
+          </div>
+          <h3 className="font-extrabold text-slate-900 text-sm">
+            Parabot Visualisasi Presisi
+          </h3>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Mendukung flowchart teknis ala Microsoft Visio, matriks SWOT & Lean Canvas, UML/ERD basis data, hingga eksplorasi mind mapping interaktif.
+          </p>
+        </div>
+
+        {/* Pilar 3 */}
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2 hover:border-emerald-300 transition-colors">
+          <div className="w-8 h-8 rounded-xl bg-emerald-100 text-[#0b4632] flex items-center justify-center font-black text-xs">
+            03
+          </div>
+          <h3 className="font-extrabold text-slate-900 text-sm">
+            Maskot & Kepedulian
+          </h3>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Maskot Macan Tutul Jawa (<em>Panthera pardus melas</em>)—fauna identitas Jawa Barat—melambangkan ketajaman analisis, kelincahan, dan kepedulian alam.
+          </p>
+        </div>
+      </div>
+
+      {/* 3. SPESIFIKASI & KAPABILITAS SISTEM (4 Kolom Ringkas) */}
+      <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-2xs">
+        <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
+          <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
+          <span>Spesifikasi & Kapabilitas Sistem</span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <div className="p-3 bg-white rounded-xl border border-slate-200/80">
+            <span className="text-[10px] text-slate-400 font-semibold block uppercase">Format Ekspor</span>
+            <span className="font-bold text-slate-800 mt-0.5 block">PDF, PNG, JPEG, SVG, Visio VDX, JSON, CSV</span>
+          </div>
+          <div className="p-3 bg-white rounded-xl border border-slate-200/80">
+            <span className="text-[10px] text-slate-400 font-semibold block uppercase">Layout Otomatis</span>
+            <span className="font-bold text-slate-800 mt-0.5 block">Grid Layout, Smart Auto-Routing, Slot Magnet</span>
+          </div>
+          <div className="p-3 bg-white rounded-xl border border-slate-200/80">
+            <span className="text-[10px] text-slate-400 font-semibold block uppercase">Arsitektur</span>
+            <span className="font-bold text-slate-800 mt-0.5 block">Next.js 15, React Flow, Supabase RLS</span>
+          </div>
+          <div className="p-3 bg-white rounded-xl border border-slate-200/80">
+            <span className="text-[10px] text-slate-400 font-semibold block uppercase">Ekosistem Resmi</span>
+            <span className="font-bold text-[#0b4632] mt-0.5 block">Bangkit Beruang Ecosystem</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. RIWAYAT VERSI / CHANGELOG: Rapi & Ringkas */}
+      <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center border border-emerald-200">
+              <History className="w-4 h-4 text-emerald-700" />
+            </div>
+            <div>
+              <h3 className="font-bold text-sm text-slate-900">Riwayat Rilis & Pembaruan</h3>
+              <p className="text-[11px] text-slate-500">Versi aktif: {APP_VERSION} ({APP_RELEASE_DATE})</p>
+            </div>
+          </div>
+          <span className="text-[11px] font-mono font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+            {APP_VERSION}
           </span>
         </div>
 
-        {/* 3 Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* Pilar 1 */}
-          <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-50/80 to-white border border-emerald-200 space-y-2.5">
-            <div className="w-10 h-10 rounded-xl bg-[#0b4632] text-amber-300 flex items-center justify-center font-black text-base shadow-xs">
-              1
-            </div>
-            <h4 className="font-extrabold text-slate-900 text-sm">
-              Akar Nuansa Bahasa Sunda
-            </h4>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Nama <strong>GALUR</strong> dan semboyan <em>&ldquo;Ngajentrekeun Struktur&rdquo;</em> menghadirkan kearifan lokal yang membumi: menjelaskan gagasan secara gamblang, sistematis, dan mudah dipahami oleh siapa saja.
-            </p>
-          </div>
-
-          {/* Pilar 2 */}
-          <div className="p-5 rounded-2xl bg-gradient-to-br from-amber-50/80 to-white border border-amber-200 space-y-2.5">
-            <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black text-base shadow-xs">
-              2
-            </div>
-            <h4 className="font-extrabold text-slate-900 text-sm">
-              Fungsi Jelas Alat Visualisasi
-            </h4>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Bukan sekadar menggambar kotak dan garis, melainkan <strong>parabot digital</strong> presisi untuk merancang alur teknis ala Visio, bagan organisasi, mind map interaktif, hingga diagram konsep bisnis yang utuh.
-            </p>
-          </div>
-
-          {/* Pilar 3 */}
-          <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-50/80 to-white border border-emerald-200 space-y-2.5">
-            <div className="w-10 h-10 rounded-xl bg-[#083525] p-1 flex items-center justify-center border border-emerald-700 shadow-xs">
-              <Image
-                src="/icon.png"
-                alt="Maskot Macan Tutul Jawa"
-                width={32}
-                height={32}
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <h4 className="font-extrabold text-slate-900 text-sm">
-              Karakter & Pesan Kepedulian
-            </h4>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Maskot Macan Tutul Jawa (<em>Panthera pardus melas</em>)—fauna identitas resmi Jawa Barat—menyuntikkan ketajaman visi analisis, kelincahan proses, sekaligus kesadaran moral bahwa teknologi harus selalu selaras dengan kepedulian lingkungan dan pelestarian alam Pasundan.
-            </p>
-          </div>
-        </div>
-
-        {/* Closing Thesis Callout */}
-        <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-[#0b4632] via-[#0d5940] to-[#072419] text-white shadow-md border border-emerald-800/40 relative overflow-hidden">
-          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shrink-0">
-              <Quote className="w-6 h-6 text-amber-300 fill-amber-300" />
-            </div>
-            <p className="text-xs sm:text-sm leading-relaxed text-emerald-100 font-medium">
-              &ldquo;Kekuatan identitas GALUR terletak pada perpaduan tiga hal: <strong className="text-amber-300 font-bold">nama yang berakar pada nuansa bahasa Sunda</strong>, <strong className="text-white font-bold">fungsi yang jelas sebagai alat visualisasi</strong>, dan <strong className="text-amber-300 font-bold">maskot Macan Tutul Jawa yang memberi karakter ketajaman analisis sekaligus pesan kepedulian</strong>. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar <strong className="text-white underline decoration-amber-400 font-black">BANGKIT BERUANG</strong> tentang berkarya melalui teknologi yang bermanfaat untuk Jawa Barat.&rdquo;
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation Pills to Filter or Jump */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-        {[
-          { id: 'all', label: 'Semua Bagian (1-6)' },
-          { id: 'deskripsi', label: '1. Deskripsi Aplikasi' },
-          { id: 'filosofi', label: '2. Makna Filosofis Nama' },
-          { id: 'maskot', label: '3. Mengapa Macan Tutul Jawa?' },
-          { id: 'konservasi', label: '4. Mengapa Terancam Punah?' },
-          { id: 'visual', label: '5. Identitas Visual' },
-          { id: 'narasi', label: '6. Narasi Resmi' },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveSubTab(tab.id as any)}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
-              activeSubTab === tab.id
-                ? 'bg-[#0b4632] text-amber-300 shadow-md ring-2 ring-emerald-700/30'
-                : 'bg-white border border-slate-200 text-slate-600 hover:border-emerald-500 hover:text-emerald-800'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Bagian 1: Deskripsi Aplikasi GALUR */}
-      {(activeSubTab === 'all' || activeSubTab === 'deskripsi') && (
-        <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-          <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#0b4632] flex items-center justify-center font-black text-lg border border-emerald-200">
-              1
-            </div>
-            <div>
-              <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                Deskripsi Aplikasi GALUR
-              </h3>
-              <p className="text-xs text-slate-500 font-medium">
-                Parabot digital serbaguna untuk kebutuhan struktural dan konseptual
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
-              <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
-                <Layers className="w-4 h-4 text-emerald-600" />
-                <h4>Ruang Kerja Diagram Serbaguna</h4>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                GALUR merupakan aplikasi untuk membuat dan menggambar berbagai jenis diagram, mulai dari <strong>flowchart</strong>, <strong>bagan organisasi</strong>, <strong>alur proses kerja</strong>, <strong>mind map</strong>, hingga <strong>diagram konsep</strong>. Seluruh ide dan informasi dapat disusun menjadi representasi visual yang lebih sistematis.
-              </p>
-            </div>
-
-            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
-              <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
-                <Users className="w-4 h-4 text-emerald-600" />
-                <h4>Satu Parabot untuk Banyak Kebutuhan</h4>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                GALUR dirancang untuk membantu <strong>ASN, pengembang aplikasi, pendidik, analis, mahasiswa, maupun masyarakat umum</strong> dalam merancang proses, menjelaskan konsep, memetakan hubungan antarbagian, dan mendokumentasikan alur kerja.
-              </p>
-            </div>
-          </div>
-
-          {/* Tujuan Utama Highlight */}
-          <div className="p-5 rounded-2xl bg-emerald-50/70 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-[#0b4632] uppercase tracking-wide">
-                <Target className="w-3.5 h-3.5 text-emerald-700" />
-                <span>Tujuan Utama GALUR</span>
-              </div>
-              <p className="text-sm font-extrabold text-slate-900">
-                Membuat sesuatu yang rumit menjadi lebih mudah dilihat, dipahami, dan dijelaskan.
-              </p>
-            </div>
-            <div className="shrink-0">
-              <span className="inline-block px-3.5 py-1.5 rounded-xl bg-[#0b4632] text-amber-300 font-black text-xs tracking-tight shadow-xs">
-                Tagline: Garis Alur, Ngajentrekeun Struktur
-              </span>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Bagian 2: Makna Filosofis Nama GALUR */}
-      {(activeSubTab === 'all' || activeSubTab === 'filosofi') && (
-        <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-          <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-black text-lg border border-amber-200">
-              2
-            </div>
-            <div>
-              <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                Makna Filosofis Nama GALUR
-              </h3>
-              <p className="text-xs text-slate-500 font-medium">
-                Nuansa kata &ldquo;galur&rdquo; (alur, jalur, rangkaian penghubung) dalam tiga pilar utama
-              </p>
-            </div>
-          </div>
-
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-            Kata <strong className="text-slate-900">galur</strong> memiliki nuansa makna alur, jalur, atau rangkaian yang menghubungkan satu bagian dengan bagian lainnya. Dalam identitas aplikasi ini, GALUR mengandung tiga filosofi fundamental:
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {/* Garis */}
-            <div className="p-5 rounded-2xl bg-gradient-to-b from-emerald-50/60 to-white border border-emerald-200 space-y-2.5">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-[#0b4632] text-amber-300 flex items-center justify-center font-black text-xs">
-                  G
-                </div>
-                <h4 className="font-extrabold text-slate-900 text-sm">Garis — Merangkai Gagasan</h4>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Setiap garis mewakili hubungan antaride, tahapan pekerjaan, atau komponen dalam sebuah sistem. Tidak ada bagian yang berdiri sendiri tanpa konteks.
-              </p>
-            </div>
-
-            {/* Alur */}
-            <div className="p-5 rounded-2xl bg-gradient-to-b from-amber-50/60 to-white border border-amber-200 space-y-2.5">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center font-black text-xs">
-                  A
-                </div>
-                <h4 className="font-extrabold text-slate-900 text-sm">Alur — Menunjukkan Arah</h4>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Sebuah proses membutuhkan urutan dan tujuan. GALUR membantu pengguna melihat dari mana sesuatu dimulai, bagaimana proses berjalan, serta ke mana hasilnya bermuara.
-              </p>
-            </div>
-
-            {/* Struktur */}
-            <div className="p-5 rounded-2xl bg-gradient-to-b from-sky-50/60 to-white border border-sky-200 space-y-2.5">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-sky-700 text-white flex items-center justify-center font-black text-xs">
-                  S
-                </div>
-                <h4 className="font-extrabold text-slate-900 text-sm">Struktur — Memberikan Kejelasan</h4>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Gagasan yang tersusun dengan baik akan lebih mudah dikomunikasikan, dievaluasi, dan dikembangkan menjadi tindakan nyata.
-              </p>
-            </div>
-          </div>
-
-          <div className="p-4 rounded-2xl bg-slate-900 text-slate-100 text-xs sm:text-sm leading-relaxed border border-slate-800">
-            <span className="font-bold text-amber-300">Pesan Filosofis:</span> Dengan demikian, GALUR bukan hanya tentang menggambar garis dan kotak. Filosofinya adalah bahwa <span className="underline decoration-amber-400 font-semibold">setiap gagasan membutuhkan alur</span>, <span className="underline decoration-amber-400 font-semibold">setiap alur membutuhkan struktur</span>, dan <span className="underline decoration-amber-400 font-semibold">setiap struktur yang jelas memudahkan lahirnya solusi</span>.
-          </div>
-        </section>
-      )}
-
-      {/* Bagian 3: Mengapa Menggunakan Macan Tutul Jawa sebagai Maskot? */}
-      {(activeSubTab === 'all' || activeSubTab === 'maskot') && (
-        <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-          <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-black text-lg border border-amber-200">
-              3
-            </div>
-            <div>
-              <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                Mengapa Menggunakan Macan Tutul Jawa sebagai Maskot?
-              </h3>
-              <p className="text-xs text-slate-500 font-medium">
-                Simbol ketajaman visual, kelincahan alur pikir, fauna identitas resmi Jawa Barat, dan bagian keluarga BANGKIT BERUANG
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-col md:flex-row items-start gap-6">
-            <div className="shrink-0 w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center transition-transform hover:scale-105 duration-200">
-              <Image
-                src={APP_LOGO_URL}
-                alt="Maskot Macan Tutul Jawa"
-                width={144}
-                height={144}
-                className="w-full h-full object-contain filter drop-shadow-xl"
-              />
-            </div>
-            <div className="space-y-2 flex-1">
-              <h4 className="font-extrabold text-base text-slate-900">
-                Macan Tutul Jawa (<em>Panthera pardus melas</em>) — Simbol Ketajaman, Kelincahan, dan Identitas Tatar Sunda
-              </h4>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Maskot Macan Tutul Jawa memberi GALUR karakter visual yang berwibawa, anggun, tangkas, dan sarat makna kearifan lokal Jawa Barat. Sebagai predator puncak dan fauna identitas resmi Provinsi Jawa Barat, maskot ini merefleksikan ketajaman dalam menstrukturkan ide-ide rumit ke dalam alur yang presisi, sembari tetap menyatukan GALUR dengan semangat ekosistem <strong>BANGKIT BERUANG</strong> untuk kemajuan Jawa Barat.
-              </p>
-            </div>
-          </div>
-
-          {/* 4 Nilai Simbolis Maskot */}
-          <div className="space-y-3">
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-              Empat Nilai Simbolis Macan Tutul Jawa:
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3">
-                <div className="w-6 h-6 rounded-md bg-emerald-100 text-[#0b4632] flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
-                  1
-                </div>
-                <div>
-                  <h5 className="font-bold text-xs sm:text-sm text-slate-900">Tajam dan Presisi</h5>
-                  <p className="text-xs text-slate-600 mt-0.5">
-                    Melambangkan ketajaman analisis dalam membedah kerumitan arsitektur sistem, alur proses, dan relasi data.
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3">
-                <div className="w-6 h-6 rounded-md bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
-                  2
-                </div>
-                <div>
-                  <h5 className="font-bold text-xs sm:text-sm text-slate-900">Tangkas dan Adaptif</h5>
-                  <p className="text-xs text-slate-600 mt-0.5">
-                    Menggambarkan kelincahan berpikir (<em>agile</em>) dalam merangkai diagram langkah demi langkah hingga tuntas.
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3">
-                <div className="w-6 h-6 rounded-md bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
-                  3
-                </div>
-                <div>
-                  <h5 className="font-bold text-xs sm:text-sm text-slate-900">Fauna Identitas Tatar Sunda</h5>
-                  <p className="text-xs text-slate-600 mt-0.5">
-                    Mencerminkan jati diri otentik Jawa Barat yang selaras dengan etimologi bahasa Sunda <em>Ngajentrekeun Struktur</em>.
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3">
-                <div className="w-6 h-6 rounded-md bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
-                  4
-                </div>
-                <div>
-                  <h5 className="font-bold text-xs sm:text-sm text-slate-900">Harmoni Inovasi & Konservasi</h5>
-                  <p className="text-xs text-slate-600 mt-0.5">
-                    Menegaskan komitmen bahwa kemajuan teknologi digital harus berjalan seiring pelestarian alam dan satwa langka.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Bagian 4: Mengapa Macan Tutul Jawa yang Kritis (Critically Endangered)? */}
-      {(activeSubTab === 'all' || activeSubTab === 'konservasi') && (
-        <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-          <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-            <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-700 flex items-center justify-center font-black text-lg border border-rose-200">
-              4
-            </div>
-            <div>
-              <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                Mengapa Macan Tutul Jawa yang Kritis (Critically Endangered)?
-              </h3>
-              <p className="text-xs text-slate-500 font-medium">
-                Konteks konservasi ilmiah satwa identitas Jawa Barat, urgensi pelestarian, dan tanggung jawab moral teknologi
-              </p>
-            </div>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-amber-50/70 border border-amber-200 text-slate-800 space-y-3">
-            <div className="flex items-center gap-2 font-bold text-amber-900 text-sm">
-              <ShieldAlert className="w-4 h-4 text-amber-700" />
-              <span>Tanggung Jawab Moral terhadap Alam & Status IUCN (Critically Endangered)</span>
-            </div>
-            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-              Ada alasan filosofis yang mendalam: teknologi digital mutakhir tidak hanya bertugas mempermudah perancangan sistem manusia, tetapi juga mengemban amanah moral untuk menyuarakan perlindungan keanekaragaman hayati nusantara.
-            </p>
-            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-              Macan Tutul Jawa (<em>Panthera pardus melas</em>) adalah satu-satunya kucing besar (<em>big cat</em>) yang tersisa di Pulau Jawa setelah punahnya Harimau Jawa (<em>Panthera tigris sondaica</em>). Dalam Daftar Merah IUCN (<em>IUCN Red List</em>), Macan Tutul Jawa menyandang status <strong>Critically Endangered (Kritis Terancam Punah)</strong> dengan estimasi populasi liar yang sangat sedikit (kurang dari 250 individu dewasa), terfragmentasi di kantong-kantong hutan lindung Jawa Barat seperti Taman Nasional Gunung Gede Pangrango, Gunung Halimun Salak, Ujung Kulon, dan Gunung Ciremai.
-            </p>
-          </div>
-
-          {/* Landasan Keaslian Geografis & Identitas Resmi Jawa Barat */}
-          <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-            <div className="flex items-center gap-2 font-bold text-slate-900 text-sm">
-              <Leaf className="w-4 h-4 text-emerald-600" />
-              <span>Keaslian Geografis & Fauna Identitas Resmi Provinsi Jawa Barat</span>
-            </div>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Sebagai aplikasi yang lahir dari ekosistem <strong>BANGKIT BERUANG</strong>, Macan Tutul Jawa merupakan representasi fauna yang paling tepat secara geografis, historis, ekologis, dan legal formal (ditetapkan secara resmi sebagai <strong>Fauna Identitas Provinsi Jawa Barat</strong> melalui SK Gubernur No. 27 Tahun 1991).
-            </p>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Pemilihan Macan Tutul Jawa sebagai maskot GALUR menegaskan <strong className="text-emerald-800 font-bold">empat nilai simbolis keteladanan</strong>:
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-2">
-              <div className="p-3.5 rounded-xl bg-white border border-slate-200">
-                <span className="font-extrabold text-xs text-emerald-800 block">Ketahanan</span>
-                <span className="text-[11px] text-slate-500">Keteguhan bertahan hidup dan menjaga keseimbangan ekosistem di tengah tantangan zaman.</span>
-              </div>
-              <div className="p-3.5 rounded-xl bg-white border border-slate-200">
-                <span className="font-extrabold text-xs text-amber-800 block">Kesadaran</span>
-                <span className="text-[11px] text-slate-500">Mengingatkan bahwa mahakarya alam Tatar Sunda berada di ambang kepunahan jika tidak dijaga bersama.</span>
-              </div>
-              <div className="p-3.5 rounded-xl bg-white border border-slate-200">
-                <span className="font-extrabold text-xs text-blue-800 block">Keberlanjutan</span>
-                <span className="text-[11px] text-slate-500">Setiap inovasi digital harus mempertimbangkan etika dan dampak jangka panjang bagi bumi.</span>
-              </div>
-              <div className="p-3.5 rounded-xl bg-white border border-slate-200">
-                <span className="font-extrabold text-xs text-purple-800 block">Kepedulian Nyata</span>
-                <span className="text-[11px] text-slate-500">Menghubungkan karya teknologi mutakhir dengan edukasi dan aksi pelestarian satwa langka nusantara.</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-4 rounded-2xl bg-emerald-950 text-emerald-100 text-xs sm:text-sm italic text-center font-medium">
-            &ldquo;Maskot Macan Tutul Jawa adalah pengingat bahwa keanggunan, ketangkasan, dan kecerdasan karya digital kita harus berpijak pada kelestarian alam dan tanggung jawab bagi generasi mendatang.&rdquo;
-          </div>
-        </section>
-      )}
-
-      {/* Bagian 5: Filosofi Identitas Visual GALUR */}
-      {(activeSubTab === 'all' || activeSubTab === 'visual') && (
-        <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-          <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-black text-lg border border-emerald-200">
-              5
-            </div>
-            <div>
-              <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                Filosofi Identitas Visual GALUR
-              </h3>
-              <p className="text-xs text-slate-500 font-medium">
-                Komposisi warna, bentuk geometri, dan karakter visual yang berpadu harmonis
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {/* Hijau Tua */}
-            <div className="p-5 rounded-2xl border border-slate-200 bg-white shadow-xs space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#0b4632] shadow-inner shrink-0 border border-emerald-900" />
-                <div>
-                  <h4 className="font-bold text-sm text-slate-900">Hijau Tua (#0b4632)</h4>
-                  <p className="text-[11px] font-semibold text-emerald-800">Keteguhan dan Pertumbuhan</p>
-                </div>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Menggambarkan kestabilan, pemikiran yang terstruktur, dan semangat membangun sesuatu yang berkelanjutan.
-              </p>
-            </div>
-
-            {/* Emas */}
-            <div className="p-5 rounded-2xl border border-slate-200 bg-white shadow-xs space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#f59e0b] shadow-inner shrink-0 border border-amber-600" />
-                <div>
-                  <h4 className="font-bold text-sm text-slate-900">Emas (#f59e0b)</h4>
-                  <p className="text-[11px] font-semibold text-amber-700">Ide dan Pencerahan</p>
-                </div>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Menjadi aksen yang melambangkan momen ketika persoalan yang rumit mulai menemukan jalan keluar.
-              </p>
-            </div>
-
-            {/* Garis dan Simpul Diagram */}
-            <div className="p-5 rounded-2xl border border-slate-200 bg-white shadow-xs space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0 border border-slate-300">
-                  <GitFork className="w-5 h-5 text-slate-800" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-sm text-slate-900">Garis & Simpul Diagram</h4>
-                  <p className="text-[11px] font-semibold text-slate-700">Keterhubungan</p>
-                </div>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Melambangkan hubungan antara ide, proses, orang, dan keputusan yang membentuk sebuah sistem.
-              </p>
-            </div>
-
-            {/* Maskot Macan Tutul Jawa */}
-            <div className="p-5 rounded-2xl border border-slate-200 bg-white shadow-xs space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#0b4632] p-1 flex items-center justify-center shrink-0 border border-emerald-900">
-                  <Image
-                    src="/icon.png"
-                    alt="Maskot Macan Tutul Jawa"
-                    width={32}
-                    height={32}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <div>
-                  <h4 className="font-bold text-sm text-slate-900">Maskot Macan Tutul Jawa</h4>
-                  <p className="text-[11px] font-semibold text-amber-700">Ketajaman & Kepedulian Alam</p>
-                </div>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Memberikan sentuhan wibawa, ketajaman, dan kelincahan pada teknologi diagram sekaligus menggemakan seruan pelestarian satwa langka khas Jawa Barat.
-              </p>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Bagian 6: Narasi Resmi untuk Halaman "Tentang GALUR" */}
-      {(activeSubTab === 'all' || activeSubTab === 'narasi') && (
-        <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-black text-lg border border-amber-200">
-                6
-              </div>
-              <div>
-                <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                  Narasi Resmi untuk Halaman &ldquo;Tentang GALUR&rdquo;
-                </h3>
-                <p className="text-xs text-slate-500 font-medium">
-                  Teks naskah resmi terstandarisasi untuk presentasi, dokumentasi, dan media
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={handleCopyNarrative}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:text-emerald-800 text-xs font-bold text-slate-600 transition-all bg-white shadow-2xs cursor-pointer"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-emerald-600" />
-                  <span className="text-emerald-700">Tersalin!</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>Salin Naskah</span>
-                </>
-              )}
-            </button>
-          </div>
-
-          <div className="relative p-6 sm:p-8 rounded-2xl bg-gradient-to-b from-[#fcfdfb] to-[#f4f7f4] border border-emerald-900/15 shadow-inner space-y-4 font-serif text-slate-800">
-            <div className="flex items-center gap-2 font-sans not-italic text-xs font-bold text-[#0b4632] uppercase tracking-wider">
-              <Quote className="w-4 h-4 text-amber-500 fill-amber-500" />
-              <span>Naskah Narasi Lengkap</span>
-            </div>
-
-            <div className="text-sm sm:text-base leading-relaxed space-y-4">
-              <p className="font-sans font-black text-lg sm:text-xl text-[#0b4632]">
-                GALUR — Garis Alur, Ngajentrekeun Struktur
-              </p>
-
-              <p>
-                <strong>GALUR</strong> adalah aplikasi pembuat diagram yang dirancang untuk membantu pengguna menyusun gagasan, memetakan proses, dan menjelaskan informasi melalui visualisasi yang jelas dan terstruktur. Mulai dari flowchart, bagan organisasi, alur proses kerja, mind map, hingga diagram konsep, GALUR hadir sebagai parabot digital untuk menyederhanakan kerumitan menjadi sesuatu yang mudah dipahami.
-              </p>
-
-              <p>
-                Mengusung filosofi <em>Garis Alur, Ngajentrekeun Struktur</em>, GALUR percaya bahwa gagasan yang baik akan lebih mudah diwujudkan ketika hubungan, urutan, dan strukturnya dapat dipahami dengan jelas.
-              </p>
-
-              <p>
-                Maskot Macan Tutul Jawa (<em>Panthera pardus melas</em>) menjadi bagian dari identitas GALUR sekaligus simbol ketajaman berpikir, ketangkasan, dan komitmen pelestarian fauna endemik Tatar Sunda. Sebagai produk yang dikembangkan dalam ekosistem <strong>BANGKIT BERUANG</strong>, GALUR membawa semangat untuk terus berinovasi, menciptakan solusi visual yang presisi, dan menjadikan teknologi sebagai parabot yang mempermudah kehidupan.
-              </p>
-
-              <div className="pt-2 font-sans not-italic border-t border-slate-200 text-xs sm:text-sm text-emerald-900 font-bold flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-amber-500" />
-                <span>Tujuan utamanya sederhana: membuat sesuatu yang rumit menjadi lebih mudah dilihat, dipahami, dan dijelaskan.</span>
-              </div>
-
-              <div className="mt-3 p-4 rounded-xl bg-amber-50/80 border border-amber-200 font-sans not-italic text-xs sm:text-sm text-amber-950 leading-relaxed">
-                <p>
-                  &ldquo;Kekuatan identitas GALUR terletak pada perpaduan tiga hal: <strong>nama yang berakar pada khazanah bahasa Sunda</strong>, <strong>fungsi presisi sebagai alat visualisasi sistem terstruktur</strong>, dan <strong>maskot Macan Tutul Jawa yang memberi karakter wibawa ketajaman analisis sekaligus pesan kepedulian alam</strong>. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar <strong className="text-emerald-900 font-extrabold">BANGKIT BERUANG</strong> tentang berkarya melalui teknologi yang bermanfaat luas.&rdquo;
-                </p>
-              </div>
-
-              {/* Closing Motto Highlight */}
-              <div className="mt-4 p-5 rounded-2xl bg-[#0b4632] text-amber-300 font-sans not-italic text-center shadow-lg border border-emerald-700/50 space-y-1">
-                <span className="text-[11px] font-bold uppercase tracking-widest text-emerald-200/80 block">
-                  Motto & Semboyan Utama
-                </span>
-                <p className="text-base sm:text-lg font-black tracking-tight text-amber-300">
-                  &ldquo;GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.&rdquo;
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Version & Release History Card */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-800 flex items-center justify-center border border-emerald-200 shadow-2xs">
-              <History className="w-5 h-5 text-emerald-700" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-black text-lg text-slate-800">Riwayat Versi Aplikasi</h3>
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300">
-                  {APP_VERSION}
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 font-medium">
-                Edisi: <strong className="text-emerald-800">{APP_VERSION_CODENAME}</strong> • Rilis Terakhir: {APP_RELEASE_DATE}
-              </p>
-            </div>
-          </div>
-          <div className="px-3 py-1 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold">
-            Bangkit Beruang Ecosystem
-          </div>
-        </div>
-
-        {/* Changelog Timeline */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           {APP_CHANGELOG.map((log) => (
             <div
               key={log.version}
-              className={`p-4 rounded-2xl border transition-all ${
+              className={`p-3.5 rounded-xl border text-xs ${
                 log.version === APP_VERSION
-                  ? 'bg-emerald-50/50 border-emerald-300/80 shadow-2xs'
-                  : 'bg-slate-50/60 border-slate-200/70'
+                  ? 'bg-emerald-50/40 border-emerald-200'
+                  : 'bg-slate-50/50 border-slate-200'
               }`}
             >
-              <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center justify-between gap-2 mb-1.5">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-black font-mono px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 shadow-2xs">
+                  <span className="font-mono font-bold px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-800">
                     {log.version}
                   </span>
-                  <span className="text-sm font-bold text-slate-800">{log.title}</span>
+                  <span className="font-bold text-slate-800">{log.title}</span>
                   {log.badge && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white shadow-2xs">
+                    <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-600 text-white">
                       {log.badge}
                     </span>
                   )}
                 </div>
-                <span className="text-[11px] font-medium text-slate-400">{log.date}</span>
+                <span className="text-[10px] text-slate-400">{log.date}</span>
               </div>
-              <ul className="grid sm:grid-cols-2 gap-1.5 text-xs text-slate-600 pl-1">
+              <ul className="grid sm:grid-cols-2 gap-1 text-[11px] text-slate-600">
                 {log.highlights.map((h, i) => (
-                  <li key={i} className="flex items-start gap-1.5">
-                    <span className="text-emerald-600 font-bold shrink-0">✓</span>
+                  <li key={i} className="flex items-start gap-1">
+                    <span className="text-emerald-600 font-bold">✓</span>
                     <span>{h}</span>
                   </li>
                 ))}
               </ul>
             </div>
           ))}
-        </div>
-      </div>
-
-      {/* CTA Footer inside About Section */}
-      <div className="p-6 rounded-3xl bg-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div>
-          <h4 className="font-extrabold text-base text-white">Siap Mulai Menggambar dengan GALUR?</h4>
-          <p className="text-xs text-slate-400">Gunakan kanvas kosong atau pilih dari 11 template spesialis yang tersedia.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/editor"
-            className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0b4632] hover:bg-[#073022] text-amber-300 font-black text-xs shadow-md transition-all hover:scale-102"
-          >
-            <span>Buka Studio Kanvas</span>
-            <ArrowRight className="w-3.5 h-3.5 text-amber-300" />
-          </Link>
         </div>
       </div>
     </div>
