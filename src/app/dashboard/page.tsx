@@ -27,11 +27,13 @@ import {
   Zap,
   Gauge,
   Target,
-  Boxes
+  Boxes,
+  BookOpen
 } from 'lucide-react';
 import { supabase, isSupabaseConfigured, DiagramRecord } from '@/lib/supabase';
 import { getAllDiagramsMeta, deleteDiagramFromStorage } from '@/lib/diagramStorage';
 import { SPECIALIST_CATEGORIES } from '@/lib/specialistTemplates';
+import AboutGalurSection from '@/components/dashboard/AboutGalurSection';
 
 export default function DashboardPage() {
   const [diagrams, setDiagrams] = useState<DiagramRecord[]>([]);
@@ -39,6 +41,17 @@ export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>('swot');
+  const [dashboardTab, setDashboardTab] = useState<'diagrams' | 'about'>('diagrams');
+
+  // Deteksi query param atau hash untuk tab Tentang
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('tab') === 'about' || window.location.hash === '#about') {
+        setDashboardTab('about');
+      }
+    }
+  }, []);
 
   // Periksa status login pengguna
   useEffect(() => {
@@ -159,6 +172,18 @@ export default function DashboardPage() {
 
         {/* User Status / Login */}
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setDashboardTab(dashboardTab === 'about' ? 'diagrams' : 'about')}
+            className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 ${
+              dashboardTab === 'about'
+                ? 'bg-amber-100 text-amber-800 border border-amber-300 shadow-2xs'
+                : 'text-slate-600 hover:text-emerald-800 hover:bg-slate-100 border border-transparent'
+            }`}
+          >
+            <BookOpen className="w-3.5 h-3.5 text-amber-600" />
+            <span className="hidden sm:inline">Tentang & Filosofi</span>
+          </button>
+
           {user ? (
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
@@ -215,17 +240,64 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <Link
-            href="/editor"
-            className="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-[#0b4632] font-black text-sm shadow-lg hover:shadow-xl hover:scale-102 transition-all shrink-0"
-          >
-            <Plus className="w-4 h-4 text-[#0b4632] stroke-[3]" />
-            <span>Mulai Kanvas Baru</span>
-          </Link>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+            <button
+              onClick={() => setDashboardTab(dashboardTab === 'about' ? 'diagrams' : 'about')}
+              className={`flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl font-bold text-xs border backdrop-blur-md transition-all cursor-pointer ${
+                dashboardTab === 'about'
+                  ? 'bg-amber-400 text-[#0b4632] border-amber-300 shadow-md'
+                  : 'bg-white/10 hover:bg-white/20 text-emerald-100 hover:text-white border-white/20'
+              }`}
+            >
+              <BookOpen className="w-4 h-4 text-amber-300" />
+              <span>{dashboardTab === 'about' ? 'Ke Studio Diagram' : 'Baca Filosofi GALUR'}</span>
+            </button>
+            <Link
+              href="/editor"
+              className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-[#0b4632] font-black text-sm shadow-lg hover:shadow-xl hover:scale-102 transition-all"
+            >
+              <Plus className="w-4 h-4 text-[#0b4632] stroke-[3]" />
+              <span>Mulai Kanvas Baru</span>
+            </Link>
+          </div>
         </div>
 
-        {/* Kategori & Template Spesialis (11 Kategori Sesuai Gambar 3) */}
-        <section className="space-y-4">
+        {/* Dashboard Main View Tab Bar */}
+        <div className="flex items-center gap-3 border-b border-slate-200 pb-3">
+          <button
+            onClick={() => setDashboardTab('diagrams')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${
+              dashboardTab === 'diagrams'
+                ? 'bg-[#0b4632] text-amber-300 shadow-md ring-2 ring-emerald-900/20'
+                : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+            }`}
+          >
+            <LayoutGrid className="w-4 h-4" />
+            <span>Studio Diagram & Template (11)</span>
+          </button>
+
+          <button
+            onClick={() => setDashboardTab('about')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${
+              dashboardTab === 'about'
+                ? 'bg-[#0b4632] text-amber-300 shadow-md ring-2 ring-emerald-900/20'
+                : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+            }`}
+          >
+            <BookOpen className="w-4 h-4 text-amber-500" />
+            <span>Tentang GALUR & Filosofi</span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold hidden sm:inline">
+              6 Bagian Resmi
+            </span>
+          </button>
+        </div>
+
+        {dashboardTab === 'about' ? (
+          <AboutGalurSection />
+        ) : (
+          <>
+            {/* Kategori & Template Spesialis (11 Kategori Sesuai Gambar 3) */}
+            <section className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2">
@@ -395,6 +467,8 @@ export default function DashboardPage() {
             </div>
           )}
         </section>
+          </>
+        )}
       </main>
     </div>
   );

@@ -47,10 +47,16 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link
+            href="/dashboard?tab=about"
+            className="text-xs font-semibold text-slate-600 hover:text-emerald-800 px-3 py-2 transition-colors flex items-center gap-1.5"
+          >
+            <span>Tentang & Filosofi</span>
+          </Link>
           <Link
             href="/dashboard"
-            className="text-xs font-semibold text-slate-600 hover:text-emerald-800 px-3 py-2 transition-colors"
+            className="text-xs font-semibold text-slate-600 hover:text-emerald-800 px-3 py-2 transition-colors hidden sm:block"
           >
             Dashboard
           </Link>
@@ -255,8 +261,21 @@ export default function LandingPage() {
         <p className="text-xs text-amber-300 font-semibold italic">
           &ldquo;Garis Alur, Ngajentrekeun Struktur&rdquo;
         </p>
+        <div className="flex items-center justify-center gap-4 text-xs font-semibold text-emerald-200/80 pt-1">
+          <Link href="/dashboard" className="hover:text-amber-300 transition-colors">
+            Dashboard Studio
+          </Link>
+          <span>•</span>
+          <Link href="/dashboard?tab=about" className="hover:text-amber-300 transition-colors">
+            Filosofi & Tentang GALUR
+          </Link>
+          <span>•</span>
+          <Link href="/editor" className="hover:text-amber-300 transition-colors">
+            Editor Diagram
+          </Link>
+        </div>
         <p className="text-[11px] text-emerald-200/60 max-w-md mx-auto">
-          Dirancang untuk kemudahan pembuatan diagram teknikal dan pemikiran terstruktur. Siap dideploy ke Vercel.
+          Dirancang untuk kemudahan pembuatan diagram teknikal dan pemikiran terstruktur. Bagian dari ekosistem BANGKIT BERUANG.
         </p>
       </footer>
     </div>
