@@ -29,7 +29,11 @@ import {
   ChevronDown,
   RefreshCw,
   GitFork,
-  Network
+  Network,
+  History,
+  Undo2,
+  Redo2,
+  FolderOpen
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -38,6 +42,7 @@ import { edgeTypes } from './edges/RemovableEdge';
 import Sidebar from './Sidebar';
 import PropertyPanel from './PropertyPanel';
 import ExportModal from './ExportModal';
+import HistoryModal from './HistoryModal';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 // Template Awal Bawaan Flowchart
@@ -162,6 +167,12 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition, fitView } = useReactFlow();
 
+  // ID Diagram yang sedang dibuka
+  const [currentId, setCurrentId] = useState<string>(() => {
+    if (diagramId) return diagramId;
+    return `diag_${Date.now()}`;
+  });
+
   const [title, setTitle] = useState(initialTitle);
   const [nodes, setNodes, onNodesChange] = useNodesState(flowchartTemplate.nodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(flowchartTemplate.edges);
@@ -169,22 +180,67 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
   const [edgeType, setEdgeType] = useState<string>('step'); // 'step' | 'default' | 'straight'
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isNewMenuOpen, setIsNewMenuOpen] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('saved');
   const [storageType, setStorageType] = useState<'cloud' | 'local'>('local');
 
-  // Muat data dari localStorage atau Supabase saat pertama kali dibuka
+  // Undo & Redo History Stack
+  const [past, setPast] = useState<Array<{ nodes: Node[]; edges: Edge[] }>>([]);
+  const [future, setFuture] = useState<Array<{ nodes: Node[]; edges: Edge[] }>>([]);
+
+  const takeSnapshot = useCallback(() => {
+    setPast((prev) => [...prev.slice(-25), { nodes, edges }]);
+    setFuture([]);
+  }, [nodes, edges]);
+
+  const handleUndo = useCallback(() => {
+    if (past.length === 0) return;
+    const previous = past[past.length - 1];
+    const newPast = past.slice(0, past.length - 1);
+
+    setFuture((prev) => [{ nodes, edges }, ...prev]);
+    setPast(newPast);
+    setNodes(previous.nodes);
+    setEdges(previous.edges);
+    setSelectedNode(null);
+    setSelectedEdge(null);
+    setSaveStatus('idle');
+  }, [past, nodes, edges, setNodes, setEdges]);
+
+  const handleRedo = useCallback(() => {
+    if (future.length === 0) return;
+    const next = future[0];
+    const newFuture = future.slice(1);
+
+    setPast((prev) => [...prev, { nodes, edges }]);
+    setFuture(newFuture);
+    setNodes(next.nodes);
+    setEdges(next.edges);
+    setSelectedNode(null);
+    setSelectedEdge(null);
+    setSaveStatus('idle');
+  }, [future, nodes, edges, setNodes, setEdges]);
+
+  // Muat data dari localStorage atau URL query saat pertama kali dibuka
   useEffect(() => {
-    const storageKey = `galur_diagram_${diagramId || 'default'}`;
-    const saved = localStorage.getItem(storageKey);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.nodes && parsed.nodes.length > 0) setNodes(parsed.nodes);
-        if (parsed.edges) setEdges(parsed.edges);
-        if (parsed.title) setTitle(parsed.title);
-      } catch (e) {
-        console.error('Gagal membaca diagram dari cache lokal', e);
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlId = urlParams.get('id') || diagramId;
+
+      if (urlId) {
+        setCurrentId(urlId);
+        const saved = localStorage.getItem(`galur_diagram_${urlId}`);
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (parsed.nodes) setNodes(parsed.nodes);
+            if (parsed.edges) setEdges(parsed.edges);
+            if (parsed.title) setTitle(parsed.title);
+          } catch (e) {
+            console.error('Gagal membaca diagram dari cache lokal', e);
+          }
+        }
       }
     }
   }, [diagramId, setNodes, setEdges]);
@@ -192,6 +248,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   // Callback saat garis dihubungkan antar bentuk
   const onConnect = useCallback(
     (params: Connection) => {
+      takeSnapshot();
       const edgeStyleType = edgeType === 'step' ? 'smoothstep' : edgeType;
       const newEdge: Edge = {
         ...params,
@@ -203,12 +260,13 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       setEdges((eds) => addEdge(newEdge, eds));
       setSaveStatus('idle');
     },
-    [edgeType, setEdges]
+    [edgeType, setEdges, takeSnapshot]
   );
 
   // Tambah bentuk manual dari sidebar (klik)
   const handleAddNode = useCallback(
     (type: string, label: string) => {
+      takeSnapshot();
       const id = `node-${Date.now()}`;
       const position = {
         x: 350 + (Math.random() * 60 - 30),
@@ -230,7 +288,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       setNodes((nds) => [...nds, newNode]);
       setSaveStatus('idle');
     },
-    [setNodes]
+    [setNodes, takeSnapshot]
   );
 
   // Drag over & Drop dari sidebar langsung ke koordinat kursor kanvas
@@ -245,6 +303,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       const rawData = event.dataTransfer.getData('application/reactflow');
       if (!rawData) return;
 
+      takeSnapshot();
       const { type, label } = JSON.parse(rawData);
       const position = screenToFlowPosition({
         x: event.clientX,
@@ -266,7 +325,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       setNodes((nds) => [...nds, newNode]);
       setSaveStatus('idle');
     },
-    [screenToFlowPosition, setNodes]
+    [screenToFlowPosition, setNodes, takeSnapshot]
   );
 
   // Seleksi Node
@@ -339,59 +398,152 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   // Hapus Node
   const handleDeleteNode = useCallback(
     (nodeId: string) => {
+      takeSnapshot();
       setNodes((nds) => nds.filter((n) => n.id !== nodeId));
       setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId));
       setSelectedNode(null);
       setSaveStatus('idle');
     },
-    [setNodes, setEdges]
+    [setNodes, setEdges, takeSnapshot]
   );
 
   // Hapus Edge
   const handleDeleteEdge = useCallback(
     (edgeId: string) => {
+      takeSnapshot();
       setEdges((eds) => eds.filter((e) => e.id !== edgeId));
       setSelectedEdge(null);
       setSaveStatus('idle');
     },
-    [setEdges]
+    [setEdges, takeSnapshot]
   );
 
   // Handler Hapus saat tombol Delete / Backspace ditekan
   const onNodesDelete = useCallback(() => {
+    takeSnapshot();
     setSelectedNode(null);
     setSaveStatus('idle');
-  }, []);
+  }, [takeSnapshot]);
 
   const onEdgesDelete = useCallback(() => {
+    takeSnapshot();
+    setSelectedEdge(null);
     setSaveStatus('idle');
-  }, []);
+  }, [takeSnapshot]);
 
-  // Global Keyboard Delete Handler (Menjamin tombol Delete & Backspace selalu bekerja menghapus node atau edge yang terpilih)
+  // Global Keyboard Shortcuts (Delete, Backspace, Ctrl+Z, Ctrl+Y)
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Delete' || event.key === 'Backspace') {
-        const activeTag = (document.activeElement?.tagName || '').toLowerCase();
-        if (activeTag === 'input' || activeTag === 'textarea') {
-          return;
-        }
+      const activeTag = (document.activeElement?.tagName || '').toLowerCase();
+      if (activeTag === 'input' || activeTag === 'textarea') {
+        return;
+      }
 
+      // 1. Delete / Backspace
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        takeSnapshot();
         setNodes((nds) => nds.filter((node) => !node.selected));
         setEdges((eds) => eds.filter((edge) => !edge.selected));
         setSelectedNode(null);
+        setSelectedEdge(null);
         setSaveStatus('idle');
+      }
+
+      // 2. Undo (Ctrl+Z) & Redo (Ctrl+Y / Ctrl+Shift+Z)
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
+        event.preventDefault();
+        if (event.shiftKey) {
+          handleRedo();
+        } else {
+          handleUndo();
+        }
+      } else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'y') {
+        event.preventDefault();
+        handleRedo();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [setNodes, setEdges]);
+  }, [setNodes, setEdges, handleUndo, handleRedo, takeSnapshot]);
+
+  // Simpan Diagram (Supabase & LocalStorage)
+  const handleSave = async () => {
+    setSaveStatus('saving');
+    const storageKey = `galur_diagram_${currentId}`;
+    const payload = {
+      id: currentId,
+      title,
+      nodes,
+      edges,
+      updated_at: new Date().toISOString(),
+    };
+
+    // 1. Simpan ke LocalStorage
+    localStorage.setItem(storageKey, JSON.stringify(payload));
+
+    // Update URL tanpa reload halaman
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', `/editor?id=${currentId}`);
+    }
+
+    // 2. Simpan ke Supabase jika terkonfigurasi
+    if (isSupabaseConfigured && supabase) {
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        if (userData?.user) {
+          await supabase.from('diagrams').upsert({
+            id: currentId.startsWith('diag_') ? undefined : currentId,
+            user_id: userData.user.id,
+            title,
+            data: { nodes, edges },
+          });
+          setStorageType('cloud');
+        }
+      } catch (err) {
+        console.warn('Gagal menyimpan ke Supabase cloud, data tetap tersimpan di lokal browser:', err);
+      }
+    }
+
+    setTimeout(() => {
+      setSaveStatus('saved');
+    }, 350);
+  };
+
+  // Handler Buka Diagram dari Riwayat
+  const handleLoadFromHistory = (id: string) => {
+    const raw = localStorage.getItem(`galur_diagram_${id}`);
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        takeSnapshot();
+        setCurrentId(id);
+        setTitle(parsed.title || 'Diagram Tanpa Judul');
+        setNodes(parsed.nodes || []);
+        setEdges(parsed.edges || []);
+        setSelectedNode(null);
+        setSelectedEdge(null);
+        setSaveStatus('saved');
+
+        if (typeof window !== 'undefined') {
+          window.history.replaceState(null, '', `/editor?id=${id}`);
+        }
+        setTimeout(() => fitView({ padding: 0.2 }), 100);
+      } catch (e) {
+        console.error('Gagal memuat diagram:', e);
+      }
+    }
+  };
 
   // Handler Buat Diagram Baru
   const handleCreateNew = (type: 'blank' | 'flowchart' | 'mindmap') => {
     setIsNewMenuOpen(false);
-    if (nodes.length > 0 && !confirm('Buat diagram baru? Seluruh perubahan saat ini akan digantikan.')) {
-      return;
+    takeSnapshot();
+    const newId = `diag_${Date.now()}`;
+    setCurrentId(newId);
+
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', `/editor?id=${newId}`);
     }
 
     if (type === 'blank') {
@@ -409,6 +561,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     }
 
     setSelectedNode(null);
+    setSelectedEdge(null);
     setSaveStatus('idle');
     setTimeout(() => fitView({ padding: 0.2 }), 100);
   };
@@ -416,46 +569,13 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   // Bersihkan Kanvas Kosong
   const handleClearAll = () => {
     if (confirm('Bersihkan seluruh kanvas? Semua bentuk dan garis akan dihapus.')) {
+      takeSnapshot();
       setNodes([]);
       setEdges([]);
       setSelectedNode(null);
+      setSelectedEdge(null);
       setSaveStatus('idle');
     }
-  };
-
-  // Simpan Diagram (Supabase & LocalStorage Fallback)
-  const handleSave = async () => {
-    setSaveStatus('saving');
-    const storageKey = `galur_diagram_${diagramId || 'default'}`;
-    const payload = {
-      title,
-      nodes,
-      edges,
-      updated_at: new Date().toISOString(),
-    };
-
-    localStorage.setItem(storageKey, JSON.stringify(payload));
-
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data: userData } = await supabase.auth.getUser();
-        if (userData?.user) {
-          await supabase.from('diagrams').upsert({
-            id: diagramId || undefined,
-            user_id: userData.user.id,
-            title,
-            data: { nodes, edges },
-          });
-          setStorageType('cloud');
-        }
-      } catch (err) {
-        console.warn('Gagal menyimpan ke Supabase cloud, data tetap tersimpan di lokal browser:', err);
-      }
-    }
-
-    setTimeout(() => {
-      setSaveStatus('saved');
-    }, 350);
   };
 
   return (
@@ -556,6 +676,41 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
             )}
           </div>
 
+          {/* Tombol Riwayat & Arsip Diagram */}
+          <button
+            type="button"
+            onClick={() => setIsHistoryModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-blue-400 hover:bg-blue-50/50 text-slate-700 hover:text-blue-700 text-xs font-semibold transition-all shadow-2xs cursor-pointer"
+            title="Buka Riwayat Diagram yang Pernah Dibuat"
+          >
+            <FolderOpen className="w-3.5 h-3.5 text-blue-600" />
+            <span className="hidden sm:inline">Riwayat Diagram</span>
+          </button>
+
+          <div className="h-5 w-[1px] bg-slate-200 mx-1 hidden sm:block" />
+
+          {/* Tombol Undo & Redo */}
+          <div className="flex items-center gap-0.5 bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+            <button
+              type="button"
+              onClick={handleUndo}
+              disabled={past.length === 0}
+              title="Urungkan Perubahan (Ctrl+Z)"
+              className="p-1 rounded-md text-slate-600 hover:text-blue-600 hover:bg-white disabled:opacity-30 disabled:pointer-events-none transition-all cursor-pointer"
+            >
+              <Undo2 className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={handleRedo}
+              disabled={future.length === 0}
+              title="Ulangi Perubahan (Ctrl+Y / Ctrl+Shift+Z)"
+              className="p-1 rounded-md text-slate-600 hover:text-blue-600 hover:bg-white disabled:opacity-30 disabled:pointer-events-none transition-all cursor-pointer"
+            >
+              <Redo2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
           <div className="h-5 w-[1px] bg-slate-200 mx-1 hidden sm:block" />
 
           {/* Title Editor */}
@@ -567,16 +722,12 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
               setSaveStatus('idle');
             }}
             placeholder="Judul Diagram..."
-            className="text-xs sm:text-sm font-semibold text-slate-700 px-2.5 py-1 rounded-lg hover:bg-slate-100 focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-blue-500 border border-transparent hover:border-slate-200 transition-all max-w-[180px] sm:max-w-[240px]"
+            className="text-xs sm:text-sm font-semibold text-slate-700 px-2.5 py-1 rounded-lg hover:bg-slate-100 focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-blue-500 border border-transparent hover:border-slate-200 transition-all max-w-[150px] sm:max-w-[200px]"
           />
         </div>
 
-        {/* Center: Save status & Quick Shortcut Info */}
+        {/* Center: Save status */}
         <div className="hidden lg:flex items-center gap-2 text-xs text-slate-500">
-          <span className="text-[11px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md border border-slate-200">
-            💡 Tips: Tekan <strong>Delete</strong> atau <strong>Backspace</strong> untuk menghapus objek
-          </span>
-          <span>•</span>
           {storageType === 'cloud' ? (
             <span className="flex items-center gap-1 text-emerald-600 text-xs font-medium">
               <Cloud className="w-3.5 h-3.5" /> Cloud
@@ -602,7 +753,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
           <button
             type="button"
             onClick={handleSave}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors shadow-2xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
           >
             <Save className="w-3.5 h-3.5 text-blue-600" />
             <span>Simpan</span>
@@ -682,6 +833,15 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
         diagramTitle={title}
+      />
+
+      {/* Modal Riwayat & Arsip Diagram */}
+      <HistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
+        currentDiagramId={currentId}
+        onLoadDiagram={handleLoadFromHistory}
+        onNewDiagram={() => handleCreateNew('blank')}
       />
     </div>
   );
