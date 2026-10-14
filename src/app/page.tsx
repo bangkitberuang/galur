@@ -100,7 +100,7 @@ export default function LandingPage() {
         </h1>
 
         <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-          Alternatif modern dari software diagram lama. Gabungan kekuatan diagram alur teknis ala <strong>Microsoft Visio</strong> dengan keleluasaan eksplorasi <strong>Mind Map</strong> interaktif.
+          Aplikasi pembuat diagram untuk merangkai gagasan, memperjelas alur, dan membangun pemahaman. Dari flowchart dan alur proses kerja teknis ala <strong>Microsoft Visio</strong> hingga eksplorasi <strong>Mind Map</strong> interaktif, hadir sebagai parabot digital yang menyederhanakan kerumitan.
         </p>
 
         {/* CTA Buttons */}
@@ -283,7 +283,7 @@ export default function LandingPage() {
           <span className="text-white tracking-wide font-black text-lg">GALUR</span>
         </div>
         <p className="text-xs text-amber-300 font-semibold italic">
-          &ldquo;Garis Alur, Ngajentrekeun Struktur&rdquo;
+          &ldquo;GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.&rdquo;
         </p>
         <div className="flex items-center justify-center gap-4 text-xs font-semibold text-emerald-200/80 pt-1">
           <Link href="/dashboard" className="hover:text-amber-300 transition-colors">

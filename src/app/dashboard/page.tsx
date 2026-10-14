@@ -234,8 +234,8 @@ export default function DashboardPage() {
               <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white">
                 Garis Alur, Ngajentrekeun Struktur
               </h1>
-              <p className="text-xs sm:text-sm text-emerald-100/80 leading-relaxed">
-                Rancang alur kerja teknis ala Visio, bangun pohon pemikiran Mind Map interaktif, dan cetak dokumen ke format PDF atau JPG berkualitas tinggi.
+              <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed">
+                Merangkai gagasan, memperjelas alur, dan membangun pemahaman. Parabot digital untuk menyusun flowchart, bagan organisasi, alur kerja teknis, hingga pohon mind map interaktif.
               </p>
             </div>
           </div>

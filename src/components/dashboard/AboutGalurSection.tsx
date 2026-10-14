@@ -30,17 +30,15 @@ export default function AboutGalurSection() {
 
   const officialNarrative = `GALUR — Garis Alur, Ngajentrekeun Struktur
 
-Garis Alur, Ngajentrekeun Struktur — sebuah aplikasi yang membantu mengubah ide, informasi, dan proses yang rumit menjadi diagram yang jelas, terstruktur, dan mudah dipahami.
+GALUR adalah aplikasi pembuat diagram yang dirancang untuk membantu pengguna menyusun gagasan, memetakan proses, dan menjelaskan informasi melalui visualisasi yang jelas dan terstruktur. Mulai dari flowchart, bagan organisasi, alur proses kerja, mind map, hingga diagram konsep, GALUR hadir sebagai parabot digital untuk menyederhanakan kerumitan menjadi sesuatu yang mudah dipahami.
 
-GALUR bukan sekadar alat untuk menggambar diagram. Aplikasi ini dirancang sebagai parabot digital untuk menata cara berpikir, menjelaskan gagasan, dan menyederhanakan kerumitan melalui visualisasi.
+Mengusung filosofi Garis Alur, Ngajentrekeun Struktur, GALUR percaya bahwa gagasan yang baik akan lebih mudah diwujudkan ketika hubungan, urutan, dan strukturnya dapat dipahami dengan jelas.
 
-Ruang kerja diagram serbaguna ini memungkinkan pembuatan flowchart, bagan organisasi, alur proses kerja, mind map, hingga diagram konsep. Seluruh ide dan informasi dapat disusun menjadi representasi visual yang lebih sistematis.
+Maskot beruang madu menjadi bagian dari identitas GALUR sekaligus simbol kecerdikan, ketekunan, dan kepedulian terhadap keberlanjutan alam. Sebagai bagian dari ekosistem BANGKIT BERUANG, GALUR membawa semangat untuk terus berinovasi, menciptakan solusi yang bermanfaat, dan menjadikan teknologi sebagai parabot yang mempermudah kehidupan.
 
-Dirancang untuk membantu ASN, pengembang aplikasi, pendidik, analis, mahasiswa, maupun masyarakat umum dalam merancang proses, menjelaskan konsep, memetakan hubungan antarbagian, dan mendokumentasikan alur kerja.
+Kekuatan identitas GALUR terletak pada perpaduan tiga hal: nama yang berakar pada nuansa bahasa Sunda, fungsi yang jelas sebagai alat visualisasi, dan maskot beruang madu yang memberi karakter sekaligus pesan kepedulian. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar BANGKIT BERUANG tentang berkarya melalui teknologi yang bermanfaat.
 
-Tujuan utamanya sederhana: membuat sesuatu yang rumit menjadi lebih mudah dilihat, dipahami, dan dijelaskan.
-
-Kekuatan identitas GALUR terletak pada perpaduan tiga hal: nama yang berakar pada nuansa bahasa Sunda, fungsi yang jelas sebagai alat visualisasi, dan maskot beruang madu yang memberi karakter sekaligus pesan kepedulian. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar BANGKIT BERUANG tentang berkarya melalui teknologi yang bermanfaat.`;
+GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
 
   const handleCopyNarrative = () => {
     navigator.clipboard.writeText(officialNarrative);
@@ -88,11 +86,16 @@ Kekuatan identitas GALUR terletak pada perpaduan tiga hal: nama yang berakar pad
             </h2>
 
             <p className="text-sm sm:text-base text-emerald-100/90 leading-relaxed max-w-3xl">
-              Sebuah aplikasi yang membantu mengubah ide, informasi, dan proses yang rumit menjadi diagram yang jelas, terstruktur, dan mudah dipahami.
+              GALUR adalah aplikasi pembuat diagram yang dirancang untuk membantu pengguna menyusun gagasan, memetakan proses, dan menjelaskan informasi melalui visualisasi yang jelas dan terstruktur. Mulai dari flowchart, bagan organisasi, alur proses kerja, mind map, hingga diagram konsep, GALUR hadir sebagai parabot digital untuk menyederhanakan kerumitan menjadi sesuatu yang mudah dipahami.
             </p>
 
-            <div className="p-4 rounded-2xl bg-black/20 border border-emerald-700/50 text-xs sm:text-sm text-emerald-100/80 italic leading-relaxed">
-              &ldquo;GALUR bukan sekadar alat untuk menggambar diagram. Aplikasi ini dirancang sebagai <strong className="text-amber-200 not-italic font-bold">parabot digital</strong> untuk menata cara berpikir, menjelaskan gagasan, dan menyederhanakan kerumitan melalui visualisasi.&rdquo;
+            <div className="p-4 rounded-2xl bg-black/25 border border-emerald-700/60 text-xs sm:text-sm text-emerald-100/90 leading-relaxed flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <p className="italic">
+                &ldquo;Mengusung filosofi <em>Garis Alur, Ngajentrekeun Struktur</em>, GALUR percaya bahwa gagasan yang baik akan lebih mudah diwujudkan ketika hubungan, urutan, dan strukturnya dapat dipahami dengan jelas.&rdquo;
+              </p>
+              <div className="shrink-0 px-3 py-1 rounded-xl bg-amber-400 text-[#0b4632] font-black text-xs tracking-tight shadow-xs">
+                BANGKIT BERUANG
+              </div>
             </div>
           </div>
         </div>
@@ -627,19 +630,15 @@ Kekuatan identitas GALUR terletak pada perpaduan tiga hal: nama yang berakar pad
               </p>
 
               <p>
-                <strong>Garis Alur, Ngajentrekeun Struktur</strong> — sebuah aplikasi yang membantu mengubah ide, informasi, dan proses yang rumit menjadi diagram yang jelas, terstruktur, dan mudah dipahami.
+                <strong>GALUR</strong> adalah aplikasi pembuat diagram yang dirancang untuk membantu pengguna menyusun gagasan, memetakan proses, dan menjelaskan informasi melalui visualisasi yang jelas dan terstruktur. Mulai dari flowchart, bagan organisasi, alur proses kerja, mind map, hingga diagram konsep, GALUR hadir sebagai parabot digital untuk menyederhanakan kerumitan menjadi sesuatu yang mudah dipahami.
               </p>
 
               <p>
-                GALUR bukan sekadar alat untuk menggambar diagram. Aplikasi ini dirancang sebagai <strong>parabot digital</strong> untuk menata cara berpikir, menjelaskan gagasan, dan menyederhanakan kerumitan melalui visualisasi.
+                Mengusung filosofi <em>Garis Alur, Ngajentrekeun Struktur</em>, GALUR percaya bahwa gagasan yang baik akan lebih mudah diwujudkan ketika hubungan, urutan, dan strukturnya dapat dipahami dengan jelas.
               </p>
 
               <p>
-                Ruang kerja diagram serbaguna ini memungkinkan pembuatan flowchart, bagan organisasi, alur proses kerja, mind map, hingga diagram konsep. Seluruh ide dan informasi dapat disusun menjadi representasi visual yang lebih sistematis.
-              </p>
-
-              <p>
-                Dirancang untuk membantu ASN, pengembang aplikasi, pendidik, analis, mahasiswa, maupun masyarakat umum dalam merancang proses, menjelaskan konsep, memetakan hubungan antarbagian, dan mendokumentasikan alur kerja.
+                Maskot beruang madu menjadi bagian dari identitas GALUR sekaligus simbol kecerdikan, ketekunan, dan kepedulian terhadap keberlanjutan alam. Sebagai bagian dari ekosistem <strong>BANGKIT BERUANG</strong>, GALUR membawa semangat untuk terus berinovasi, menciptakan solusi yang bermanfaat, dan menjadikan teknologi sebagai parabot yang mempermudah kehidupan.
               </p>
 
               <div className="pt-2 font-sans not-italic border-t border-slate-200 text-xs sm:text-sm text-emerald-900 font-bold flex items-center gap-2">
@@ -650,6 +649,16 @@ Kekuatan identitas GALUR terletak pada perpaduan tiga hal: nama yang berakar pad
               <div className="mt-3 p-4 rounded-xl bg-amber-50/80 border border-amber-200 font-sans not-italic text-xs sm:text-sm text-amber-950 leading-relaxed">
                 <p>
                   &ldquo;Kekuatan identitas GALUR terletak pada perpaduan tiga hal: <strong>nama yang berakar pada nuansa bahasa Sunda</strong>, <strong>fungsi yang jelas sebagai alat visualisasi</strong>, dan <strong>maskot beruang madu yang memberi karakter sekaligus pesan kepedulian</strong>. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar <strong className="text-emerald-900 font-extrabold">BANGKIT BERUANG</strong> tentang berkarya melalui teknologi yang bermanfaat.&rdquo;
+                </p>
+              </div>
+
+              {/* Closing Motto Highlight */}
+              <div className="mt-4 p-5 rounded-2xl bg-[#0b4632] text-amber-300 font-sans not-italic text-center shadow-lg border border-emerald-700/50 space-y-1">
+                <span className="text-[11px] font-bold uppercase tracking-widest text-emerald-200/80 block">
+                  Motto & Semboyan Utama
+                </span>
+                <p className="text-base sm:text-lg font-black tracking-tight text-amber-300">
+                  &ldquo;GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.&rdquo;
                 </p>
               </div>
             </div>
