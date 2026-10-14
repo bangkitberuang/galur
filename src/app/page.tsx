@@ -77,7 +77,7 @@ export default function LandingPage() {
           <div className="relative w-48 h-48 sm:w-60 sm:h-60 md:w-64 md:h-64 transition-transform hover:scale-105 duration-300">
             <Image
               src="/logo.png"
-              alt="Mascot Beruang Galur"
+              alt="Maskot Macan Tutul Jawa Galur"
               width={256}
               height={256}
               className="w-full h-full object-contain filter drop-shadow-2xl"
@@ -180,7 +180,7 @@ export default function LandingPage() {
               <span>Kekuatan Identitas GALUR</span>
             </div>
             <p className="text-xs sm:text-sm text-emerald-100 leading-relaxed font-medium">
-              &ldquo;Kekuatan identitas GALUR terletak pada perpaduan tiga hal: <strong className="text-amber-300 font-bold">nama yang berakar pada nuansa bahasa Sunda</strong>, <strong className="text-white font-bold">fungsi yang jelas sebagai alat visualisasi</strong>, dan <strong className="text-amber-300 font-bold">maskot beruang madu yang memberi karakter sekaligus pesan kepedulian</strong>. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar <strong className="text-white underline decoration-amber-400 font-black">BANGKIT BERUANG</strong> tentang berkarya melalui teknologi yang bermanfaat.&rdquo;
+              &ldquo;Kekuatan identitas GALUR terletak pada perpaduan tiga hal: <strong className="text-amber-300 font-bold">nama yang berakar pada nuansa bahasa Sunda</strong>, <strong className="text-white font-bold">fungsi yang jelas sebagai alat visualisasi</strong>, dan <strong className="text-amber-300 font-bold">maskot Macan Tutul Jawa yang memberi karakter ketajaman analisis sekaligus pesan kepedulian</strong>. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar <strong className="text-white underline decoration-amber-400 font-black">BANGKIT BERUANG</strong> tentang berkarya melalui teknologi yang bermanfaat untuk Jawa Barat.&rdquo;
             </p>
           </div>
         </div>

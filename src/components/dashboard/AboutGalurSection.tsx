@@ -34,9 +34,9 @@ GALUR adalah aplikasi pembuat diagram yang dirancang untuk membantu pengguna men
 
 Mengusung filosofi Garis Alur, Ngajentrekeun Struktur, GALUR percaya bahwa gagasan yang baik akan lebih mudah diwujudkan ketika hubungan, urutan, dan strukturnya dapat dipahami dengan jelas.
 
-Maskot beruang madu menjadi bagian dari identitas GALUR sekaligus simbol kecerdikan, ketekunan, dan kepedulian terhadap keberlanjutan alam. Sebagai bagian dari ekosistem BANGKIT BERUANG, GALUR membawa semangat untuk terus berinovasi, menciptakan solusi yang bermanfaat, dan menjadikan teknologi sebagai parabot yang mempermudah kehidupan.
+Maskot Macan Tutul Jawa (Panthera pardus melas) menjadi bagian dari identitas GALUR sekaligus simbol ketajaman, kelincahan, dan kepedulian terhadap kelestarian alam Jawa Barat. Sebagai bagian dari ekosistem BANGKIT BERUANG, GALUR membawa semangat untuk terus berinovasi, menciptakan solusi yang bermanfaat, dan menjadikan teknologi sebagai parabot yang mempermudah kehidupan.
 
-Kekuatan identitas GALUR terletak pada perpaduan tiga hal: nama yang berakar pada nuansa bahasa Sunda, fungsi yang jelas sebagai alat visualisasi, dan maskot beruang madu yang memberi karakter sekaligus pesan kepedulian. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar BANGKIT BERUANG tentang berkarya melalui teknologi yang bermanfaat.
+Kekuatan identitas GALUR terletak pada perpaduan tiga hal: nama yang berakar pada nuansa bahasa Sunda, fungsi yang jelas sebagai alat visualisasi, dan maskot Macan Tutul Jawa yang memberi karakter ketajaman analisis sekaligus pesan kepedulian. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar BANGKIT BERUANG tentang berkarya melalui teknologi yang bermanfaat untuk Jawa Barat.
 
 GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
 
@@ -60,7 +60,7 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
             <div className="w-36 h-36 sm:w-44 sm:h-44 shrink-0 flex items-center justify-center transition-transform hover:scale-105 duration-200">
               <Image
                 src="/logo.png"
-                alt="Maskot Beruang Madu Galur"
+                alt="Maskot Macan Tutul Jawa Galur"
                 width={176}
                 height={176}
                 className="w-full h-full object-contain filter drop-shadow-2xl"
@@ -151,7 +151,7 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
             <div className="w-10 h-10 rounded-xl bg-[#083525] p-1 flex items-center justify-center border border-emerald-700 shadow-xs">
               <Image
                 src="/icon.png"
-                alt="Maskot Beruang"
+                alt="Maskot Macan Tutul Jawa"
                 width={32}
                 height={32}
                 className="w-full h-full object-contain"
@@ -161,7 +161,7 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
               Karakter & Pesan Kepedulian
             </h4>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Maskot beruang madu menyuntikkan kehangatan ramah, ketekunan proses, sekaligus kesadaran moral bahwa teknologi harus selalu selaras dengan kepedulian lingkungan dan pelestarian alam.
+              Maskot Macan Tutul Jawa (<em>Panthera pardus melas</em>)—fauna identitas resmi Jawa Barat—menyuntikkan ketajaman visi analisis, kelincahan proses, sekaligus kesadaran moral bahwa teknologi harus selalu selaras dengan kepedulian lingkungan dan pelestarian alam Pasundan.
             </p>
           </div>
         </div>
@@ -173,7 +173,7 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
               <Quote className="w-6 h-6 text-amber-300 fill-amber-300" />
             </div>
             <p className="text-xs sm:text-sm leading-relaxed text-emerald-100 font-medium">
-              &ldquo;Kekuatan identitas GALUR terletak pada perpaduan tiga hal: <strong className="text-amber-300 font-bold">nama yang berakar pada nuansa bahasa Sunda</strong>, <strong className="text-white font-bold">fungsi yang jelas sebagai alat visualisasi</strong>, dan <strong className="text-amber-300 font-bold">maskot beruang madu yang memberi karakter sekaligus pesan kepedulian</strong>. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar <strong className="text-white underline decoration-amber-400 font-black">BANGKIT BERUANG</strong> tentang berkarya melalui teknologi yang bermanfaat.&rdquo;
+              &ldquo;Kekuatan identitas GALUR terletak pada perpaduan tiga hal: <strong className="text-amber-300 font-bold">nama yang berakar pada nuansa bahasa Sunda</strong>, <strong className="text-white font-bold">fungsi yang jelas sebagai alat visualisasi</strong>, dan <strong className="text-amber-300 font-bold">maskot Macan Tutul Jawa yang memberi karakter ketajaman analisis sekaligus pesan kepedulian</strong>. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar <strong className="text-white underline decoration-amber-400 font-black">BANGKIT BERUANG</strong> tentang berkarya melalui teknologi yang bermanfaat untuk Jawa Barat.&rdquo;
             </p>
           </div>
         </div>
@@ -185,8 +185,8 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
           { id: 'all', label: 'Semua Bagian (1-6)' },
           { id: 'deskripsi', label: '1. Deskripsi Aplikasi' },
           { id: 'filosofi', label: '2. Makna Filosofis Nama' },
-          { id: 'maskot', label: '3. Mengapa Beruang Madu?' },
-          { id: 'konservasi', label: '4. Konservasi & Nilai Simbolis' },
+          { id: 'maskot', label: '3. Mengapa Macan Tutul Jawa?' },
+          { id: 'konservasi', label: '4. Mengapa Terancam Punah?' },
           { id: 'visual', label: '5. Identitas Visual' },
           { id: 'narasi', label: '6. Narasi Resmi' },
         ].map((tab) => (
@@ -331,7 +331,7 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
         </section>
       )}
 
-      {/* Bagian 3: Mengapa Menggunakan Beruang Madu sebagai Maskot? */}
+      {/* Bagian 3: Mengapa Menggunakan Macan Tutul Jawa sebagai Maskot? */}
       {(activeSubTab === 'all' || activeSubTab === 'maskot') && (
         <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
           <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
@@ -340,10 +340,10 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
             </div>
             <div>
               <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                Mengapa Menggunakan Beruang Madu sebagai Maskot?
+                Mengapa Menggunakan Macan Tutul Jawa sebagai Maskot?
               </h3>
               <p className="text-xs text-slate-500 font-medium">
-                Simbol kecerdikan, ketekunan, kepedulian, dan identitas keluarga BANGKIT BERUANG
+                Simbol ketajaman visual, kelincahan alur pikir, fauna identitas resmi Jawa Barat, dan bagian keluarga BANGKIT BERUANG
               </p>
             </div>
           </div>
@@ -352,7 +352,7 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
             <div className="shrink-0 w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center transition-transform hover:scale-105 duration-200">
               <Image
                 src="/logo.png"
-                alt="Maskot Beruang Madu"
+                alt="Maskot Macan Tutul Jawa"
                 width={144}
                 height={144}
                 className="w-full h-full object-contain filter drop-shadow-xl"
@@ -360,10 +360,10 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
             </div>
             <div className="space-y-2 flex-1">
               <h4 className="font-extrabold text-base text-slate-900">
-                Beruang Madu — Simbol Kecerdikan, Ketekunan, dan Kepedulian
+                Macan Tutul Jawa (<em>Panthera pardus melas</em>) — Simbol Ketajaman, Kelincahan, dan Identitas Tatar Sunda
               </h4>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Maskot beruang madu memberi GALUR identitas visual yang ramah dan mudah dikenali. Karakter ini juga menyatukan GALUR dengan semangat ekosistem <strong>BANGKIT BERUANG</strong>, sehingga produk-produk digitalnya terasa berasal dari satu keluarga.
+                Maskot Macan Tutul Jawa memberi GALUR karakter visual yang berwibawa, anggun, tangkas, dan sarat makna kearifan lokal Jawa Barat. Sebagai predator puncak dan fauna identitas resmi Provinsi Jawa Barat, maskot ini merefleksikan ketajaman dalam menstrukturkan ide-ide rumit ke dalam alur yang presisi, sembari tetap menyatukan GALUR dengan semangat ekosistem <strong>BANGKIT BERUANG</strong> untuk kemajuan Jawa Barat.
               </p>
             </div>
           </div>
@@ -371,7 +371,7 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
           {/* 4 Nilai Simbolis Maskot */}
           <div className="space-y-3">
             <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-              Empat Nilai Simbolis Beruang Madu:
+              Empat Nilai Simbolis Macan Tutul Jawa:
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3">
@@ -379,9 +379,9 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
                   1
                 </div>
                 <div>
-                  <h5 className="font-bold text-xs sm:text-sm text-slate-900">Cerdas dan Adaptif</h5>
+                  <h5 className="font-bold text-xs sm:text-sm text-slate-900">Tajam dan Presisi</h5>
                   <p className="text-xs text-slate-600 mt-0.5">
-                    Mewakili kemampuan menemukan cara yang tepat untuk menyelesaikan masalah.
+                    Melambangkan ketajaman analisis dalam membedah kerumitan arsitektur sistem, alur proses, dan relasi data.
                   </p>
                 </div>
               </div>
@@ -391,9 +391,9 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
                   2
                 </div>
                 <div>
-                  <h5 className="font-bold text-xs sm:text-sm text-slate-900">Tekun</h5>
+                  <h5 className="font-bold text-xs sm:text-sm text-slate-900">Tangkas dan Adaptif</h5>
                   <p className="text-xs text-slate-600 mt-0.5">
-                    Melambangkan proses menyusun diagram langkah demi langkah sampai menjadi jelas.
+                    Menggambarkan kelincahan berpikir (<em>agile</em>) dalam merangkai diagram langkah demi langkah hingga tuntas.
                   </p>
                 </div>
               </div>
@@ -403,9 +403,9 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
                   3
                 </div>
                 <div>
-                  <h5 className="font-bold text-xs sm:text-sm text-slate-900">Terhubung dengan Alam</h5>
+                  <h5 className="font-bold text-xs sm:text-sm text-slate-900">Fauna Identitas Tatar Sunda</h5>
                   <p className="text-xs text-slate-600 mt-0.5">
-                    Mengingatkan bahwa teknologi dan inovasi tetap perlu berjalan bersama kepedulian terhadap lingkungan.
+                    Mencerminkan jati diri otentik Jawa Barat yang selaras dengan etimologi bahasa Sunda <em>Ngajentrekeun Struktur</em>.
                   </p>
                 </div>
               </div>
@@ -415,9 +415,9 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
                   4
                 </div>
                 <div>
-                  <h5 className="font-bold text-xs sm:text-sm text-slate-900">Identitas yang Konsisten</h5>
+                  <h5 className="font-bold text-xs sm:text-sm text-slate-900">Harmoni Inovasi & Konservasi</h5>
                   <p className="text-xs text-slate-600 mt-0.5">
-                    Menjadikan maskot sebagai ciri khas visual berbagai aplikasi dalam ekosistem BANGKIT BERUANG.
+                    Menegaskan komitmen bahwa kemajuan teknologi digital harus berjalan seiring pelestarian alam dan satwa langka.
                   </p>
                 </div>
               </div>
@@ -426,7 +426,7 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
         </section>
       )}
 
-      {/* Bagian 4: Mengapa Beruang Madu yang Terancam Punah? */}
+      {/* Bagian 4: Mengapa Macan Tutul Jawa yang Kritis (Critically Endangered)? */}
       {(activeSubTab === 'all' || activeSubTab === 'konservasi') && (
         <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
           <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
@@ -435,10 +435,10 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
             </div>
             <div>
               <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                Mengapa Beruang Madu yang Terancam Punah?
+                Mengapa Macan Tutul Jawa yang Kritis (Critically Endangered)?
               </h3>
               <p className="text-xs text-slate-500 font-medium">
-                Konteks konservasi ilmiah, pelurusan sejarah geografis, dan pesan moral teknologi
+                Konteks konservasi ilmiah satwa identitas Jawa Barat, urgensi pelestarian, dan tanggung jawab moral teknologi
               </p>
             </div>
           </div>
@@ -446,51 +446,51 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
           <div className="p-5 rounded-2xl bg-amber-50/70 border border-amber-200 text-slate-800 space-y-3">
             <div className="flex items-center gap-2 font-bold text-amber-900 text-sm">
               <ShieldAlert className="w-4 h-4 text-amber-700" />
-              <span>Tanggung Jawab Moral terhadap Alam & Status IUCN</span>
+              <span>Tanggung Jawab Moral terhadap Alam & Status IUCN (Critically Endangered)</span>
             </div>
             <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-              Ada alasan filosofis yang lebih dalam di sini: teknologi tidak hanya seharusnya mempermudah kehidupan manusia, tetapi juga dapat membawa pesan tentang tanggung jawab terhadap alam.
+              Ada alasan filosofis yang mendalam: teknologi digital mutakhir tidak hanya bertugas mempermudah perancangan sistem manusia, tetapi juga mengemban amanah moral untuk menyuarakan perlindungan keanekaragaman hayati nusantara.
             </p>
             <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-              Beruang madu (<em>Helarctos malayanus</em>) merupakan satwa liar yang menghadapi ancaman serius akibat kehilangan dan kerusakan habitat, perburuan, serta perdagangan ilegal. Dalam penilaian global IUCN yang dipublikasikan pada 2017, spesies ini berstatus <strong>Vulnerable (Rentan)</strong>, dengan tren populasi menurun. Status tersebut tidak sama dengan kategori Endangered (Genting).
+              Macan Tutul Jawa (<em>Panthera pardus melas</em>) adalah satu-satunya kucing besar (<em>big cat</em>) yang tersisa di Pulau Jawa setelah punahnya Harimau Jawa (<em>Panthera tigris sondaica</em>). Dalam Daftar Merah IUCN (<em>IUCN Red List</em>), Macan Tutul Jawa menyandang status <strong>Critically Endangered (Kritis Terancam Punah)</strong> dengan estimasi populasi liar yang sangat sedikit (kurang dari 250 individu dewasa), terfragmentasi di kantong-kantong hutan lindung Jawa Barat seperti Taman Nasional Gunung Gede Pangrango, Gunung Halimun Salak, Ujung Kulon, dan Gunung Ciremai.
             </p>
           </div>
 
-          {/* Klarifikasi Ilmiah & Geografis */}
+          {/* Landasan Keaslian Geografis & Identitas Resmi Jawa Barat */}
           <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
             <div className="flex items-center gap-2 font-bold text-slate-900 text-sm">
               <Leaf className="w-4 h-4 text-emerald-600" />
-              <span>Klarifikasi Akurasi Filosofi Merek (Bukan Endemik Jawa)</span>
+              <span>Keaslian Geografis & Fauna Identitas Resmi Provinsi Jawa Barat</span>
             </div>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Ada satu hal penting yang perlu diluruskan agar filosofi mereknya tetap akurat: <strong>beruang madu bukan spesies endemik Jawa</strong>. Catatan ilmiah menunjukkan keberadaannya di Pulau Jawa pada masa Pleistosen, tetapi tidak ada bukti keberadaan beruang madu di Jawa pada masa sejarah. Populasi Indonesia saat ini dikenal terutama dari <strong>Sumatra dan Kalimantan</strong>.
+              Sebagai aplikasi yang lahir dari ekosistem <strong>Bangkit Beruang untuk Jawa Barat</strong>, Macan Tutul Jawa merupakan representasi fauna yang paling tepat secara geografis, historis, ekologis, dan legal formal (ditetapkan secara resmi sebagai <strong>Fauna Identitas Provinsi Jawa Barat</strong> melalui SK Gubernur No. 27 Tahun 1991).
             </p>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Jadi, jika beruang madu dipilih sebagai maskot GALUR yang dikembangkan dalam ekosistem Jawa Barat, alasannya sebaiknya bukan karena satwa tersebut merupakan fauna asli Jawa, melainkan karena <strong className="text-emerald-800 font-bold">nilai simbolisnya</strong>:
+              Pemilihan Macan Tutul Jawa sebagai maskot GALUR menegaskan <strong className="text-emerald-800 font-bold">empat nilai simbolis keteladanan</strong>:
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-2">
               <div className="p-3.5 rounded-xl bg-white border border-slate-200">
                 <span className="font-extrabold text-xs text-emerald-800 block">Ketahanan</span>
-                <span className="text-[11px] text-slate-500">Tetap berjuang menghadapi tantangan.</span>
+                <span className="text-[11px] text-slate-500">Keteguhan bertahan hidup dan menjaga keseimbangan ekosistem di tengah tantangan zaman.</span>
               </div>
               <div className="p-3.5 rounded-xl bg-white border border-slate-200">
                 <span className="font-extrabold text-xs text-amber-800 block">Kesadaran</span>
-                <span className="text-[11px] text-slate-500">Mengingatkan bahwa sesuatu yang berharga bisa terancam jika tidak dijaga.</span>
+                <span className="text-[11px] text-slate-500">Mengingatkan bahwa mahakarya alam Tatar Sunda berada di ambang kepunahan jika tidak dijaga bersama.</span>
               </div>
               <div className="p-3.5 rounded-xl bg-white border border-slate-200">
                 <span className="font-extrabold text-xs text-blue-800 block">Keberlanjutan</span>
-                <span className="text-[11px] text-slate-500">Inovasi perlu mempertimbangkan dampak jangka panjang.</span>
+                <span className="text-[11px] text-slate-500">Setiap inovasi digital harus mempertimbangkan etika dan dampak jangka panjang bagi bumi.</span>
               </div>
               <div className="p-3.5 rounded-xl bg-white border border-slate-200">
-                <span className="font-extrabold text-xs text-purple-800 block">Kepedulian</span>
-                <span className="text-[11px] text-slate-500">Kemajuan teknologi idealnya berjalan seiring kepedulian sosial & lingkungan.</span>
+                <span className="font-extrabold text-xs text-purple-800 block">Kepedulian Nyata</span>
+                <span className="text-[11px] text-slate-500">Menghubungkan karya teknologi mutakhir dengan edukasi dan aksi pelestarian satwa langka nusantara.</span>
               </div>
             </div>
           </div>
 
           <div className="p-4 rounded-2xl bg-emerald-950 text-emerald-100 text-xs sm:text-sm italic text-center font-medium">
-            &ldquo;Maskot ini dapat menjadi pengingat bahwa kemajuan bukan hanya tentang membuat sesuatu lebih cepat, tetapi juga tentang membuat sesuatu yang lebih bermakna.&rdquo;
+            &ldquo;Maskot Macan Tutul Jawa adalah pengingat bahwa keanggunan, ketangkasan, dan kecerdasan karya digital kita harus berpijak pada kelestarian alam dan tanggung jawab bagi generasi mendatang.&rdquo;
           </div>
         </section>
       )}
@@ -557,25 +557,25 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
               </p>
             </div>
 
-            {/* Maskot Beruang Madu */}
+            {/* Maskot Macan Tutul Jawa */}
             <div className="p-5 rounded-2xl border border-slate-200 bg-white shadow-xs space-y-3">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-[#0b4632] p-1 flex items-center justify-center shrink-0 border border-emerald-900">
                   <Image
                     src="/icon.png"
-                    alt="Maskot"
+                    alt="Maskot Macan Tutul Jawa"
                     width={32}
                     height={32}
                     className="w-full h-full object-contain"
                   />
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm text-slate-900">Maskot Beruang Madu</h4>
-                  <p className="text-[11px] font-semibold text-amber-700">Karakter dan Kepedulian</p>
+                  <h4 className="font-bold text-sm text-slate-900">Maskot Macan Tutul Jawa</h4>
+                  <p className="text-[11px] font-semibold text-amber-700">Ketajaman & Kepedulian Alam</p>
                 </div>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Memberikan sentuhan manusiawi pada teknologi sekaligus membawa pesan tentang ketekunan dan pelestarian alam.
+                Memberikan sentuhan wibawa, ketajaman, dan kelincahan pada teknologi diagram sekaligus menggemakan seruan pelestarian satwa langka khas Jawa Barat.
               </p>
             </div>
           </div>
@@ -638,7 +638,7 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
               </p>
 
               <p>
-                Maskot beruang madu menjadi bagian dari identitas GALUR sekaligus simbol kecerdikan, ketekunan, dan kepedulian terhadap keberlanjutan alam. Sebagai bagian dari ekosistem <strong>BANGKIT BERUANG</strong>, GALUR membawa semangat untuk terus berinovasi, menciptakan solusi yang bermanfaat, dan menjadikan teknologi sebagai parabot yang mempermudah kehidupan.
+                Maskot Macan Tutul Jawa (<em>Panthera pardus melas</em>) menjadi bagian dari identitas GALUR sekaligus simbol ketajaman berpikir, ketangkasan, dan komitmen pelestarian fauna endemik Tatar Sunda. Sebagai produk yang dikembangkan dalam ekosistem <strong>BANGKIT BERUANG</strong> untuk Jawa Barat, GALUR membawa semangat untuk terus berinovasi, menciptakan solusi visual yang presisi, dan menjadikan teknologi sebagai parabot yang mempermudah kehidupan.
               </p>
 
               <div className="pt-2 font-sans not-italic border-t border-slate-200 text-xs sm:text-sm text-emerald-900 font-bold flex items-center gap-2">
@@ -648,7 +648,7 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
 
               <div className="mt-3 p-4 rounded-xl bg-amber-50/80 border border-amber-200 font-sans not-italic text-xs sm:text-sm text-amber-950 leading-relaxed">
                 <p>
-                  &ldquo;Kekuatan identitas GALUR terletak pada perpaduan tiga hal: <strong>nama yang berakar pada nuansa bahasa Sunda</strong>, <strong>fungsi yang jelas sebagai alat visualisasi</strong>, dan <strong>maskot beruang madu yang memberi karakter sekaligus pesan kepedulian</strong>. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar <strong className="text-emerald-900 font-extrabold">BANGKIT BERUANG</strong> tentang berkarya melalui teknologi yang bermanfaat.&rdquo;
+                  &ldquo;Kekuatan identitas GALUR terletak pada perpaduan tiga hal: <strong>nama yang berakar pada khazanah bahasa Sunda</strong>, <strong>fungsi presisi sebagai alat visualisasi sistem terstruktur</strong>, dan <strong>maskot Macan Tutul Jawa yang memberi karakter wibawa ketajaman analisis sekaligus pesan kepedulian alam</strong>. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar <strong className="text-emerald-900 font-extrabold">BANGKIT BERUANG</strong> tentang berkarya melalui teknologi yang bermanfaat untuk Jawa Barat.&rdquo;
                 </p>
               </div>
 

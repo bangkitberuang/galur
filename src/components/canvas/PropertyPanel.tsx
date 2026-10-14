@@ -460,35 +460,187 @@ export default function PropertyPanel({
       </div>
 
       <div className="flex-1 overflow-y-auto p-3.5 space-y-4">
-        {/* 1. Label Teks Utama */}
-        <div>
-          <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1">
-            <Type className="w-3.5 h-3.5 text-blue-600" />
-            <span>Teks / Label Utama</span>
-          </label>
-          <input
-            type="text"
-            value={currentLabel}
-            onChange={(e) => onUpdateNode(id, { label: e.target.value })}
-            className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            placeholder="Tulis judul langkah..."
-          />
-        </div>
+        {/* Khusus Org Chart Node: Edit Nama, Jabatan, dan Departemen */}
+        {selectedNode.type === 'org_node' ? (
+          <div className="space-y-3">
+            <div>
+              <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1">
+                <Type className="w-3.5 h-3.5 text-emerald-700" />
+                <span>Nama Lengkap / Pejabat</span>
+              </label>
+              <input
+                type="text"
+                value={data.name || data.label || ''}
+                onChange={(e) =>
+                  onUpdateNode(id, {
+                    name: e.target.value,
+                    label: e.target.value,
+                  })
+                }
+                className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-semibold"
+                placeholder="Contoh: Fajar Nugraha"
+              />
+            </div>
 
-        {/* Sublabel (Opsional) */}
-        {selectedNode.type !== 'decision' && selectedNode.type !== 'text' && selectedNode.type !== 'swot_card' && (
-          <div>
-            <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-              Keterangan Tambahan
-            </label>
-            <input
-              type="text"
-              value={currentSublabel}
-              onChange={(e) => onUpdateNode(id, { sublabel: e.target.value })}
-              className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              placeholder="Deskripsi singkat..."
-            />
+            <div>
+              <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Jabatan / Posisi
+              </label>
+              <input
+                type="text"
+                value={data.role || data.sublabel || ''}
+                onChange={(e) =>
+                  onUpdateNode(id, {
+                    role: e.target.value,
+                    sublabel: e.target.value,
+                  })
+                }
+                className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-medium"
+                placeholder="Contoh: Lead Full-Stack Eng."
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Departemen / Unit Kerja
+              </label>
+              <input
+                type="text"
+                value={data.dept || ''}
+                onChange={(e) => onUpdateNode(id, { dept: e.target.value })}
+                className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
+                placeholder="Contoh: Tim Rekayasa Perangkat Lunak"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100">
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 mb-1">Warna Avatar</label>
+                <input
+                  type="color"
+                  value={data.avatarBg || '#0b4632'}
+                  onChange={(e) => onUpdateNode(id, { avatarBg: e.target.value })}
+                  className="w-full h-7 rounded border border-slate-200 cursor-pointer"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 mb-1">Warna Badge</label>
+                <input
+                  type="color"
+                  value={data.badgeColor || '#059669'}
+                  onChange={(e) => onUpdateNode(id, { badgeColor: e.target.value })}
+                  className="w-full h-7 rounded border border-slate-200 cursor-pointer"
+                />
+              </div>
+            </div>
           </div>
+        ) : selectedNode.type === 'uml_class' ? (
+          <div className="space-y-3">
+            <div>
+              <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Nama Kelas UML
+              </label>
+              <input
+                type="text"
+                value={data.className || data.label || ''}
+                onChange={(e) => onUpdateNode(id, { className: e.target.value, label: e.target.value })}
+                className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 font-bold"
+                placeholder="Contoh: Pengguna"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Stereotype (Opsional)
+              </label>
+              <input
+                type="text"
+                value={data.stereotype || ''}
+                onChange={(e) => onUpdateNode(id, { stereotype: e.target.value })}
+                className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 font-mono text-[11px]"
+                placeholder="Contoh: <<Entity>>"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Atribut (1 baris per atribut)
+              </label>
+              <textarea
+                rows={3}
+                value={Array.isArray(data.attributes) ? data.attributes.join('\n') : ''}
+                onChange={(e) =>
+                  onUpdateNode(id, {
+                    attributes: e.target.value.split('\n').filter((l: string) => l.trim().length > 0),
+                  })
+                }
+                className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-mono text-[11px]"
+                placeholder="- id: UUID"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Metode / Fungsi (1 baris per fungsi)
+              </label>
+              <textarea
+                rows={3}
+                value={Array.isArray(data.methods) ? data.methods.join('\n') : ''}
+                onChange={(e) =>
+                  onUpdateNode(id, {
+                    methods: e.target.value.split('\n').filter((l: string) => l.trim().length > 0),
+                  })
+                }
+                className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-mono text-[11px]"
+                placeholder="+ login(): boolean"
+              />
+            </div>
+          </div>
+        ) : selectedNode.type === 'erd_entity' ? (
+          <div className="space-y-3">
+            <div>
+              <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Nama Tabel / Entitas
+              </label>
+              <input
+                type="text"
+                value={data.tableName || data.label || ''}
+                onChange={(e) => onUpdateNode(id, { tableName: e.target.value, label: e.target.value })}
+                className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 font-bold"
+                placeholder="Contoh: users"
+              />
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* 1. Label Teks Utama Standar */}
+            <div>
+              <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1">
+                <Type className="w-3.5 h-3.5 text-blue-600" />
+                <span>Teks / Label Utama</span>
+              </label>
+              <input
+                type="text"
+                value={currentLabel}
+                onChange={(e) => onUpdateNode(id, { label: e.target.value })}
+                className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                placeholder="Tulis judul langkah..."
+              />
+            </div>
+
+            {/* Sublabel (Opsional) */}
+            {selectedNode.type !== 'decision' && selectedNode.type !== 'text' && selectedNode.type !== 'swot_card' && (
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                  Keterangan Tambahan
+                </label>
+                <input
+                  type="text"
+                  value={currentSublabel}
+                  onChange={(e) => onUpdateNode(id, { sublabel: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="Deskripsi singkat..."
+                />
+              </div>
+            )}
+          </>
         )}
 
         {/* Khusus SWOT Card: Edit Poin Analisis (1 Baris per Poin) */}

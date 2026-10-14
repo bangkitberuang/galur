@@ -1,6 +1,6 @@
 'use client';
 
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { Handle, Position, useReactFlow, NodeToolbar } from '@xyflow/react';
 import { 
   Database, 
@@ -278,25 +278,68 @@ ERDEntityNode.displayName = 'ERDEntityNode';
 // 3. ORGANIZATIONAL CHART NODE
 export const OrgNode = memo((props: any) => {
   const { id, data, selected } = props;
-  const name = data.name || data.label || 'Nama Pejabat';
-  const role = data.role || data.sublabel || 'Jabatan / Posisi';
-  const dept = data.dept || 'Departemen';
+  const { setNodes } = useReactFlow();
+
+  const name = data.name ?? data.label ?? 'Nama Pejabat';
+  const role = data.role ?? data.sublabel ?? 'Jabatan / Posisi';
+  const dept = data.dept ?? 'Departemen';
   const avatarBg = data.avatarBg || '#0b4632';
   const badgeColor = data.badgeColor || '#059669';
+
+  const [editingField, setEditingField] = useState<'name' | 'role' | 'dept' | null>(null);
+  const [tempValue, setTempValue] = useState('');
 
   const shapeStyles = getNodeShapeStyles(data, '#ffffff', '#e2e8f0');
   const textStyles = getNodeTextStyles(data, 12, '#0f172a');
 
-  const initials = name
-    .split(' ')
+  const initials = String(name)
+    .trim()
+    .split(/\s+/)
     .slice(0, 2)
-    .map((s: string) => s[0])
+    .map((s: string) => s[0] || '')
     .join('')
     .toUpperCase();
 
+  const handleStartEdit = (field: 'name' | 'role' | 'dept', currentVal: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingField(field);
+    setTempValue(currentVal);
+  };
+
+  const handleSaveEdit = (field: 'name' | 'role' | 'dept') => {
+    const val = tempValue.trim();
+    if (val.length > 0) {
+      setNodes((nds) =>
+        nds.map((n) => {
+          if (n.id === id) {
+            const updates: any = {};
+            if (field === 'name') {
+              updates.name = val;
+              updates.label = val;
+            } else if (field === 'role') {
+              updates.role = val;
+              updates.sublabel = val;
+            } else if (field === 'dept') {
+              updates.dept = val;
+            }
+            return {
+              ...n,
+              data: {
+                ...n.data,
+                ...updates,
+              },
+            };
+          }
+          return n;
+        })
+      );
+    }
+    setEditingField(null);
+  };
+
   return (
     <div
-      className={`rounded-2xl shadow-md border p-3 min-w-[200px] max-w-[240px] text-left transition-all ${
+      className={`rounded-2xl shadow-md border p-3 min-w-[210px] max-w-[260px] text-left transition-all ${
         selected ? 'ring-2 ring-emerald-500 shadow-xl' : ''
       }`}
       style={{ ...shapeStyles, ...textStyles }}
@@ -306,24 +349,85 @@ export const OrgNode = memo((props: any) => {
 
       <div className="flex items-center gap-3">
         <div
-          className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-xs shrink-0"
+          className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-xs shrink-0 select-none"
           style={{ backgroundColor: avatarBg }}
         >
           {initials || <User className="w-4 h-4" />}
         </div>
-        <div className="min-w-0">
-          <h4 className="font-bold text-xs truncate" style={{ color: textStyles.color }}>{name}</h4>
-          <p className="text-[11px] font-semibold text-slate-600 truncate">{role}</p>
+        <div className="min-w-0 flex-1">
+          {editingField === 'name' ? (
+            <input
+              autoFocus
+              type="text"
+              value={tempValue}
+              onChange={(e) => setTempValue(e.target.value)}
+              onBlur={() => handleSaveEdit('name')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSaveEdit('name');
+                if (e.key === 'Escape') setEditingField(null);
+              }}
+              className="w-full px-1.5 py-0.5 border border-emerald-500 rounded bg-white text-xs font-bold text-slate-900 focus:outline-hidden"
+            />
+          ) : (
+            <h4
+              onDoubleClick={(e) => handleStartEdit('name', name, e)}
+              title="Klik ganda untuk mengedit nama"
+              className="font-bold text-xs truncate cursor-text hover:bg-slate-100/80 px-1 py-0.5 -mx-1 rounded transition-colors"
+              style={{ color: textStyles.color }}
+            >
+              {name}
+            </h4>
+          )}
+
+          {editingField === 'role' ? (
+            <input
+              autoFocus
+              type="text"
+              value={tempValue}
+              onChange={(e) => setTempValue(e.target.value)}
+              onBlur={() => handleSaveEdit('role')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSaveEdit('role');
+                if (e.key === 'Escape') setEditingField(null);
+              }}
+              className="w-full px-1.5 py-0.5 border border-emerald-500 rounded bg-white text-[11px] font-semibold text-slate-700 focus:outline-hidden mt-0.5"
+            />
+          ) : (
+            <p
+              onDoubleClick={(e) => handleStartEdit('role', role, e)}
+              title="Klik ganda untuk mengedit jabatan"
+              className="text-[11px] font-semibold text-slate-600 truncate cursor-text hover:bg-slate-100/80 px-1 py-0.5 -mx-1 rounded transition-colors"
+            >
+              {role}
+            </p>
+          )}
         </div>
       </div>
 
       <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between">
-        <span
-          className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white truncate max-w-[170px]"
-          style={{ backgroundColor: badgeColor }}
-        >
-          {dept}
-        </span>
+        {editingField === 'dept' ? (
+          <input
+            autoFocus
+            type="text"
+            value={tempValue}
+            onChange={(e) => setTempValue(e.target.value)}
+            onBlur={() => handleSaveEdit('dept')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSaveEdit('dept');
+              if (e.key === 'Escape') setEditingField(null);
+            }}
+            className="w-full px-1.5 py-0.5 border border-emerald-500 rounded bg-white text-[10px] font-bold text-slate-800 focus:outline-hidden"
+          />
+        ) : (
+          <span
+            onDoubleClick={(e) => handleStartEdit('dept', dept, e)}
+            title="Klik ganda untuk mengedit departemen"
+            className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white truncate max-w-[200px] cursor-text hover:opacity-90 transition-opacity"
+            style={{ backgroundColor: badgeColor }}
+          >
+            {dept}
+          </span>
+        )}
       </div>
     </div>
   );
