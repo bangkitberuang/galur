@@ -516,29 +516,33 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-slate-50">
       {/* Top Navigation Bar */}
-      <header className="h-14 bg-white border-b border-slate-200 px-4 flex items-center justify-between z-30 no-print shadow-2xs">
+      <header className="h-16 bg-white border-b border-slate-200 px-4 flex items-center justify-between z-30 no-print shadow-2xs">
         {/* Left: Brand, Back, & Title */}
         <div className="flex items-center gap-2.5">
           <Link
             href="/"
-            className="flex items-center gap-2 text-slate-800 hover:text-emerald-800 transition-colors group"
+            className="flex items-center gap-2.5 text-slate-800 hover:text-emerald-800 transition-colors group"
             title="Kembali ke Beranda GALUR"
           >
-            <div className="w-8 h-8 rounded-xl bg-[#0b4632] flex items-center justify-center shadow-xs overflow-hidden border border-emerald-900/30 group-hover:scale-105 transition-transform">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-[#0b4632] p-1 flex items-center justify-center shadow-md overflow-hidden border border-emerald-900/30 group-hover:scale-105 transition-transform">
               <Image
                 src="/logo.png"
                 alt="GALUR Logo"
-                width={32}
-                height={32}
-                className="w-full h-full object-cover"
+                width={48}
+                height={48}
+                className="w-full h-full object-contain rounded-xl"
+                priority
               />
             </div>
             <div className="hidden sm:block">
-              <div className="flex items-center gap-1.5 font-black text-sm tracking-tight text-[#0b4632]">
+              <div className="flex items-center gap-1.5 font-black text-base tracking-tight text-[#0b4632]">
                 GALUR
-                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
                   Studio
                 </span>
+              </div>
+              <div className="text-[9px] text-slate-400 font-medium tracking-tight -mt-0.5 hidden lg:block">
+                Garis Alur, Ngajentrekeun Struktur
               </div>
             </div>
           </Link>

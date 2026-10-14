@@ -137,19 +137,20 @@ export default function DashboardPage() {
       {/* Header Bar */}
       <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-20 shadow-2xs">
         <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-[#0b4632] flex items-center justify-center shadow-xs overflow-hidden border border-emerald-900/30 group-hover:scale-105 transition-transform">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-12 h-12 rounded-2xl bg-[#0b4632] p-1 flex items-center justify-center shadow-md overflow-hidden border border-emerald-900/30 group-hover:scale-105 transition-transform">
               <Image
                 src="/logo.png"
                 alt="GALUR Logo"
-                width={36}
-                height={36}
-                className="w-full h-full object-cover"
+                width={48}
+                height={48}
+                className="w-full h-full object-contain rounded-xl"
+                priority
               />
             </div>
             <div>
-              <span className="font-black text-lg tracking-tight text-[#0b4632]">GALUR</span>
-              <span className="hidden sm:inline-block text-xs text-amber-700 font-bold ml-2 px-1.5 py-0.2 bg-amber-50 rounded border border-amber-200">
+              <span className="font-black text-xl tracking-tight text-[#0b4632]">GALUR</span>
+              <span className="hidden sm:inline-block text-xs text-amber-700 font-bold ml-2 px-2 py-0.5 bg-amber-50 rounded-full border border-amber-200">
                 Dashboard Studio
               </span>
             </div>
@@ -191,13 +192,13 @@ export default function DashboardPage() {
         {/* Banner Slogan dengan Maskot Galur */}
         <div className="bg-gradient-to-r from-[#0b4632] via-[#0d5940] to-[#072419] rounded-3xl p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border border-emerald-800/40">
           <div className="flex items-center gap-5">
-            <div className="w-20 h-20 rounded-2xl bg-[#083525] p-1 shadow-lg shrink-0 overflow-hidden border border-emerald-700/50 hidden sm:block">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-[#083525] p-1.5 shadow-xl shrink-0 overflow-hidden border border-emerald-700/60 hidden sm:block">
               <Image
                 src="/logo.png"
                 alt="Maskot Galur"
-                width={80}
-                height={80}
-                className="w-full h-full object-cover rounded-xl"
+                width={112}
+                height={112}
+                className="w-full h-full object-contain rounded-2xl"
               />
             </div>
             <div className="space-y-1.5 max-w-xl">

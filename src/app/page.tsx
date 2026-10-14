@@ -23,19 +23,20 @@ export default function LandingPage() {
     <div className="min-h-screen bg-[#fcfdfb] text-slate-800 flex flex-col selection:bg-emerald-700 selection:text-white">
       {/* Top Navbar */}
       <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-6 md:px-12 flex items-center justify-between sticky top-0 z-30">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-[#0b4632] flex items-center justify-center shadow-md overflow-hidden border border-emerald-900/30">
+        <div className="flex items-center gap-3.5">
+          <div className="w-14 h-14 rounded-2xl bg-[#0b4632] p-1.5 flex items-center justify-center shadow-md overflow-hidden border border-emerald-900/40">
             <Image
               src="/logo.png"
               alt="GALUR Logo"
-              width={44}
-              height={44}
-              className="w-full h-full object-cover"
+              width={56}
+              height={56}
+              className="w-full h-full object-contain rounded-xl"
+              priority
             />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-black text-xl tracking-tight text-[#0b4632]">GALUR</span>
+              <span className="font-black text-2xl tracking-tight text-[#0b4632]">GALUR</span>
               <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
                 v1.0
               </span>
@@ -66,14 +67,14 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="relative py-16 px-6 md:px-12 max-w-6xl mx-auto text-center space-y-6">
         {/* Mascot & Badge Tagline */}
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-24 h-24 rounded-3xl bg-[#0b4632] p-1.5 shadow-xl border-2 border-emerald-800/40 relative hover:scale-105 transition-transform duration-200">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-3xl bg-[#0b4632] p-2 shadow-2xl border-2 border-amber-400/40 relative hover:scale-105 transition-transform duration-200">
             <Image
               src="/logo.png"
               alt="Mascot Beruang Galur"
-              width={96}
-              height={96}
-              className="w-full h-full object-cover rounded-2xl"
+              width={144}
+              height={144}
+              className="w-full h-full object-contain rounded-2xl"
               priority
             />
           </div>
@@ -239,17 +240,17 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="mt-auto bg-[#072419] text-emerald-100/70 py-10 px-6 md:px-12 border-t border-emerald-900/50 text-center space-y-3">
-        <div className="flex items-center justify-center gap-2.5 text-white font-extrabold text-base">
-          <div className="w-8 h-8 rounded-xl bg-[#0b4632] flex items-center justify-center overflow-hidden border border-emerald-800/40">
+        <div className="flex items-center justify-center gap-3 text-white font-extrabold text-base">
+          <div className="w-12 h-12 rounded-2xl bg-[#0b4632] p-1 flex items-center justify-center overflow-hidden border border-emerald-800/40 shadow-md">
             <Image
               src="/logo.png"
               alt="GALUR Logo"
-              width={32}
-              height={32}
-              className="w-full h-full object-cover"
+              width={48}
+              height={48}
+              className="w-full h-full object-contain rounded-xl"
             />
           </div>
-          <span className="text-white tracking-wide font-black">GALUR</span>
+          <span className="text-white tracking-wide font-black text-lg">GALUR</span>
         </div>
         <p className="text-xs text-amber-300 font-semibold italic">
           &ldquo;Garis Alur, Ngajentrekeun Struktur&rdquo;
