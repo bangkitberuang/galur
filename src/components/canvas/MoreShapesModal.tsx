@@ -61,8 +61,9 @@ export default function MoreShapesModal({
     onClose();
   };
 
-  const groups: Array<'STANDAR' | 'PERANGKAT LUNAK' | 'BISNIS & INOVASI'> = [
+  const groups: Array<'STANDAR' | 'IKP & MULTIMEDIA' | 'PERANGKAT LUNAK' | 'BISNIS & INOVASI'> = [
     'STANDAR',
+    'IKP & MULTIMEDIA',
     'PERANGKAT LUNAK',
     'BISNIS & INOVASI',
   ];

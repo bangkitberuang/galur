@@ -46,7 +46,20 @@ import {
   FolderGit2,
   Boxes,
   CheckCircle2,
-  Workflow
+  Workflow,
+  Camera,
+  Sliders,
+  Cable,
+  Router,
+  RadioTower,
+  Headphones,
+  Wifi,
+  User,
+  UserCog,
+  ClipboardList,
+  Megaphone,
+  FolderArchive,
+  Newspaper
 } from 'lucide-react';
 
 export interface ShapeDefinition {
@@ -63,7 +76,7 @@ export interface ShapeDefinition {
 export interface ShapeCategory {
   id: string;
   name: string;
-  group: 'STANDAR' | 'PERANGKAT LUNAK' | 'BISNIS & INOVASI';
+  group: 'STANDAR' | 'IKP & MULTIMEDIA' | 'PERANGKAT LUNAK' | 'BISNIS & INOVASI';
   description: string;
   defaultActive: boolean;
   shapes: ShapeDefinition[];
@@ -439,7 +452,366 @@ export const SHAPE_CATEGORIES: ShapeCategory[] = [
   },
 
   // ==========================================
-  // GRUP 2: PERANGKAT LUNAK & REKAYASA
+  // GRUP 2: IKP & MULTIMEDIA (BIDANG IKP DISKOMINFO)
+  // ==========================================
+  {
+    id: 'multimedia',
+    name: 'Multimedia & Streaming',
+    group: 'IKP & MULTIMEDIA',
+    description: 'Perangkat topologi audio-video live streaming: kamera, switcher, laptop OBS, kabel, dan jaringan.',
+    defaultActive: true,
+    shapes: [
+      {
+        id: 'mm-camera',
+        type: 'process',
+        label: 'Kamera Live',
+        title: 'Kamera Live Streaming (SDI/HDMI)',
+        icon: Camera,
+        category: 'multimedia',
+        tags: ['camera', 'kamera', 'video', 'shooting', 'camcorder', 'sdi', 'hdmi'],
+        defaultData: {
+          label: 'Kamera Live',
+          sublabel: '1080p SDI/HDMI',
+          icon: 'camera',
+          color: '#f0fdf4',
+          borderColor: '#16a34a',
+          iconColor: '#16a34a',
+        },
+      },
+      {
+        id: 'mm-smartphone',
+        type: 'process',
+        label: 'Smartphone',
+        title: 'Smartphone / Wireless Mobile Cam',
+        icon: Smartphone,
+        category: 'multimedia',
+        tags: ['smartphone', 'hp', 'kamera hp', 'mobile', 'android', 'iphone', 'ndi'],
+        defaultData: {
+          label: 'Smartphone Cam',
+          sublabel: 'Wireless Cam NDI',
+          icon: 'smartphone',
+          color: '#f0fdfa',
+          borderColor: '#0d9488',
+          iconColor: '#0d9488',
+        },
+      },
+      {
+        id: 'mm-laptop',
+        type: 'process',
+        label: 'Laptop OBS',
+        title: 'Laptop / PC OBS Studio & vMix',
+        icon: Laptop,
+        category: 'multimedia',
+        tags: ['laptop', 'komputer', 'obs', 'vmix', 'encoder', 'streaming'],
+        defaultData: {
+          label: 'Laptop OBS/vMix',
+          sublabel: 'Software Encoder',
+          icon: 'laptop',
+          color: '#eff6ff',
+          borderColor: '#2563eb',
+          iconColor: '#2563eb',
+        },
+      },
+      {
+        id: 'mm-mixer',
+        type: 'process',
+        label: 'Mixer Video',
+        title: 'Video Switcher (ATEM) & Audio Mixer',
+        icon: Sliders,
+        category: 'multimedia',
+        tags: ['mixer', 'switcher', 'atem', 'blackmagic', 'sound', 'audio'],
+        defaultData: {
+          label: 'Video Switcher',
+          sublabel: 'ATEM Multi-Input',
+          icon: 'sliders',
+          color: '#faf5ff',
+          borderColor: '#7c3aed',
+          iconColor: '#7c3aed',
+        },
+      },
+      {
+        id: 'mm-hdmi-cable',
+        type: 'process',
+        label: 'Kabel HDMI',
+        title: 'Kabel Transmisi Video HDMI / SDI',
+        icon: Cable,
+        category: 'multimedia',
+        tags: ['hdmi', 'sdi', 'cable', 'kabel', 'video', 'transmisi'],
+        defaultData: {
+          label: 'Kabel HDMI/SDI',
+          sublabel: 'Video Feed High-Speed',
+          icon: 'cable',
+          color: '#fdf4ff',
+          borderColor: '#c026d3',
+          iconColor: '#c026d3',
+        },
+      },
+      {
+        id: 'mm-lan-switch',
+        type: 'process',
+        label: 'Switch LAN',
+        title: 'Switch Hub LAN Gigabit / PoE',
+        icon: Network,
+        category: 'multimedia',
+        tags: ['lan', 'switch', 'hub', 'ethernet', 'rj45', 'jaringan'],
+        defaultData: {
+          label: 'Switch Hub LAN',
+          sublabel: 'Gigabit Ethernet RJ45',
+          icon: 'network',
+          color: '#ecfdf5',
+          borderColor: '#059669',
+          iconColor: '#059669',
+        },
+      },
+      {
+        id: 'mm-router',
+        type: 'process',
+        label: 'Router',
+        title: 'Router Jaringan Gateway & Internet Pemda',
+        icon: Router,
+        category: 'multimedia',
+        tags: ['router', 'jaringan', 'gateway', 'mikrotik', 'internet', 'ip public'],
+        defaultData: {
+          label: 'Router Gateway',
+          sublabel: 'QoS Bandwidth Internet',
+          icon: 'router',
+          color: '#ecfeff',
+          borderColor: '#0891b2',
+          iconColor: '#0891b2',
+        },
+      },
+      {
+        id: 'mm-wlan',
+        type: 'process',
+        label: 'WLAN / AP',
+        title: 'WLAN Access Point / Wi-Fi Dedicated',
+        icon: Wifi,
+        category: 'multimedia',
+        tags: ['wlan', 'wifi', 'access point', 'nirkabel', 'wireless'],
+        defaultData: {
+          label: 'WLAN Access Point',
+          sublabel: 'Wi-Fi 6 Dedicated',
+          icon: 'wifi',
+          color: '#fefce8',
+          borderColor: '#ca8a04',
+          iconColor: '#ca8a04',
+        },
+      },
+      {
+        id: 'mm-server',
+        type: 'database',
+        label: 'Server RTMP',
+        title: 'Server Media RTMP / SRT Diskominfo',
+        icon: Server,
+        category: 'multimedia',
+        tags: ['server', 'rtmp', 'srt', 'media', 'transcoding', 'diskominfo'],
+        defaultData: {
+          label: 'Server RTMP/SRT',
+          sublabel: 'Infrastruktur Diskominfo',
+          icon: 'server',
+          color: '#f8fafc',
+          borderColor: '#334155',
+          iconColor: '#334155',
+        },
+      },
+      {
+        id: 'mm-cloud',
+        type: 'cloud',
+        label: 'Cloud Live',
+        title: 'Platform Cloud (YouTube / FB / Portal Pemda)',
+        icon: Cloud,
+        category: 'multimedia',
+        tags: ['cloud', 'youtube', 'facebook', 'portal pemda', 'cdn', 'broadcast'],
+        defaultData: {
+          label: 'YouTube / Portal Pemda',
+          sublabel: 'Distribusi Siaran Publik',
+          icon: 'cloud',
+          color: '#f0f9ff',
+          borderColor: '#0284c7',
+          iconColor: '#0284c7',
+        },
+      },
+      {
+        id: 'mm-bts',
+        type: 'process',
+        label: 'BTS Seluler',
+        title: 'BTS Seluler 4G/5G / Modem Cadangan',
+        icon: RadioTower,
+        category: 'multimedia',
+        tags: ['bts', 'seluler', '4g', '5g', 'modem', 'orbit', 'tower', 'uplink'],
+        defaultData: {
+          label: 'BTS Seluler 4G/5G',
+          sublabel: 'Cadangan Uplink Darurat',
+          icon: 'radiotower',
+          color: '#fff7ed',
+          borderColor: '#ea580c',
+          iconColor: '#ea580c',
+        },
+      },
+      {
+        id: 'mm-operator',
+        type: 'process',
+        label: 'Operator Live',
+        title: 'Operator Live Streaming & Audio Engineer',
+        icon: Headphones,
+        category: 'multimedia',
+        tags: ['operator', 'crew', 'soundman', 'cameraman', 'teknisi', 'broadcaster'],
+        defaultData: {
+          label: 'Operator Streaming',
+          sublabel: 'Kru Teknis IKP',
+          icon: 'headphones',
+          color: '#fdf2f8',
+          borderColor: '#db2777',
+          iconColor: '#db2777',
+        },
+      },
+    ],
+  },
+  {
+    id: 'tata_kelola_asn',
+    name: 'Pekerjaan & ASN (IKP)',
+    group: 'IKP & MULTIMEDIA',
+    description: 'Struktur SDM aparatur, penugasan liputan, berkas dinas, dan diseminasi publikasi IKP.',
+    defaultActive: true,
+    shapes: [
+      {
+        id: 'asn-pegawai',
+        type: 'org_node',
+        label: 'Pegawai ASN',
+        title: 'Aparatur Sipil Negara (ASN / PNS / PPPK)',
+        icon: User,
+        category: 'tata_kelola_asn',
+        tags: ['asn', 'pns', 'pppk', 'pegawai', 'orang', 'aparatur'],
+        defaultData: {
+          name: 'Nama Pegawai',
+          role: 'Aparatur Sipil Negara (ASN)',
+          dept: 'Bidang IKP Diskominfo',
+          badgeColor: '#059669',
+          avatarBg: '#059669',
+        },
+      },
+      {
+        id: 'asn-staff',
+        type: 'org_node',
+        label: 'Staf Pelaksana',
+        title: 'Staf Pelaksana & Fungsional Pranata Humas',
+        icon: Users,
+        category: 'tata_kelola_asn',
+        tags: ['staff', 'staf', 'pelaksana', 'pranata humas', 'fungsional', 'tim'],
+        defaultData: {
+          name: 'Staf Pelaksana',
+          role: 'Pranata Humas / Peliput',
+          dept: 'Seksi Kemitraan & Media',
+          badgeColor: '#0284c7',
+          avatarBg: '#0284c7',
+        },
+      },
+      {
+        id: 'asn-manager',
+        type: 'org_node',
+        label: 'Pimpinan / Kabid',
+        title: 'Kepala Bidang (Kabid) / Sub-Koordinator / Kasi',
+        icon: UserCog,
+        category: 'tata_kelola_asn',
+        tags: ['manager', 'kabid', 'kasi', 'pimpinan', 'pejabat', 'struktural'],
+        defaultData: {
+          name: 'Kepala Bidang (Kabid)',
+          role: 'Kabid Informasi & Komunikasi Publik',
+          dept: 'Diskominfo',
+          badgeColor: '#7c3aed',
+          avatarBg: '#7c3aed',
+        },
+      },
+      {
+        id: 'asn-pekerjaan',
+        type: 'process',
+        label: 'Pekerjaan Liputan',
+        title: 'Agenda Kegiatan Peliputan & Live Streaming',
+        icon: ClipboardList,
+        category: 'tata_kelola_asn',
+        tags: ['pekerjaan', 'tugas', 'kegiatan', 'peliputan', 'agenda', 'jadwal'],
+        defaultData: {
+          label: 'Agenda Peliputan Resmi',
+          sublabel: 'Live Streaming Acara Pemda',
+          icon: 'clipboardlist',
+          color: '#f0fdf4',
+          borderColor: '#16a34a',
+          iconColor: '#16a34a',
+        },
+      },
+      {
+        id: 'asn-berkas',
+        type: 'document',
+        label: 'Berkas SPT',
+        title: 'Berkas Surat Perintah Tugas (SPT) / Nota Dinas',
+        icon: FileText,
+        category: 'tata_kelola_asn',
+        tags: ['berkas', 'spt', 'surat tugas', 'nota dinas', 'lpj', 'dokumen', 'disposisi'],
+        defaultData: {
+          label: 'Surat Tugas (SPT)',
+          sublabel: 'Dasar Pelaksanaan Tugas',
+          icon: 'filetext',
+          color: '#fffbeb',
+          borderColor: '#d97706',
+          iconColor: '#d97706',
+        },
+      },
+      {
+        id: 'asn-output',
+        type: 'process',
+        label: 'Output Rilis',
+        title: 'Output Siaran Pers & Publikasi Berita Pemda',
+        icon: Megaphone,
+        category: 'tata_kelola_asn',
+        tags: ['output', 'rilis', 'siaran pers', 'press release', 'berita', 'publikasi', 'ikp'],
+        defaultData: {
+          label: 'Siaran Pers & Berita Media',
+          sublabel: 'Diseminasi Informasi Publik',
+          icon: 'megaphone',
+          color: '#fef2f2',
+          borderColor: '#dc2626',
+          iconColor: '#dc2626',
+        },
+      },
+      {
+        id: 'asn-arsip',
+        type: 'database',
+        label: 'Arsip Liputan',
+        title: 'Bank Data Arsip Foto, Video & Laporan IKP',
+        icon: FolderArchive,
+        category: 'tata_kelola_asn',
+        tags: ['arsip', 'dokumentasi', 'foto', 'video', 'laporan kegiatan', 'storage'],
+        defaultData: {
+          label: 'Bank Data Arsip IKP',
+          sublabel: 'Penyimpanan Dokumentasi',
+          icon: 'folderarchive',
+          color: '#f8fafc',
+          borderColor: '#475569',
+          iconColor: '#475569',
+        },
+      },
+      {
+        id: 'asn-media-mitra',
+        type: 'process',
+        label: 'Media Mitra',
+        title: 'Jaringan Media Massa & Jurnalis Mitra Diskominfo',
+        icon: Newspaper,
+        category: 'tata_kelola_asn',
+        tags: ['media', 'wartawan', 'jurnalis', 'pers', 'mitra media', 'surat kabar'],
+        defaultData: {
+          label: 'Mitra Media & Jurnalis',
+          sublabel: 'Kanal Diseminasi Pers',
+          icon: 'newspaper',
+          color: '#f5f3ff',
+          borderColor: '#8b5cf6',
+          iconColor: '#8b5cf6',
+        },
+      },
+    ],
+  },
+
+  // ==========================================
+  // GRUP 3: PERANGKAT LUNAK & REKAYASA
   // ==========================================
   {
     id: 'relasi_entitas',
@@ -698,6 +1070,8 @@ export const DEFAULT_ACTIVE_CATEGORY_IDS = [
   'dasar',
   'panah',
   'diagram_alir',
+  'multimedia',
+  'tata_kelola_asn',
   'relasi_entitas',
   'uml',
   'problem_solving',
@@ -711,7 +1085,16 @@ export function getSavedActiveCategories(): string[] {
     const raw = localStorage.getItem(LOCAL_STORAGE_ACTIVE_LIBRARIES_KEY);
     if (!raw) return DEFAULT_ACTIVE_CATEGORY_IDS;
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      // Pastikan kategori baru multimedia & tata_kelola_asn otomatis aktif bagi pengguna
+      const combined = [...parsed];
+      for (const id of ['multimedia', 'tata_kelola_asn']) {
+        if (!combined.includes(id)) {
+          combined.push(id);
+        }
+      }
+      return combined;
+    }
   } catch (err) {
     console.error('Failed to read active shape libraries from localStorage:', err);
   }

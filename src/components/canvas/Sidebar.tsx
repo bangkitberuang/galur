@@ -38,6 +38,8 @@ export default function Sidebar({ onAddNode, edgeType, setEdgeType }: SidebarPro
     dasar: true,
     panah: false,
     diagram_alir: true,
+    multimedia: true,
+    tata_kelola_asn: true,
     relasi_entitas: false,
     uml: false,
     problem_solving: true,
