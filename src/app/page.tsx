@@ -18,23 +18,37 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { APP_VERSION, APP_VERSION_CODENAME, APP_LOGO_URL } from '@/lib/version';
-import GedungSateSilhouette from '@/components/common/GedungSateSilhouette';
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#edf5f0] via-[#fcfdfb] to-[#f4f7f3] text-slate-800 flex flex-col selection:bg-emerald-700 selection:text-white relative overflow-x-hidden">
       {/* ======================================================== */}
-      {/* LATAR BELAKANG GRADASI & CAHAYA AMBIEN TATAR SUNDA        */}
+      {/* LATAR BELAKANG GEDUNG SATE & GRADASI HIJAU TATAR SUNDA    */}
       {/* ======================================================== */}
-      <div className="absolute top-0 inset-x-0 h-[860px] pointer-events-none -z-10 overflow-hidden">
-        {/* Glow Utama Hijau Sunda */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[550px] bg-gradient-to-b from-emerald-200/50 via-emerald-100/25 to-transparent rounded-full blur-3xl" />
-        {/* Glow Hangat Emas / Amber */}
-        <div className="absolute top-24 right-1/4 w-[450px] h-[450px] bg-amber-200/35 rounded-full blur-3xl" />
-        {/* Glow Teal Lembut */}
-        <div className="absolute top-48 left-1/5 w-[420px] h-[420px] bg-teal-100/40 rounded-full blur-3xl" />
+      <div className="absolute top-0 inset-x-0 h-[860px] pointer-events-none -z-10 overflow-hidden select-none">
+        {/* Gambar Panorama Gedung Sate Jawa Barat (Tipis / Lembut) */}
+        <div className="absolute inset-0 opacity-[0.25] sm:opacity-[0.30] mix-blend-multiply">
+          <Image
+            src="/gedung-sate-hero.jpg"
+            alt="Panorama Gedung Sate Jawa Barat"
+            fill
+            priority
+            className="object-cover object-bottom"
+          />
+        </div>
+
+        {/* Lapisan Gradasi Hijau Tatar Sunda (Soft Green Gradient Overlay) */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#edf5f0]/85 via-emerald-100/25 to-[#fcfdfb]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#edf5f0]/85 via-transparent to-[#edf5f0]/85" />
+        <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#fcfdfb] to-transparent" />
+
+        {/* Glow Hangat Emas / Amber & Hijau Zamrud */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-emerald-300/30 via-emerald-100/20 to-transparent rounded-full blur-3xl" />
+        <div className="absolute top-24 right-1/4 w-[450px] h-[450px] bg-amber-200/25 rounded-full blur-3xl" />
+        <div className="absolute top-48 left-1/5 w-[420px] h-[420px] bg-emerald-200/25 rounded-full blur-3xl" />
+
         {/* Grid Titik Halus Arsitektural */}
-        <div className="absolute inset-0 bg-[radial-gradient(#0b4632_0.8px,transparent_0.8px)] [background-size:24px_24px] opacity-15" />
+        <div className="absolute inset-0 bg-[radial-gradient(#0b4632_0.8px,transparent_0.8px)] [background-size:24px_24px] opacity-10" />
       </div>
 
       {/* Top Navbar */}
@@ -89,13 +103,6 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="relative py-16 px-6 md:px-12 max-w-6xl mx-auto text-center space-y-6">
-        {/* ======================================================== */}
-        {/* SILUET IKONIK GEDUNG SATE JAWA BARAT (OPACITY RENDAH)    */}
-        {/* ======================================================== */}
-        <div className="absolute inset-x-0 bottom-4 sm:bottom-8 pointer-events-none -z-10 flex justify-center items-end opacity-[0.10] sm:opacity-[0.13] overflow-hidden">
-          <GedungSateSilhouette className="w-full max-w-5xl text-emerald-950 scale-105 sm:scale-110 translate-y-6 sm:translate-y-10" opacity={1} />
-        </div>
-
         {/* Mascot & Badge Tagline */}
         <div className="flex flex-col items-center gap-5">
           <div className="relative w-48 h-48 sm:w-60 sm:h-60 md:w-64 md:h-64 transition-transform hover:scale-105 duration-300">
