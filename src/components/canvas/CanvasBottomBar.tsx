@@ -280,6 +280,15 @@ export default function CanvasBottomBar({
       {/* SISI KANAN: Undo, Redo, Zoom Controls, Fullscreen & Help */}
       {/* ========================================================= */}
       <div className="flex items-center gap-1 shrink-0 pl-2">
+        {/* BANGKIT BERUANG ECOSYSTEM BRAND PILL (Sesuai Permintaan User) */}
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-700 text-[10px] font-extrabold uppercase tracking-wider transition-all select-none mr-1 shadow-2xs">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+          <span>BANGKIT BERUANG</span>
+          <span className="text-emerald-700 font-bold lowercase tracking-normal">ecosystem</span>
+        </div>
+
+        <div className="h-4 w-[1px] bg-slate-200 mx-0.5" />
+
         {/* Undo */}
         <button
           type="button"

@@ -1535,8 +1535,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
               selectionMode={SelectionMode.Partial}
               panOnDrag={interactionMode === 'pan' ? true : [1, 2]}
               panActivationKeyCode="Space"
-              selectionKeyCode={null}
-              attributionPosition="bottom-right"
+              proOptions={{ hideAttribution: true }}
             >
               {/* Lembar Halaman A4 Presisi dengan Fitur Auto-Expand Sesuai Perkembangan Diagram */}
               <CanvasPageFrame config={pageConfig} nodes={nodes} />
@@ -1556,6 +1555,15 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
                 maskColor="rgba(240, 244, 248, 0.7)"
               />
             </ReactFlow>
+
+            {/* BANGKIT BERUANG ECOSYSTEM Official Canvas Watermark */}
+            <div className="absolute bottom-2 right-2 z-10 pointer-events-none select-none no-print">
+              <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/80 backdrop-blur-2xs border border-slate-200/60 shadow-2xs text-[9px] font-extrabold text-slate-500">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                <span className="uppercase tracking-wider">BANGKIT BERUANG</span>
+                <span className="text-emerald-700 font-bold lowercase">ecosystem</span>
+              </div>
+            </div>
           </div>
 
           {/* DOCK BAR MULTI-HALAMAN & KONTROL (Sesuai Referensi Gambar) */}
