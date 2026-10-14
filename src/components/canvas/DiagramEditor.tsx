@@ -160,68 +160,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     [edgeType, setEdges]
   );
 
-  // Menambah Cabang Ide Otomatis (Mind Map Function)
-  const handleAddChildNode = useCallback(
-    (parentId: string) => {
-      const parent = nodes.find((n) => n.id === parentId);
-      if (!parent) return;
-
-      const newId = `mindmap-${Date.now()}`;
-      const childCount = edges.filter((e) => e.source === parentId).length;
-      const offsetX = 220;
-      const offsetY = (childCount - 1) * 80;
-
-      const newNode: Node = {
-        id: newId,
-        type: 'mindmap',
-        position: {
-          x: parent.position.x + offsetX,
-          y: parent.position.y + offsetY,
-        },
-        data: {
-          label: `Cabang Ide ${childCount + 1}`,
-          color: '#ffffff',
-          borderColor: '#3b82f6',
-          textColor: '#0f172a',
-          onAddChild: handleAddChildNode,
-        },
-      };
-
-      const newEdge: Edge = {
-        id: `edge-${parentId}-${newId}`,
-        source: parentId,
-        target: newId,
-        type: 'default',
-        markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
-        style: { stroke: '#3b82f6', strokeWidth: 2 },
-      };
-
-      setNodes((nds) => [...nds, newNode]);
-      setEdges((eds) => [...eds, newEdge]);
-      setSaveStatus('idle');
-    },
-    [nodes, edges, setNodes, setEdges]
-  );
-
-  // Sematkan fungsi onAddChild ke setiap node mindmap
-  useEffect(() => {
-    setNodes((nds) =>
-      nds.map((node) => {
-        if (node.type === 'mindmap' && !node.data.onAddChild) {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              onAddChild: handleAddChildNode,
-            },
-          };
-        }
-        return node;
-      })
-    );
-  }, [handleAddChildNode, setNodes]);
-
-  // Tambah bentuk manual dari sidebar (klik atau drag)
+  // Tambah bentuk manual dari sidebar (klik)
   const handleAddNode = useCallback(
     (type: string, label: string) => {
       const id = `node-${Date.now()}`;
@@ -239,14 +178,13 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
           color: type === 'terminal' ? '#ecfdf5' : '#ffffff',
           borderColor: type === 'terminal' ? '#10b981' : '#3b82f6',
           textColor: '#0f172a',
-          onAddChild: type === 'mindmap' ? handleAddChildNode : undefined,
         },
       };
 
       setNodes((nds) => [...nds, newNode]);
       setSaveStatus('idle');
     },
-    [handleAddChildNode, setNodes]
+    [setNodes]
   );
 
   // Drag over & Drop dari sidebar langsung ke koordinat kursor kanvas
@@ -276,14 +214,13 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
           color: type === 'terminal' ? '#ecfdf5' : '#ffffff',
           borderColor: type === 'terminal' ? '#10b981' : '#3b82f6',
           textColor: '#0f172a',
-          onAddChild: type === 'mindmap' ? handleAddChildNode : undefined,
         },
       };
 
       setNodes((nds) => [...nds, newNode]);
       setSaveStatus('idle');
     },
-    [screenToFlowPosition, handleAddChildNode, setNodes]
+    [screenToFlowPosition, setNodes]
   );
 
   // Seleksi Node

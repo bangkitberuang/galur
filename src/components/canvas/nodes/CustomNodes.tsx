@@ -1,7 +1,7 @@
 'use client';
 
 import React, { memo } from 'react';
-import { Handle, Position, NodeProps } from '@xyflow/react';
+import { Handle, Position, useReactFlow, MarkerType } from '@xyflow/react';
 import { Plus, Database, Cloud, StickyNote, GitFork, PlayCircle, Square } from 'lucide-react';
 
 export interface CustomNodeData {
@@ -12,7 +12,6 @@ export interface CustomNodeData {
   textColor?: string;
   icon?: string;
   isRoot?: boolean;
-  onAddChild?: (parentId: string) => void;
   [key: string]: any;
 }
 
@@ -149,13 +148,54 @@ export const CloudNode = memo((props: any) => {
 });
 CloudNode.displayName = 'CloudNode';
 
-// 6. Mind Map Node (Modern Branching Node dengan Tombol Tambah Cabang)
+// 6. Mind Map Node (Modern Branching Node dengan useReactFlow hook langsung)
 export const MindMapNode = memo((props: any) => {
   const { id, data, selected } = props;
+  const { getNode, getEdges, setNodes, setEdges } = useReactFlow();
+
   const isRoot = data.isRoot;
   const bg = data.color || (isRoot ? '#1e293b' : '#ffffff');
   const border = data.borderColor || (isRoot ? '#0f172a' : '#3b82f6');
   const text = data.textColor || (isRoot ? '#ffffff' : '#0f172a');
+
+  const handleAddChild = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const parent = getNode(id);
+    if (!parent) return;
+
+    const edges = getEdges();
+    const childCount = edges.filter((edge) => edge.source === id).length;
+    const newId = `mindmap-${Date.now()}`;
+    const offsetX = 220;
+    const offsetY = (childCount - 1) * 75;
+
+    const newNode = {
+      id: newId,
+      type: 'mindmap',
+      position: {
+        x: parent.position.x + offsetX,
+        y: parent.position.y + offsetY,
+      },
+      data: {
+        label: `Cabang Ide ${childCount + 1}`,
+        color: '#ffffff',
+        borderColor: '#3b82f6',
+        textColor: '#0f172a',
+      },
+    };
+
+    const newEdge = {
+      id: `edge-${id}-${newId}`,
+      source: id,
+      target: newId,
+      type: 'default',
+      markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
+      style: { stroke: '#3b82f6', strokeWidth: 2 },
+    };
+
+    setNodes((nds) => [...nds, newNode]);
+    setEdges((eds) => [...eds, newEdge]);
+  };
 
   return (
     <div className="group relative">
@@ -170,10 +210,7 @@ export const MindMapNode = memo((props: any) => {
       </div>
 
       <button
-        onClick={(e) => {
-          e.stopPropagation();
-          if (data.onAddChild) data.onAddChild(id);
-        }}
+        onClick={handleAddChild}
         title="Tambah Cabang Ide Baru"
         className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 cursor-pointer"
       >
