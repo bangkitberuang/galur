@@ -564,6 +564,80 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     [screenToFlowPosition, setNodes, takeSnapshot]
   );
 
+  // MAGNETIZE: Memindahkan seluruh elemen di dalam kontainer saat kontainer digeser
+  const dragContainerRef = useRef<{
+    id: string;
+    startX: number;
+    startY: number;
+    children: { id: string; startX: number; startY: number }[];
+  } | null>(null);
+
+  const handleNodeDragStart = useCallback((_: any, node: Node) => {
+    takeSnapshot();
+    if (node.type === 'swimlane_group' && node.data?.magnetize !== false) {
+      const containerX = node.position.x;
+      const containerY = node.position.y;
+      const containerW = Number(node.data?.width) || 1160;
+      const lanes = (node.data?.lanes as any[]) || [];
+      const titleHeight = node.data?.showTitle !== false ? 32 : 0;
+      const containerH = titleHeight + lanes.reduce((acc: number, l: any) => acc + (l.height || 160), 0);
+
+      const insideNodes = nodes.filter((n) => {
+        if (n.id === node.id) return false;
+        const nw = Number(n.data?.width) || n.measured?.width || 120;
+        const nh = Number(n.data?.height) || n.measured?.height || 50;
+        return (
+          n.position.x >= containerX - 30 &&
+          n.position.x + nw <= containerX + containerW + 50 &&
+          n.position.y >= containerY - 30 &&
+          n.position.y + nh <= containerY + containerH + 50
+        );
+      });
+
+      dragContainerRef.current = {
+        id: node.id,
+        startX: node.position.x,
+        startY: node.position.y,
+        children: insideNodes.map((n) => ({
+          id: n.id,
+          startX: n.position.x,
+          startY: n.position.y,
+        })),
+      };
+    } else {
+      dragContainerRef.current = null;
+    }
+  }, [nodes, takeSnapshot]);
+
+  const handleNodeDrag = useCallback((_: any, node: Node) => {
+    if (dragContainerRef.current && dragContainerRef.current.id === node.id) {
+      const dx = node.position.x - dragContainerRef.current.startX;
+      const dy = node.position.y - dragContainerRef.current.startY;
+      const childMap = new Map(dragContainerRef.current.children.map((c) => [c.id, { x: c.startX + dx, y: c.startY + dy }]));
+
+      setNodes((nds) =>
+        nds.map((n) => {
+          const targetPos = childMap.get(n.id);
+          if (targetPos) {
+            return {
+              ...n,
+              position: { x: targetPos.x, y: targetPos.y },
+            };
+          }
+          return n;
+        })
+      );
+    }
+  }, [setNodes]);
+
+  const handleNodeDragStop = useCallback(() => {
+    dragContainerRef.current = null;
+    setSaveStatus('idle');
+    if (!isRemoteUpdating.current) {
+      collabManager.broadcastNodesChange(nodes);
+    }
+  }, [nodes]);
+
   // Seleksi Node
   const onNodeClick = useCallback((_: any, node: Node) => {
     setSelectedNode(node);
@@ -1444,18 +1518,9 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
               onPaneClick={onPaneClick}
               onNodesDelete={onNodesDelete}
               onEdgesDelete={onEdgesDelete}
-              onNodeDragStart={() => {
-                takeSnapshot();
-              }}
-              onSelectionDragStart={() => {
-                takeSnapshot();
-              }}
-              onNodeDragStop={() => {
-                setSaveStatus('idle');
-                if (!isRemoteUpdating.current) {
-                  collabManager.broadcastNodesChange(nodes);
-                }
-              }}
+              onNodeDragStart={handleNodeDragStart}
+              onNodeDrag={handleNodeDrag}
+              onNodeDragStop={handleNodeDragStop}
               onSelectionDragStop={() => {
                 setSaveStatus('idle');
                 if (!isRemoteUpdating.current) {

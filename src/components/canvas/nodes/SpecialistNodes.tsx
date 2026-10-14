@@ -945,6 +945,15 @@ export const SwimlaneGroupNode = memo((props: any) => {
     );
   };
 
+  const isGridLayout = data.gridLayout !== false;
+  const showGridSlots = data.showGridSlots !== false;
+  const gridColumns = data.gridColumns ? Math.max(3, Math.min(16, Number(data.gridColumns))) : 7;
+  const spacingX = data.spacingX !== undefined ? Number(data.spacingX) : 16;
+  const spacingY = data.spacingY !== undefined ? Number(data.spacingY) : 16;
+  const paddingX = data.paddingX !== undefined ? Number(data.paddingX) : 24;
+  const paddingY = data.paddingY !== undefined ? Number(data.paddingY) : 16;
+  const gridAlignH = data.gridAlignH || 'center';
+
   return (
     <div
       className={`relative rounded-2xl border-2 border-slate-300 bg-white/70 backdrop-blur-2xs shadow-sm overflow-visible transition-all ${
@@ -961,6 +970,12 @@ export const SwimlaneGroupNode = memo((props: any) => {
           <div className="flex items-center gap-2">
             <Layers className="w-3.5 h-3.5 text-blue-600" />
             <span>{titleText}</span>
+            {isGridLayout && (
+              <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700 border border-blue-200 normal-case tracking-normal flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+                Grid ({gridColumns} col)
+              </span>
+            )}
           </div>
           <button
             type="button"
@@ -1072,6 +1087,33 @@ export const SwimlaneGroupNode = memo((props: any) => {
               >
                 {/* Garis tengah panduan halus */}
                 <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 border-b border-dashed border-slate-200/60 pointer-events-none" />
+
+                {/* Grid Layout Petak Slot (Persis seperti tampilan Grid Layout di referensi screenshot) */}
+                {isGridLayout && showGridSlots && (
+                  <div
+                    className="absolute inset-0 flex items-center pointer-events-none"
+                    style={{
+                      paddingLeft: `${paddingX}px`,
+                      paddingRight: `${paddingX}px`,
+                      paddingTop: `${paddingY}px`,
+                      paddingBottom: `${paddingY}px`,
+                      gap: `${spacingX}px`,
+                      justifyContent:
+                        gridAlignH === 'left'
+                          ? 'flex-start'
+                          : gridAlignH === 'right'
+                          ? 'flex-end'
+                          : 'space-between',
+                    }}
+                  >
+                    {Array.from({ length: gridColumns }).map((_, colIdx) => (
+                      <div
+                        key={colIdx}
+                        className="flex-1 h-[68px] max-w-[130px] rounded-xl bg-slate-200/40 border border-dashed border-slate-300/60 flex items-center justify-center transition-all shadow-2xs"
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           );

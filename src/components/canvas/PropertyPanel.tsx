@@ -21,6 +21,7 @@ import {
   AlignRight,
   AlignJustify,
   Maximize2,
+  Minimize2,
   RotateCw,
   Sun,
   Database,
@@ -29,6 +30,14 @@ import {
   RotateCcw,
   FileText,
   Grid,
+  LayoutGrid,
+  Lock,
+  Wand2,
+  ChevronUp,
+  ChevronDown,
+  AlignStartVertical,
+  AlignVerticalSpaceAround,
+  AlignEndVertical,
   Eye,
   Moon,
   Leaf,
@@ -85,7 +94,12 @@ export default function PropertyPanel({
   const [customEmojiInput, setCustomEmojiInput] = React.useState('');
   const [customLogoUrl, setCustomLogoUrl] = React.useState('');
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const { getNode } = useReactFlow();
+  const { getNode, getNodes, getEdges, setNodes, setEdges } = useReactFlow();
+  const [gridExpanded, setGridExpanded] = React.useState(true);
+  const [behaviorExpanded, setBehaviorExpanded] = React.useState(true);
+  const [advancedExpanded, setAdvancedExpanded] = React.useState(false);
+  const [lockSpacing, setLockSpacing] = React.useState(true);
+  const [lockPadding, setLockPadding] = React.useState(true);
 
   // 0. JIKA TIDAK ADA YANG DIPILIH: TAMPILKAN PENGATURAN DIAGRAM HANYA JIKA DIBUKA (AUTO-HIDE BIAR RINGKAS)
   if (!selectedNode && !selectedEdge) {
@@ -1783,7 +1797,7 @@ export default function PropertyPanel({
               </div>
             </div>
           ) : type === 'swimlane_group' ? (
-            <div className="space-y-3">
+            <div className="space-y-3.5">
               <div>
                 <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
                   Judul Swimlane
@@ -1807,6 +1821,653 @@ export default function PropertyPanel({
                   />
                   <span>Tampilkan Bar Judul Atas</span>
                 </label>
+              </div>
+
+              {/* ======================================================== */}
+              {/* GRID LAYOUT SECTION (PERSIS SEPERTI GAMBAR REFERENSI USER) */}
+              {/* ======================================================== */}
+              <div className="border border-slate-200 rounded-2xl bg-white shadow-2xs overflow-hidden">
+                <div className="p-3 bg-slate-50/90 border-b border-slate-200/80 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <LayoutGrid className="w-4 h-4 text-blue-600" />
+                    <span className="text-xs font-extrabold text-slate-800 tracking-tight">Grid layout</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {/* Toggle Switch On/Off */}
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={data.gridLayout !== false}
+                        onChange={(e) => onUpdateNode(id, { gridLayout: e.target.checked })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-9 h-5 bg-slate-300 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setGridExpanded(!gridExpanded)}
+                      className="p-1 rounded hover:bg-slate-200 text-slate-500 cursor-pointer"
+                      title={gridExpanded ? 'Tutup Panel Grid' : 'Buka Panel Grid'}
+                    >
+                      {gridExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {gridExpanded && (
+                  <div className="p-3 space-y-3.5">
+                    {/* 1. Spacing */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                        <span>Spacing</span>
+                        <button
+                          type="button"
+                          onClick={() => setLockSpacing(!lockSpacing)}
+                          className={`p-1 rounded transition-colors cursor-pointer ${
+                            lockSpacing ? 'text-blue-600 bg-blue-50' : 'text-slate-400 hover:text-slate-600'
+                          }`}
+                          title={lockSpacing ? 'Tautan Terkunci (Sama)' : 'Tautan Bebas'}
+                        >
+                          <Lock className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {/* Spacing Y */}
+                        <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50/70">
+                          <MoveVertical className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                          <input
+                            type="number"
+                            min={0}
+                            max={100}
+                            step={2}
+                            value={data.spacingY !== undefined ? Number(data.spacingY) : 16}
+                            onChange={(e) => {
+                              const val = Math.max(0, Number(e.target.value));
+                              onUpdateNode(id, lockSpacing ? { spacingY: val, spacingX: val } : { spacingY: val });
+                            }}
+                            className="w-full text-xs font-bold font-mono bg-transparent outline-hidden text-slate-800"
+                          />
+                          <span className="text-[10px] text-slate-400 font-mono">px</span>
+                        </div>
+                        {/* Spacing X */}
+                        <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50/70">
+                          <MoveHorizontal className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                          <input
+                            type="number"
+                            min={0}
+                            max={100}
+                            step={2}
+                            value={data.spacingX !== undefined ? Number(data.spacingX) : 16}
+                            onChange={(e) => {
+                              const val = Math.max(0, Number(e.target.value));
+                              onUpdateNode(id, lockSpacing ? { spacingX: val, spacingY: val } : { spacingX: val });
+                            }}
+                            className="w-full text-xs font-bold font-mono bg-transparent outline-hidden text-slate-800"
+                          />
+                          <span className="text-[10px] text-slate-400 font-mono">px</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 2. Padding */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                        <span>Padding</span>
+                        <button
+                          type="button"
+                          onClick={() => setLockPadding(!lockPadding)}
+                          className={`p-1 rounded transition-colors cursor-pointer ${
+                            lockPadding ? 'text-blue-600 bg-blue-50' : 'text-slate-400 hover:text-slate-600'
+                          }`}
+                          title={lockPadding ? 'Tautan Terkunci (Sama)' : 'Tautan Bebas'}
+                        >
+                          <Lock className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {/* Padding Y */}
+                        <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50/70">
+                          <span className="text-xs text-slate-500 font-mono font-bold">🟰</span>
+                          <input
+                            type="number"
+                            min={0}
+                            max={120}
+                            step={4}
+                            value={data.paddingY !== undefined ? Number(data.paddingY) : 16}
+                            onChange={(e) => {
+                              const val = Math.max(0, Number(e.target.value));
+                              onUpdateNode(id, lockPadding ? { paddingY: val, paddingX: val } : { paddingY: val });
+                            }}
+                            className="w-full text-xs font-bold font-mono bg-transparent outline-hidden text-slate-800"
+                          />
+                          <span className="text-[10px] text-slate-400 font-mono">px</span>
+                        </div>
+                        {/* Padding X */}
+                        <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50/70">
+                          <span className="text-xs text-slate-500 font-mono font-bold">⏸</span>
+                          <input
+                            type="number"
+                            min={0}
+                            max={120}
+                            step={4}
+                            value={data.paddingX !== undefined ? Number(data.paddingX) : 24}
+                            onChange={(e) => {
+                              const val = Math.max(0, Number(e.target.value));
+                              onUpdateNode(id, lockPadding ? { paddingX: val, paddingY: val } : { paddingX: val });
+                            }}
+                            className="w-full text-xs font-bold font-mono bg-transparent outline-hidden text-slate-800"
+                          />
+                          <span className="text-[10px] text-slate-400 font-mono">px</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 3. Sizing (Fit | Manual) */}
+                    <div className="space-y-1.5">
+                      <span className="block text-xs font-bold text-slate-700">Sizing</span>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!selectedNode) return;
+                            const allNodes = getNodes();
+                            const containerX = selectedNode.position.x;
+                            const containerY = selectedNode.position.y;
+                            const lanes = (data.lanes as any[]) || [];
+                            const padX = data.paddingX !== undefined ? Number(data.paddingX) : 24;
+                            const titleH = data.showTitle !== false ? 32 : 0;
+                            const containerH = titleH + lanes.reduce((acc: number, l: any) => acc + (l.height || 160), 0);
+
+                            const inside = allNodes.filter((n) => {
+                              if (n.id === selectedNode.id) return false;
+                              return (
+                                n.position.x >= containerX - 40 &&
+                                n.position.x <= containerX + (Number(data.width) || 1160) + 200 &&
+                                n.position.y >= containerY - 20 &&
+                                n.position.y <= containerY + containerH + 50
+                              );
+                            });
+
+                            if (inside.length > 0) {
+                              const maxRight = Math.max(...inside.map((n) => n.position.x + (Number(n.data?.width) || n.measured?.width || 140)));
+                              const neededWidth = Math.max(900, Math.round(maxRight - containerX + padX + 60));
+                              onUpdateNode(id, { width: neededWidth, gridSizing: 'fit' });
+                            }
+                          }}
+                          className="px-3 py-2 rounded-xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/60 text-xs font-bold text-slate-700 flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
+                          title="Paskan ukuran kontainer ke semua elemen di dalamnya"
+                        >
+                          <Minimize2 className="w-3.5 h-3.5 text-blue-600" />
+                          <span>Fit</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onUpdateNode(id, { gridSizing: 'manual' })}
+                          className={`px-3 py-2 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs ${
+                            data.gridSizing !== 'fit'
+                              ? 'border-blue-500 bg-blue-50 text-blue-800'
+                              : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                          }`}
+                          title="Ukuran manual leluasa diubah via handle drag"
+                        >
+                          <Maximize2 className="w-3.5 h-3.5 text-blue-600" />
+                          <span>Manual</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 4. Lines (Auto line routing) */}
+                    <div className="space-y-1.5">
+                      <span className="block text-xs font-bold text-slate-700">Lines</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!selectedNode) return;
+                          const allNodes = getNodes();
+                          const allEdges = getEdges();
+                          const containerX = selectedNode.position.x;
+                          const containerY = selectedNode.position.y;
+                          const containerW = Number(data.width) || 1160;
+                          const lanes = (data.lanes as any[]) || [];
+                          const titleH = data.showTitle !== false ? 32 : 0;
+                          const containerH = titleH + lanes.reduce((acc: number, l: any) => acc + (l.height || 160), 0);
+
+                          const insideNodeIds = new Set(
+                            allNodes
+                              .filter((n) => {
+                                if (n.id === selectedNode.id) return false;
+                                return (
+                                  n.position.x >= containerX - 40 &&
+                                  n.position.x <= containerX + containerW + 40 &&
+                                  n.position.y >= containerY - 20 &&
+                                  n.position.y <= containerY + containerH + 40
+                                );
+                              })
+                              .map((n) => n.id)
+                          );
+
+                          const updatedEdges = allEdges.map((e) => {
+                            if (insideNodeIds.has(e.source) && insideNodeIds.has(e.target)) {
+                              const srcNode = allNodes.find((n) => n.id === e.source);
+                              const tgtNode = allNodes.find((n) => n.id === e.target);
+                              if (srcNode && tgtNode) {
+                                const dx = tgtNode.position.x - srcNode.position.x;
+                                const dy = tgtNode.position.y - srcNode.position.y;
+                                let sHandle = 'r-out';
+                                let tHandle = 'l-in';
+                                if (Math.abs(dx) >= Math.abs(dy)) {
+                                  sHandle = dx >= 0 ? 'r-out' : 'l-out';
+                                  tHandle = dx >= 0 ? 'l-in' : 'r-in';
+                                } else {
+                                  sHandle = dy >= 0 ? 'b-out' : 't-out';
+                                  tHandle = dy >= 0 ? 't-in' : 'b-in';
+                                }
+                                return {
+                                  ...e,
+                                  type: 'smoothstep',
+                                  sourceHandle: sHandle,
+                                  targetHandle: tHandle,
+                                  markerEnd: e.markerEnd || { type: MarkerType.ArrowClosed, color: '#3b82f6' },
+                                  style: { ...(e.style || {}), strokeWidth: 2 },
+                                };
+                              }
+                            }
+                            return e;
+                          });
+
+                          setEdges(updatedEdges);
+                        }}
+                        className="w-full py-2.5 px-3 rounded-xl border border-slate-300 hover:border-blue-500 bg-slate-100 hover:bg-blue-50/80 text-xs font-bold text-slate-800 flex items-center justify-between transition-all cursor-pointer shadow-2xs"
+                        title="Otomatis merapikan garis alur tegak lurus melewati sela petak grid"
+                      >
+                        <span>Auto line routing</span>
+                        <Wand2 className="w-4 h-4 text-blue-600" />
+                      </button>
+                    </div>
+
+                    {/* 5. Alignment Toolbar */}
+                    <div className="space-y-1.5">
+                      <span className="block text-xs font-bold text-slate-700">Alignment</span>
+                      <div className="flex items-center gap-1 p-1 bg-slate-100/80 rounded-xl border border-slate-200">
+                        {/* Horizontal Alignments */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!selectedNode) return;
+                            const allNodes = getNodes();
+                            const containerX = selectedNode.position.x;
+                            const containerW = Number(data.width) || 1160;
+                            const headerWidth = data.headerWidth ? Number(data.headerWidth) : (data.isServiceBlueprint ? 120 : 60);
+                            const padX = data.paddingX !== undefined ? Number(data.paddingX) : 24;
+
+                            setNodes((nds) =>
+                              nds.map((n) => {
+                                if (n.id === selectedNode.id) return n;
+                                const nw = Number(n.data?.width) || n.measured?.width || 140;
+                                if (n.position.x >= containerX - 40 && n.position.x <= containerX + containerW + 40) {
+                                  return { ...n, position: { ...n.position, x: Math.round(containerX + headerWidth + padX) } };
+                                }
+                                return n;
+                              })
+                            );
+                          }}
+                          className="flex-1 py-1.5 flex items-center justify-center rounded-lg hover:bg-white text-slate-700 hover:text-blue-600 transition-colors cursor-pointer"
+                          title="Rata Kiri"
+                        >
+                          <AlignLeft className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!selectedNode) return;
+                            const allNodes = getNodes();
+                            const containerX = selectedNode.position.x;
+                            const containerW = Number(data.width) || 1160;
+                            const headerWidth = data.headerWidth ? Number(data.headerWidth) : (data.isServiceBlueprint ? 120 : 60);
+
+                            setNodes((nds) =>
+                              nds.map((n) => {
+                                if (n.id === selectedNode.id) return n;
+                                const nw = Number(n.data?.width) || n.measured?.width || 140;
+                                if (n.position.x >= containerX - 40 && n.position.x <= containerX + containerW + 40) {
+                                  return { ...n, position: { ...n.position, x: Math.round(containerX + headerWidth + (containerW - headerWidth - nw) / 2) } };
+                                }
+                                return n;
+                              })
+                            );
+                          }}
+                          className="flex-1 py-1.5 flex items-center justify-center rounded-lg hover:bg-white text-slate-700 hover:text-blue-600 transition-colors cursor-pointer"
+                          title="Rata Tengah Horizontal"
+                        >
+                          <AlignCenter className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!selectedNode) return;
+                            const allNodes = getNodes();
+                            const containerX = selectedNode.position.x;
+                            const containerW = Number(data.width) || 1160;
+                            const padX = data.paddingX !== undefined ? Number(data.paddingX) : 24;
+
+                            setNodes((nds) =>
+                              nds.map((n) => {
+                                if (n.id === selectedNode.id) return n;
+                                const nw = Number(n.data?.width) || n.measured?.width || 140;
+                                if (n.position.x >= containerX - 40 && n.position.x <= containerX + containerW + 40) {
+                                  return { ...n, position: { ...n.position, x: Math.round(containerX + containerW - padX - nw) } };
+                                }
+                                return n;
+                              })
+                            );
+                          }}
+                          className="flex-1 py-1.5 flex items-center justify-center rounded-lg hover:bg-white text-slate-700 hover:text-blue-600 transition-colors cursor-pointer"
+                          title="Rata Kanan"
+                        >
+                          <AlignRight className="w-4 h-4" />
+                        </button>
+
+                        <div className="w-[1px] h-4 bg-slate-300 mx-0.5" />
+
+                        {/* Vertical Alignments */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!selectedNode) return;
+                            const allNodes = getNodes();
+                            const containerX = selectedNode.position.x;
+                            const containerY = selectedNode.position.y;
+                            const containerW = Number(data.width) || 1160;
+                            const lanes = (data.lanes as any[]) || [];
+                            const titleH = data.showTitle !== false ? 32 : 0;
+                            const padY = data.paddingY !== undefined ? Number(data.paddingY) : 16;
+
+                            let curY = containerY + titleH;
+                            const laneBounds = lanes.map((l: any) => {
+                              const h = l.height || 160;
+                              const bound = { top: curY, bottom: curY + h, height: h };
+                              curY += h;
+                              return bound;
+                            });
+
+                            setNodes((nds) =>
+                              nds.map((n) => {
+                                if (n.id === selectedNode.id) return n;
+                                const nh = Number(n.data?.height) || n.measured?.height || 60;
+                                const cy = n.position.y + nh / 2;
+                                const b = laneBounds.find((lb) => cy >= lb.top && cy <= lb.bottom);
+                                if (b && n.position.x >= containerX - 40 && n.position.x <= containerX + containerW + 40) {
+                                  return { ...n, position: { ...n.position, y: Math.round(b.top + padY) } };
+                                }
+                                return n;
+                              })
+                            );
+                          }}
+                          className="flex-1 py-1.5 flex items-center justify-center rounded-lg hover:bg-white text-slate-700 hover:text-blue-600 transition-colors cursor-pointer"
+                          title="Rata Atas Jalur"
+                        >
+                          <AlignStartVertical className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!selectedNode) return;
+                            const allNodes = getNodes();
+                            const containerX = selectedNode.position.x;
+                            const containerY = selectedNode.position.y;
+                            const containerW = Number(data.width) || 1160;
+                            const lanes = (data.lanes as any[]) || [];
+                            const titleH = data.showTitle !== false ? 32 : 0;
+
+                            let curY = containerY + titleH;
+                            const laneBounds = lanes.map((l: any) => {
+                              const h = l.height || 160;
+                              const bound = { top: curY, bottom: curY + h, height: h };
+                              curY += h;
+                              return bound;
+                            });
+
+                            setNodes((nds) =>
+                              nds.map((n) => {
+                                if (n.id === selectedNode.id) return n;
+                                const nh = Number(n.data?.height) || n.measured?.height || 60;
+                                const cy = n.position.y + nh / 2;
+                                const b = laneBounds.find((lb) => cy >= lb.top && cy <= lb.bottom);
+                                if (b && n.position.x >= containerX - 40 && n.position.x <= containerX + containerW + 40) {
+                                  return { ...n, position: { ...n.position, y: Math.round(b.top + (b.height - nh) / 2) } };
+                                }
+                                return n;
+                              })
+                            );
+                          }}
+                          className="flex-1 py-1.5 flex items-center justify-center rounded-lg hover:bg-white text-slate-700 hover:text-blue-600 transition-colors cursor-pointer"
+                          title="Rata Tengah Vertikal Jalur"
+                        >
+                          <AlignVerticalSpaceAround className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!selectedNode) return;
+                            const allNodes = getNodes();
+                            const containerX = selectedNode.position.x;
+                            const containerY = selectedNode.position.y;
+                            const containerW = Number(data.width) || 1160;
+                            const lanes = (data.lanes as any[]) || [];
+                            const titleH = data.showTitle !== false ? 32 : 0;
+                            const padY = data.paddingY !== undefined ? Number(data.paddingY) : 16;
+
+                            let curY = containerY + titleH;
+                            const laneBounds = lanes.map((l: any) => {
+                              const h = l.height || 160;
+                              const bound = { top: curY, bottom: curY + h, height: h };
+                              curY += h;
+                              return bound;
+                            });
+
+                            setNodes((nds) =>
+                              nds.map((n) => {
+                                if (n.id === selectedNode.id) return n;
+                                const nh = Number(n.data?.height) || n.measured?.height || 60;
+                                const cy = n.position.y + nh / 2;
+                                const b = laneBounds.find((lb) => cy >= lb.top && cy <= lb.bottom);
+                                if (b && n.position.x >= containerX - 40 && n.position.x <= containerX + containerW + 40) {
+                                  return { ...n, position: { ...n.position, y: Math.round(b.bottom - padY - nh) } };
+                                }
+                                return n;
+                              })
+                            );
+                          }}
+                          className="flex-1 py-1.5 flex items-center justify-center rounded-lg hover:bg-white text-slate-700 hover:text-blue-600 transition-colors cursor-pointer"
+                          title="Rata Bawah Jalur"
+                        >
+                          <AlignEndVertical className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 6. Container behavior */}
+                    <div className="space-y-3 pt-3 border-t border-slate-100">
+                      <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+                        <span>Container behavior</span>
+                        <button
+                          type="button"
+                          onClick={() => setBehaviorExpanded(!behaviorExpanded)}
+                          className="p-1 rounded hover:bg-slate-200 text-slate-500 cursor-pointer"
+                        >
+                          {behaviorExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+
+                      {behaviorExpanded && (
+                        <div className="space-y-3 pl-1">
+                          {/* Magnetize */}
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <div className="text-xs font-bold text-slate-800">Magnetize</div>
+                              <div className="text-[10px] text-slate-500">Move content and container together</div>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-0.5">
+                              <input
+                                type="checkbox"
+                                checked={data.magnetize !== false}
+                                onChange={(e) => onUpdateNode(id, { magnetize: e.target.checked })}
+                                className="sr-only peer"
+                              />
+                              <div className="w-9 h-5 bg-slate-300 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                          </div>
+
+                          {/* Nudging */}
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <div className="text-xs font-bold text-slate-800">Nudging</div>
+                              <div className="text-[10px] text-slate-500">Move nearby shapes when resizing</div>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-0.5">
+                              <input
+                                type="checkbox"
+                                checked={Boolean(data.nudging)}
+                                onChange={(e) => onUpdateNode(id, { nudging: e.target.checked })}
+                                className="sr-only peer"
+                              />
+                              <div className="w-9 h-5 bg-slate-300 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 7. Advanced options */}
+                    <div className="space-y-2 pt-2 border-t border-slate-100">
+                      <button
+                        type="button"
+                        onClick={() => setAdvancedExpanded(!advancedExpanded)}
+                        className="w-full flex items-center justify-between text-xs font-bold text-slate-800 py-1 hover:text-blue-600 transition-colors cursor-pointer"
+                      >
+                        <span>Advanced options</span>
+                        {advancedExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                      </button>
+
+                      {advancedExpanded && (
+                        <div className="space-y-2.5 p-2.5 bg-slate-50/80 rounded-xl border border-slate-200">
+                          {/* Jumlah Kolom Grid */}
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-semibold text-slate-700">Jumlah Kolom Grid:</span>
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const curr = data.gridColumns ? Number(data.gridColumns) : 7;
+                                  if (curr > 3) onUpdateNode(id, { gridColumns: curr - 1 });
+                                }}
+                                className="w-6 h-6 rounded bg-white border border-slate-300 flex items-center justify-center font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+                              >
+                                -
+                              </button>
+                              <span className="w-6 text-center font-mono font-bold text-slate-800">
+                                {data.gridColumns ? Number(data.gridColumns) : 7}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const curr = data.gridColumns ? Number(data.gridColumns) : 7;
+                                  if (curr < 16) onUpdateNode(id, { gridColumns: curr + 1 });
+                                }}
+                                className="w-6 h-6 rounded bg-white border border-slate-300 flex items-center justify-center font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Checkbox Petak Slot Abu-abu */}
+                          <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700">
+                            <input
+                              type="checkbox"
+                              checked={data.showGridSlots !== false}
+                              onChange={(e) => onUpdateNode(id, { showGridSlots: e.target.checked })}
+                              className="rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 cursor-pointer"
+                            />
+                            <span>Tampilkan Slot Petak Abu-Abu</span>
+                          </label>
+
+                          {/* Tombol Ratakan ke Slot Grid */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!selectedNode) return;
+                              const allNodes = getNodes();
+                              const containerX = selectedNode.position.x;
+                              const containerY = selectedNode.position.y;
+                              const containerW = Number(data.width) || 1160;
+                              const lanes = (data.lanes as any[]) || [];
+                              const headerWidth = data.headerWidth ? Number(data.headerWidth) : (data.isServiceBlueprint ? 120 : 60);
+                              const titleH = data.showTitle !== false ? 32 : 0;
+                              const gridCols = data.gridColumns ? Math.max(3, Math.min(16, Number(data.gridColumns))) : 7;
+                              const padX = data.paddingX !== undefined ? Number(data.paddingX) : 24;
+                              const spcX = data.spacingX !== undefined ? Number(data.spacingX) : 16;
+
+                              const laneUsableW = containerW - headerWidth - padX * 2;
+                              const totalGaps = spcX * (gridCols - 1);
+                              const slotW = Math.max(60, (laneUsableW - totalGaps) / gridCols);
+
+                              const slotCentersX: number[] = [];
+                              for (let c = 0; c < gridCols; c++) {
+                                const slotLeft = containerX + headerWidth + padX + c * (slotW + spcX);
+                                slotCentersX.push(slotLeft + slotW / 2);
+                              }
+
+                              let curY = containerY + titleH;
+                              const laneBounds = lanes.map((l: any) => {
+                                const h = l.height || 160;
+                                const bound = { top: curY, bottom: curY + h, height: h, centerY: curY + h / 2 };
+                                curY += h;
+                                return bound;
+                              });
+
+                              setNodes((nds) =>
+                                nds.map((n) => {
+                                  if (n.id === selectedNode.id) return n;
+                                  const nw = Number(n.data?.width) || n.measured?.width || 140;
+                                  const nh = Number(n.data?.height) || n.measured?.height || 60;
+                                  const nodeCenterX = n.position.x + nw / 2;
+                                  const nodeCenterY = n.position.y + nh / 2;
+
+                                  const targetLane = laneBounds.find((lb) => nodeCenterY >= lb.top && nodeCenterY <= lb.bottom);
+                                  if (targetLane && nodeCenterX >= containerX && nodeCenterX <= containerX + containerW) {
+                                    let closestCol = 0;
+                                    let minDiff = Infinity;
+                                    slotCentersX.forEach((sc, colIdx) => {
+                                      const diff = Math.abs(nodeCenterX - sc);
+                                      if (diff < minDiff) {
+                                        minDiff = diff;
+                                        closestCol = colIdx;
+                                      }
+                                    });
+
+                                    const targetX = Math.round(slotCentersX[closestCol] - nw / 2);
+                                    const targetY = Math.round(targetLane.centerY - nh / 2);
+
+                                    return {
+                                      ...n,
+                                      position: { x: targetX, y: targetY },
+                                    };
+                                  }
+                                  return n;
+                                })
+                              );
+                            }}
+                            className="w-full py-2 px-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                          >
+                            <Sparkles className="w-3.5 h-3.5" />
+                            <span>Ratakan Bentuk ke Petak Grid</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Daftar Jalur Fungsi */}

@@ -1818,6 +1818,14 @@ export const SPECIALIST_CATEGORIES: CategoryTemplate[] = [
         data: {
           title: 'ALUR PROSES LINTAS FUNGSI (SWIMLANE FLOWCHART)',
           width: 1160,
+          gridLayout: true,
+          gridColumns: 7,
+          showGridSlots: true,
+          magnetize: true,
+          spacingX: 16,
+          spacingY: 16,
+          paddingX: 24,
+          paddingY: 16,
           lanes: [
             { id: 'customer', name: 'Customer', color: '#0284c7', height: 160 },
             { id: 'sales', name: 'Sales', color: '#0d9488', height: 170 },
