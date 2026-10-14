@@ -319,8 +319,10 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <p className="text-[11px] text-emerald-200/60 max-w-md mx-auto pt-1">
-          Dirancang untuk kemudahan pembuatan diagram teknikal dan pemikiran terstruktur. Bagian dari ekosistem digital BANGKIT BERUANG.
+        <p className="text-[11px] text-emerald-200/70 max-w-lg mx-auto pt-1 leading-relaxed">
+          Dirancang untuk kemudahan pembuatan diagram teknikal dan pemikiran terstruktur, dari{' '}
+          <strong className="text-amber-300 font-bold">Bangkit Beruang</strong> untuk{' '}
+          <strong className="text-white font-bold">Jawa Barat</strong>.
         </p>
       </footer>
     </div>

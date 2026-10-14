@@ -92,12 +92,16 @@ export default function EcosystemFooter({
         {/* Tagline & Copyright */}
         <p
           className={`text-[11px] max-w-lg leading-relaxed ${
-            isDark ? 'text-emerald-200/50' : 'text-slate-400'
+            isDark ? 'text-emerald-200/60' : 'text-slate-400'
           }`}
         >
-          GALUR — Garis Alur, Ngajentrekeun Struktur • Parabot visualisasi diagram cerdas bagian dari ekosistem digital{' '}
+          Dirancang untuk kemudahan pembuatan diagram teknikal dan pemikiran terstruktur, dari{' '}
           <strong className={isDark ? 'text-amber-300 font-bold' : 'text-slate-700 font-semibold'}>
-            BANGKIT BERUANG
+            Bangkit Beruang
+          </strong>{' '}
+          untuk{' '}
+          <strong className={isDark ? 'text-white font-bold' : 'text-emerald-800 font-semibold'}>
+            Jawa Barat
           </strong>
           .
         </p>
