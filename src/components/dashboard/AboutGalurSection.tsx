@@ -38,7 +38,9 @@ Ruang kerja diagram serbaguna ini memungkinkan pembuatan flowchart, bagan organi
 
 Dirancang untuk membantu ASN, pengembang aplikasi, pendidik, analis, mahasiswa, maupun masyarakat umum dalam merancang proses, menjelaskan konsep, memetakan hubungan antarbagian, dan mendokumentasikan alur kerja.
 
-Tujuan utamanya sederhana: membuat sesuatu yang rumit menjadi lebih mudah dilihat, dipahami, dan dijelaskan.`;
+Tujuan utamanya sederhana: membuat sesuatu yang rumit menjadi lebih mudah dilihat, dipahami, dan dijelaskan.
+
+Kekuatan identitas GALUR terletak pada perpaduan tiga hal: nama yang berakar pada nuansa bahasa Sunda, fungsi yang jelas sebagai alat visualisasi, dan maskot beruang madu yang memberi karakter sekaligus pesan kepedulian. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar BANGKIT BERUANG tentang berkarya melalui teknologi yang bermanfaat.`;
 
   const handleCopyNarrative = () => {
     navigator.clipboard.writeText(officialNarrative);
@@ -92,6 +94,84 @@ Tujuan utamanya sederhana: membuat sesuatu yang rumit menjadi lebih mudah diliha
             <div className="p-4 rounded-2xl bg-black/20 border border-emerald-700/50 text-xs sm:text-sm text-emerald-100/80 italic leading-relaxed">
               &ldquo;GALUR bukan sekadar alat untuk menggambar diagram. Aplikasi ini dirancang sebagai <strong className="text-amber-200 not-italic font-bold">parabot digital</strong> untuk menata cara berpikir, menjelaskan gagasan, dan menyederhanakan kerumitan melalui visualisasi.&rdquo;
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Tiga Pilar Kekuatan Identitas Card */}
+      <div className="rounded-3xl bg-white border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold">
+              <Sparkles className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />
+              <span>Sintesis Identitas Merek</span>
+            </div>
+            <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              Tiga Pilar Kekuatan Identitas GALUR
+            </h3>
+          </div>
+          <span className="text-xs font-bold text-amber-800 bg-amber-50 px-3 py-1 rounded-xl border border-amber-200 self-start sm:self-auto">
+            Ekosistem Bangkit Beruang
+          </span>
+        </div>
+
+        {/* 3 Columns */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* Pilar 1 */}
+          <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-50/80 to-white border border-emerald-200 space-y-2.5">
+            <div className="w-10 h-10 rounded-xl bg-[#0b4632] text-amber-300 flex items-center justify-center font-black text-base shadow-xs">
+              1
+            </div>
+            <h4 className="font-extrabold text-slate-900 text-sm">
+              Akar Nuansa Bahasa Sunda
+            </h4>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Nama <strong>GALUR</strong> dan semboyan <em>&ldquo;Ngajentrekeun Struktur&rdquo;</em> menghadirkan kearifan lokal yang membumi: menjelaskan gagasan secara gamblang, sistematis, dan mudah dipahami oleh siapa saja.
+            </p>
+          </div>
+
+          {/* Pilar 2 */}
+          <div className="p-5 rounded-2xl bg-gradient-to-br from-amber-50/80 to-white border border-amber-200 space-y-2.5">
+            <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black text-base shadow-xs">
+              2
+            </div>
+            <h4 className="font-extrabold text-slate-900 text-sm">
+              Fungsi Jelas Alat Visualisasi
+            </h4>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Bukan sekadar menggambar kotak dan garis, melainkan <strong>parabot digital</strong> presisi untuk merancang alur teknis ala Visio, bagan organisasi, mind map interaktif, hingga diagram konsep bisnis yang utuh.
+            </p>
+          </div>
+
+          {/* Pilar 3 */}
+          <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-50/80 to-white border border-emerald-200 space-y-2.5">
+            <div className="w-10 h-10 rounded-xl bg-[#083525] p-1 flex items-center justify-center border border-emerald-700 shadow-xs">
+              <Image
+                src="/icon.png"
+                alt="Maskot Beruang"
+                width={32}
+                height={32}
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <h4 className="font-extrabold text-slate-900 text-sm">
+              Karakter & Pesan Kepedulian
+            </h4>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Maskot beruang madu menyuntikkan kehangatan ramah, ketekunan proses, sekaligus kesadaran moral bahwa teknologi harus selalu selaras dengan kepedulian lingkungan dan pelestarian alam.
+            </p>
+          </div>
+        </div>
+
+        {/* Closing Thesis Callout */}
+        <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-[#0b4632] via-[#0d5940] to-[#072419] text-white shadow-md border border-emerald-800/40 relative overflow-hidden">
+          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shrink-0">
+              <Quote className="w-6 h-6 text-amber-300 fill-amber-300" />
+            </div>
+            <p className="text-xs sm:text-sm leading-relaxed text-emerald-100 font-medium">
+              &ldquo;Kekuatan identitas GALUR terletak pada perpaduan tiga hal: <strong className="text-amber-300 font-bold">nama yang berakar pada nuansa bahasa Sunda</strong>, <strong className="text-white font-bold">fungsi yang jelas sebagai alat visualisasi</strong>, dan <strong className="text-amber-300 font-bold">maskot beruang madu yang memberi karakter sekaligus pesan kepedulian</strong>. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar <strong className="text-white underline decoration-amber-400 font-black">BANGKIT BERUANG</strong> tentang berkarya melalui teknologi yang bermanfaat.&rdquo;
+            </p>
           </div>
         </div>
       </div>
@@ -565,6 +645,12 @@ Tujuan utamanya sederhana: membuat sesuatu yang rumit menjadi lebih mudah diliha
               <div className="pt-2 font-sans not-italic border-t border-slate-200 text-xs sm:text-sm text-emerald-900 font-bold flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-amber-500" />
                 <span>Tujuan utamanya sederhana: membuat sesuatu yang rumit menjadi lebih mudah dilihat, dipahami, dan dijelaskan.</span>
+              </div>
+
+              <div className="mt-3 p-4 rounded-xl bg-amber-50/80 border border-amber-200 font-sans not-italic text-xs sm:text-sm text-amber-950 leading-relaxed">
+                <p>
+                  &ldquo;Kekuatan identitas GALUR terletak pada perpaduan tiga hal: <strong>nama yang berakar pada nuansa bahasa Sunda</strong>, <strong>fungsi yang jelas sebagai alat visualisasi</strong>, dan <strong>maskot beruang madu yang memberi karakter sekaligus pesan kepedulian</strong>. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar <strong className="text-emerald-900 font-extrabold">BANGKIT BERUANG</strong> tentang berkarya melalui teknologi yang bermanfaat.&rdquo;
+                </p>
               </div>
             </div>
           </div>

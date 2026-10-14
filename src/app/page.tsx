@@ -162,6 +162,30 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Identity Pillars Banner */}
+      <section className="py-8 px-6 md:px-12 max-w-5xl mx-auto">
+        <div className="rounded-3xl bg-gradient-to-r from-[#0b4632] via-[#0d5940] to-[#072419] p-6 sm:p-8 text-white shadow-xl border border-emerald-800/40 flex flex-col md:flex-row items-center gap-6">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-[#083525] p-2 border-2 border-amber-400/40 shrink-0 shadow-lg flex items-center justify-center">
+            <Image
+              src="/logo.png"
+              alt="GALUR Mascot"
+              width={80}
+              height={80}
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <div className="space-y-2 text-center md:text-left">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 text-amber-300 text-xs font-bold border border-white/10">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+              <span>Kekuatan Identitas GALUR</span>
+            </div>
+            <p className="text-xs sm:text-sm text-emerald-100 leading-relaxed font-medium">
+              &ldquo;Kekuatan identitas GALUR terletak pada perpaduan tiga hal: <strong className="text-amber-300 font-bold">nama yang berakar pada nuansa bahasa Sunda</strong>, <strong className="text-white font-bold">fungsi yang jelas sebagai alat visualisasi</strong>, dan <strong className="text-amber-300 font-bold">maskot beruang madu yang memberi karakter sekaligus pesan kepedulian</strong>. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar <strong className="text-white underline decoration-amber-400 font-black">BANGKIT BERUANG</strong> tentang berkarya melalui teknologi yang bermanfaat.&rdquo;
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Feature Grid */}
       <section className="py-16 px-6 md:px-12 bg-white border-t border-slate-200/80">
         <div className="max-w-6xl mx-auto space-y-12">
