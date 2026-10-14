@@ -28,6 +28,7 @@ interface HistoryModalProps {
   currentDiagramId: string;
   onLoadDiagram: (id: string) => void;
   onNewDiagram: () => void;
+  onDeleteActiveDiagram?: () => void;
 }
 
 export default function HistoryModal({
@@ -36,6 +37,7 @@ export default function HistoryModal({
   currentDiagramId,
   onLoadDiagram,
   onNewDiagram,
+  onDeleteActiveDiagram,
 }: HistoryModalProps) {
   const [diagrams, setDiagrams] = useState<DiagramMetadata[]>([]);
   const [search, setSearch] = useState('');
@@ -86,6 +88,16 @@ export default function HistoryModal({
     if (isSupabaseConfigured && supabase) {
       supabase.from('diagrams').delete().eq('id', id).then(() => {});
     }
+
+    // Jika diagram yang dihapus adalah diagram yang sedang dibuka di kanvas
+    if (id === currentDiagramId) {
+      if (onDeleteActiveDiagram) {
+        onDeleteActiveDiagram();
+      } else {
+        onNewDiagram();
+      }
+    }
+
     setSelectedIds((prev) => prev.filter((itemId) => itemId !== id));
     refreshList();
   };
@@ -104,12 +116,24 @@ export default function HistoryModal({
 
     setIsDeletingBulk(true);
     try {
+      const isCurrentDeleted = selectedIds.includes(currentDiagramId);
+
       selectedIds.forEach((id) => {
         deleteDiagramFromStorage(id);
         if (isSupabaseConfigured && supabase) {
           supabase.from('diagrams').delete().eq('id', id).then(() => {});
         }
       });
+
+      // Jika diagram yang aktif termasuk yang dihapus
+      if (isCurrentDeleted) {
+        if (onDeleteActiveDiagram) {
+          onDeleteActiveDiagram();
+        } else {
+          onNewDiagram();
+        }
+      }
+
       setSelectedIds([]);
       refreshList();
     } finally {

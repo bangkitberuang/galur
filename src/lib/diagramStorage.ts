@@ -259,9 +259,63 @@ const defaultSwotNodes: Node[] = [
   },
 ];
 
-// Inisialisasi awal jika riwayat masih kosong
+const SEEDED_KEY = 'galur_diagrams_seeded_v1';
+const DELETED_IDS_KEY = 'galur_deleted_diagram_ids';
+
+// Periksa apakah sebuah diagram telah dihapus permanen oleh pengguna
+export function isDiagramDeleted(id: string): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    const raw = localStorage.getItem(DELETED_IDS_KEY);
+    if (!raw) return false;
+    const list: string[] = JSON.parse(raw);
+    return Array.isArray(list) && list.includes(id);
+  } catch {
+    return false;
+  }
+}
+
+// Catat ID diagram ke daftar hitam penghapusan (tombstone) agar tidak dibangkitkan kembali
+export function markDiagramDeleted(id: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const raw = localStorage.getItem(DELETED_IDS_KEY);
+    const list: string[] = raw ? JSON.parse(raw) : [];
+    if (!list.includes(id)) {
+      list.push(id);
+      localStorage.setItem(DELETED_IDS_KEY, JSON.stringify(list));
+    }
+  } catch {}
+}
+
+// Inisialisasi awal jika riwayat masih kosong (Hanya berjalan SEKALI pada kunjungan pertama)
 export function initDefaultDiagramsIfEmpty(): DiagramMetadata[] {
   if (typeof window === 'undefined') return [];
+
+  const rawIndex = localStorage.getItem(META_INDEX_KEY);
+  const isAlreadySeeded = localStorage.getItem(SEEDED_KEY) === 'true';
+
+  // Jika sudah pernah di-seed sebelumnya, JANGAN PERNAH membuat ulang diagram yang telah dihapus user!
+  if (isAlreadySeeded) {
+    if (rawIndex) {
+      try {
+        const parsed: DiagramMetadata[] = JSON.parse(rawIndex);
+        if (Array.isArray(parsed)) {
+          // Bersihkan jika ada ID yang berada di blacklist penghapusan
+          const validList = parsed.filter((d) => !isDiagramDeleted(d.id));
+          if (validList.length !== parsed.length) {
+            localStorage.setItem(META_INDEX_KEY, JSON.stringify(validList));
+          }
+          return validList;
+        }
+      } catch (e) {}
+    }
+    // Jika semua diagram telah dihapus oleh pengguna, biarkan riwayat tetap kosong
+    return [];
+  }
+
+  // Tandai bahwa inisialisasi awal telah dilakukan
+  localStorage.setItem(SEEDED_KEY, 'true');
 
   const fishboneTemplate = getTemplateByCategory('fishbone');
 
@@ -312,37 +366,7 @@ export function initDefaultDiagramsIfEmpty(): DiagramMetadata[] {
     },
   ];
 
-  const rawIndex = localStorage.getItem(META_INDEX_KEY);
-  if (rawIndex) {
-    try {
-      let parsed: DiagramMetadata[] = JSON.parse(rawIndex);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        let changed = false;
-        // Pastikan demo SWOT selalu tersedia
-        if (!parsed.some((d) => d.id === 'swot-demo-3')) {
-          const swotDiagram = initialList.find((d) => d.id === 'swot-demo-3')!;
-          localStorage.setItem(`galur_diagram_${swotDiagram.id}`, JSON.stringify(swotDiagram));
-          const { nodes, edges, ...meta } = swotDiagram;
-          parsed = [meta, ...parsed];
-          changed = true;
-        }
-        // Pastikan demo Fishbone selalu tersedia
-        if (!parsed.some((d) => d.id === 'fishbone-demo-4') && fishboneTemplate) {
-          const fishboneDiagram = initialList.find((d) => d.id === 'fishbone-demo-4')!;
-          localStorage.setItem(`galur_diagram_${fishboneDiagram.id}`, JSON.stringify(fishboneDiagram));
-          const { nodes, edges, ...meta } = fishboneDiagram;
-          parsed = [meta, ...parsed];
-          changed = true;
-        }
-        if (changed) {
-          localStorage.setItem(META_INDEX_KEY, JSON.stringify(parsed));
-        }
-        return parsed;
-      }
-    } catch (e) {}
-  }
-
-  // Buat diagram awal agar riwayat langsung terisi rapi
+  // Simpan diagram awal
   initialList.forEach((diagram) => {
     localStorage.setItem(`galur_diagram_${diagram.id}`, JSON.stringify(diagram));
   });
@@ -356,12 +380,15 @@ export function initDefaultDiagramsIfEmpty(): DiagramMetadata[] {
 export function getAllDiagramsMeta(): DiagramMetadata[] {
   if (typeof window === 'undefined') return [];
   const list = initDefaultDiagramsIfEmpty();
-  return list.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  return list
+    .filter((d) => !isDiagramDeleted(d.id))
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 }
 
 // Ambil isi diagram lengkap berdasarkan ID
 export function getDiagramById(id: string): DiagramContent | null {
   if (typeof window === 'undefined') return null;
+  if (!id || isDiagramDeleted(id)) return null;
 
   // Coba ambil dari key spesifik
   const raw = localStorage.getItem(`galur_diagram_${id}`);
@@ -373,21 +400,19 @@ export function getDiagramById(id: string): DiagramContent | null {
     }
   }
 
-  // Jika tidak ditemukan, inisialisasi default
-  initDefaultDiagramsIfEmpty();
-  const rawFallback = localStorage.getItem(`galur_diagram_${id}`);
-  if (rawFallback) {
-    try {
-      return JSON.parse(rawFallback);
-    } catch (e) {}
-  }
-
   return null;
 }
 
 // Simpan atau perbarui diagram ke riwayat (Auto-Save)
 export function saveDiagramToStorage(diagram: DiagramContent): void {
   if (typeof window === 'undefined') return;
+  if (!diagram || !diagram.id) return;
+
+  // Jangan pernah menyimpan jika diagram ini sudah dihapus oleh pengguna
+  if (isDiagramDeleted(diagram.id)) {
+    console.warn(`[galur] Mencegah auto-save pada diagram yang telah dihapus: ${diagram.id}`);
+    return;
+  }
 
   const now = new Date().toISOString();
   const updatedDiagram: DiagramContent = {
@@ -402,7 +427,17 @@ export function saveDiagramToStorage(diagram: DiagramContent): void {
   localStorage.setItem(`galur_diagram_${diagram.id}`, JSON.stringify(updatedDiagram));
 
   // 2. Perbarui index metadata riwayat
-  const existingMeta = getAllDiagramsMeta();
+  const rawIndex = localStorage.getItem(META_INDEX_KEY);
+  let existingMeta: DiagramMetadata[] = [];
+  if (rawIndex) {
+    try {
+      const parsed = JSON.parse(rawIndex);
+      if (Array.isArray(parsed)) {
+        existingMeta = parsed.filter((item) => !isDiagramDeleted(item.id));
+      }
+    } catch {}
+  }
+
   const index = existingMeta.findIndex((item) => item.id === diagram.id);
 
   const metaItem: DiagramMetadata = {
@@ -425,12 +460,25 @@ export function saveDiagramToStorage(diagram: DiagramContent): void {
   localStorage.setItem(META_INDEX_KEY, JSON.stringify(existingMeta));
 }
 
-// Hapus diagram dari riwayat
+// Hapus diagram secara permanen dari riwayat
 export function deleteDiagramFromStorage(id: string): void {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined' || !id) return;
 
+  // 1. Tandai ID sebagai telah dihapus secara permanen
+  markDiagramDeleted(id);
+
+  // 2. Hapus berkas diagram dari localStorage
   localStorage.removeItem(`galur_diagram_${id}`);
-  const existingMeta = getAllDiagramsMeta();
-  const filtered = existingMeta.filter((item) => item.id !== id);
-  localStorage.setItem(META_INDEX_KEY, JSON.stringify(filtered));
+
+  // 3. Hapus langsung dari index metadata riwayat tanpa memicu inisialisasi ulang
+  const rawIndex = localStorage.getItem(META_INDEX_KEY);
+  if (rawIndex) {
+    try {
+      const existingMeta: DiagramMetadata[] = JSON.parse(rawIndex);
+      if (Array.isArray(existingMeta)) {
+        const filtered = existingMeta.filter((item) => item.id !== id && !isDiagramDeleted(item.id));
+        localStorage.setItem(META_INDEX_KEY, JSON.stringify(filtered));
+      }
+    } catch (e) {}
+  }
 }

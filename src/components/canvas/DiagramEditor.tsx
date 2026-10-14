@@ -73,6 +73,7 @@ import {
   getDiagramById, 
   getAllDiagramsMeta, 
   initDefaultDiagramsIfEmpty,
+  isDiagramDeleted,
   DiagramPage
 } from '@/lib/diagramStorage';
 import { getTemplateByCategory, CategoryTemplate, SPECIALIST_CATEGORIES } from '@/lib/specialistTemplates';
@@ -196,7 +197,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     const metaList = getAllDiagramsMeta();
     setHistoryCount(metaList.length);
 
-    let targetId = 'flowchart-demo-1';
+    let targetId = '';
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const urlRoom = urlParams.get('room');
@@ -242,38 +243,55 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       }
 
       const urlId = urlParams.get('id') || diagramId;
-      if (urlId) {
+      if (urlId && !isDiagramDeleted(urlId)) {
         targetId = urlId;
       } else if (metaList.length > 0) {
         targetId = metaList[0].id;
       }
+    } else if (metaList.length > 0) {
+      targetId = metaList[0].id;
     }
 
-    const loaded = getDiagramById(targetId);
-    if (loaded) {
-      setCurrentId(loaded.id);
-      setTitle(loaded.title);
-      if (loaded.pages && loaded.pages.length > 0) {
-        setPages(loaded.pages);
-        const activeP = loaded.pages.find((p) => p.id === loaded.activePageId) || loaded.pages[0];
-        setActivePageId(activeP.id);
-        setNodes(activeP.nodes || []);
-        setEdges(activeP.edges || []);
-      } else {
-        const p: DiagramPage = {
-          id: 'page-1',
-          name: 'Page 1',
-          nodes: loaded.nodes || [],
-          edges: loaded.edges || [],
-        };
-        setPages([p]);
-        setActivePageId('page-1');
-        setNodes(loaded.nodes || []);
-        setEdges(loaded.edges || []);
+    if (targetId) {
+      const loaded = getDiagramById(targetId);
+      if (loaded) {
+        setCurrentId(loaded.id);
+        setTitle(loaded.title);
+        if (loaded.pages && loaded.pages.length > 0) {
+          setPages(loaded.pages);
+          const activeP = loaded.pages.find((p) => p.id === loaded.activePageId) || loaded.pages[0];
+          setActivePageId(activeP.id);
+          setNodes(activeP.nodes || []);
+          setEdges(activeP.edges || []);
+        } else {
+          const p: DiagramPage = {
+            id: 'page-1',
+            name: 'Page 1',
+            nodes: loaded.nodes || [],
+            edges: loaded.edges || [],
+          };
+          setPages([p]);
+          setActivePageId('page-1');
+          setNodes(loaded.nodes || []);
+          setEdges(loaded.edges || []);
+        }
+        if (typeof window !== 'undefined') {
+          window.history.replaceState(null, '', `/editor?id=${loaded.id}`);
+        }
+        return;
       }
-      if (typeof window !== 'undefined') {
-        window.history.replaceState(null, '', `/editor?id=${loaded.id}`);
-      }
+    }
+
+    // Jika tidak ada diagram atau diagram telah dihapus permanen, mulai kanvas kosong baru
+    const newId = `diag_${Date.now()}`;
+    setCurrentId(newId);
+    setTitle('Kanvas Kosong Baru');
+    setNodes([]);
+    setEdges([]);
+    setPages([{ id: 'page-1', name: 'Page 1', nodes: [], edges: [] }]);
+    setActivePageId('page-1');
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', `/editor?id=${newId}`);
     }
   }, [diagramId, setNodes, setEdges]);
 
@@ -355,7 +373,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
 
   // AUTO-SAVE: Otomatis menyimpan setiap kali ada perubahan
   useEffect(() => {
-    if (!currentId || nodes.length === 0) return;
+    if (!currentId || nodes.length === 0 || isDiagramDeleted(currentId)) return;
 
     setSaveStatus('saving');
     const timer = setTimeout(() => {
@@ -952,6 +970,28 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     }
   };
 
+  // Tangani penghapusan diagram yang sedang aktif di kanvas
+  const handleDeleteActiveDiagram = useCallback(() => {
+    takeSnapshot();
+    const newId = `diag_${Date.now()}`;
+    setCurrentId(newId);
+    setTitle('Kanvas Kosong Baru');
+    setNodes([]);
+    setEdges([]);
+    setPages([{ id: 'page-1', name: 'Page 1', nodes: [], edges: [] }]);
+    setActivePageId('page-1');
+    setSelectedNode(null);
+    setSelectedEdge(null);
+    setSaveStatus('idle');
+
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', `/editor?id=${newId}`);
+    }
+
+    const updatedMeta = getAllDiagramsMeta();
+    setHistoryCount(updatedMeta.length);
+  }, [setNodes, setEdges, takeSnapshot]);
+
   // Buat Diagram Baru
   const handleCreateNew = (type: 'blank' | 'flowchart' | 'mindmap') => {
     setIsNewMenuOpen(false);
@@ -1027,6 +1067,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
 
   // Simpan Manual
   const handleManualSave = async () => {
+    if (isDiagramDeleted(currentId)) return;
     setSaveStatus('saving');
     const currentPages = pages.map((p) =>
       p.id === activePageId ? { ...p, nodes, edges } : p
@@ -1646,6 +1687,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
         currentDiagramId={currentId}
         onLoadDiagram={handleLoadFromHistory}
         onNewDiagram={() => handleCreateNew('blank')}
+        onDeleteActiveDiagram={handleDeleteActiveDiagram}
       />
 
       <CanvasSettingsModal
