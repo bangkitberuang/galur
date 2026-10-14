@@ -15,7 +15,9 @@ import {
   MoveHorizontal,
   AlignLeft,
   AlignCenter,
-  AlignRight
+  AlignRight,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 import { MarkerType } from '@xyflow/react';
 
@@ -58,6 +60,17 @@ export default function PropertyPanel({
     const isDashed = Boolean(selectedEdge.style?.strokeDasharray);
     const hasMarker = Boolean(selectedEdge.markerEnd);
     const edgeStyleType = selectedEdge.type || 'smoothstep';
+    const currentOffset = typeof selectedEdge.data?.offset === 'number' ? selectedEdge.data.offset : 25;
+
+    const handleUpdateOffset = (val: number) => {
+      const clamped = Math.max(10, Math.min(350, Math.round(val)));
+      onUpdateEdge(edgeId, {
+        data: {
+          ...(selectedEdge.data || {}),
+          offset: clamped,
+        },
+      });
+    };
 
     const edgeColors = [
       { color: '#0b4632', name: 'Galur Hijau' },
@@ -306,6 +319,70 @@ export default function PropertyPanel({
                 <span>Garis Polos</span>
               </button>
             </div>
+          </div>
+
+          {/* Posisi & Jarak Lekukan Garis (Offset) */}
+          <div className="pt-2 border-t border-slate-100 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
+                Posisi / Jarak Garis (Offset)
+              </label>
+              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200">
+                {currentOffset}px
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 leading-tight">
+              Geser nilai ini untuk memindahkan jalur garis agar tidak bertumpuk dengan garis lain.
+            </p>
+
+            {/* Tombol Geser Cepat Naik / Turun */}
+            <div className="grid grid-cols-2 gap-1.5">
+              <button
+                type="button"
+                onClick={() => handleUpdateOffset(currentOffset - 15)}
+                className="py-1.5 px-2 rounded-lg border border-slate-200 hover:border-blue-400 hover:bg-blue-50 text-xs font-semibold text-slate-700 transition-all flex items-center justify-center gap-1 cursor-pointer"
+              >
+                <ArrowUp className="w-3.5 h-3.5 text-blue-600" />
+                <span>Geser Naik (-15px)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleUpdateOffset(currentOffset + 15)}
+                className="py-1.5 px-2 rounded-lg border border-slate-200 hover:border-blue-400 hover:bg-blue-50 text-xs font-semibold text-slate-700 transition-all flex items-center justify-center gap-1 cursor-pointer"
+              >
+                <ArrowDown className="w-3.5 h-3.5 text-blue-600" />
+                <span>Geser Turun (+15px)</span>
+              </button>
+            </div>
+
+            {/* Preset Jarak Cepat */}
+            <div className="grid grid-cols-4 gap-1">
+              {[25, 50, 75, 110].map((val) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => handleUpdateOffset(val)}
+                  className={`py-1 rounded-md text-[11px] font-medium border transition-all cursor-pointer ${
+                    currentOffset === val
+                      ? 'bg-blue-50 border-blue-500 text-blue-700 font-bold shadow-2xs'
+                      : 'border-slate-200 hover:bg-slate-50 text-slate-600'
+                  }`}
+                >
+                  {val}px
+                </button>
+              ))}
+            </div>
+
+            {/* Range Slider */}
+            <input
+              type="range"
+              min={10}
+              max={250}
+              step={5}
+              value={currentOffset}
+              onChange={(e) => handleUpdateOffset(Number(e.target.value))}
+              className="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg appearance-none mt-1"
+            />
           </div>
         </div>
       </aside>

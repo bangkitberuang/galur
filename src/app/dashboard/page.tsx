@@ -34,6 +34,7 @@ import { supabase, isSupabaseConfigured, DiagramRecord } from '@/lib/supabase';
 import { getAllDiagramsMeta, deleteDiagramFromStorage } from '@/lib/diagramStorage';
 import { SPECIALIST_CATEGORIES } from '@/lib/specialistTemplates';
 import AboutGalurSection from '@/components/dashboard/AboutGalurSection';
+import EcosystemFooter from '@/components/common/EcosystemFooter';
 
 export default function DashboardPage() {
   const [diagrams, setDiagrams] = useState<DiagramRecord[]>([]);
@@ -471,6 +472,9 @@ export default function DashboardPage() {
           </>
         )}
       </main>
+
+      {/* Official BANGKIT Beruang Ecosystem Footer */}
+      <EcosystemFooter variant="light" className="mt-14" />
     </div>
   );
 }

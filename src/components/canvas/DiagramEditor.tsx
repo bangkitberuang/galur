@@ -349,6 +349,10 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
             const newE = {
               ...edge,
               ...updates,
+              data: {
+                ...(edge.data || {}),
+                ...(updates.data || {}),
+              },
               style: {
                 ...edge.style,
                 ...(updates.style || {}),

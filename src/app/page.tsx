@@ -298,8 +298,29 @@ export default function LandingPage() {
             Editor Diagram
           </Link>
         </div>
-        <p className="text-[11px] text-emerald-200/60 max-w-md mx-auto">
-          Dirancang untuk kemudahan pembuatan diagram teknikal dan pemikiran terstruktur. Bagian dari ekosistem BANGKIT BERUANG.
+        {/* Official BANGKIT Beruang Ecosystem Badge */}
+        <div className="footer-brand-container flex items-center justify-center pt-2">
+          <div className="ecosystem-badge inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-800/80 bg-emerald-950/70 hover:border-emerald-600 hover:bg-emerald-900/60 shadow-2xs transition-all duration-200 hover:scale-105 hover:shadow-md cursor-default">
+            <div className="w-4.5 h-4.5 shrink-0 flex items-center justify-center">
+              <Image
+                src="/logo.png"
+                alt="Beruang Icon"
+                width={18}
+                height={18}
+                className="w-full h-full object-contain filter drop-shadow-xs"
+              />
+            </div>
+            <span className="ecosystem-tag text-[10px] font-black uppercase tracking-wider text-white bg-[#059669] px-2 py-0.5 rounded-full leading-none shadow-xs">
+              BANGKIT
+            </span>
+            <span className="ecosystem-name text-xs font-bold tracking-tight text-emerald-100">
+              Beruang Ecosystem
+            </span>
+          </div>
+        </div>
+
+        <p className="text-[11px] text-emerald-200/60 max-w-md mx-auto pt-1">
+          Dirancang untuk kemudahan pembuatan diagram teknikal dan pemikiran terstruktur. Bagian dari ekosistem digital BANGKIT BERUANG.
         </p>
       </footer>
     </div>
