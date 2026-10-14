@@ -45,7 +45,9 @@ import {
   Workflow,
   LayoutGrid,
   Globe,
-  Sliders
+  Sliders,
+  Share2,
+  Users
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -57,10 +59,13 @@ import PropertyPanel from './PropertyPanel';
 import ExportModal from './ExportModal';
 import HistoryModal from './HistoryModal';
 import TemplateModal from './TemplateModal';
+import ShareModal from './ShareModal';
+import CollabCursorsOverlay from './CollabCursorsOverlay';
 import CanvasToolbar from './CanvasToolbar';
 import CanvasBottomBar from './CanvasBottomBar';
 import { CanvasPageFrame, CanvasPageConfig, DEFAULT_PAGE_CONFIG } from './CanvasPageFrame';
 import CanvasSettingsModal from './CanvasSettingsModal';
+import { collabManager, CollabUser, getLocalCollabUser } from '@/lib/collaboration';
 import { 
   saveDiagramToStorage, 
   getDiagramById, 
@@ -99,6 +104,11 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isDiagramSettingsOpen, setIsDiagramSettingsOpen] = useState(false);
   const [interactionMode, setInteractionMode] = useState<'select' | 'pan'>('select');
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [activeRoomId, setActiveRoomId] = useState<string>('galur-main-room');
+  const [collabUsers, setCollabUsers] = useState<CollabUser[]>([]);
+  const [currentUser, setCurrentUser] = useState<CollabUser>(() => getLocalCollabUser());
+  const isRemoteUpdating = useRef(false);
 
   // Multi-Page Diagram State (Halaman 1, 2, 3...)
   const [pages, setPages] = useState<DiagramPage[]>([
@@ -152,6 +162,32 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     let targetId = 'flowchart-demo-1';
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
+      const urlRoom = urlParams.get('room');
+      if (urlRoom) {
+        setActiveRoomId(urlRoom);
+      }
+
+      const urlShare = urlParams.get('share');
+      if (urlShare) {
+        try {
+          const decoded = decodeURIComponent(escape(atob(urlShare)));
+          const parsed = JSON.parse(decoded);
+          if (parsed.nodes && Array.isArray(parsed.nodes)) {
+            const newId = `shared_${Date.now()}`;
+            setCurrentId(newId);
+            setTitle(parsed.title || 'Diagram Dibagikan');
+            setNodes(parsed.nodes || []);
+            setEdges(parsed.edges || []);
+            if (parsed.pageConfig) setPageConfig(parsed.pageConfig);
+            setPages([{ id: 'page-1', name: 'Page 1', nodes: parsed.nodes || [], edges: parsed.edges || [] }]);
+            setActivePageId('page-1');
+            return;
+          }
+        } catch (err) {
+          console.error('Gagal membaca parameter share link:', err);
+        }
+      }
+
       const urlTemplate = urlParams.get('template');
       if (urlTemplate) {
         const found = getTemplateByCategory(urlTemplate);
@@ -204,6 +240,82 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     }
   }, [diagramId, setNodes, setEdges]);
 
+  // Real-Time Collaboration: Hubungkan ke room aktif (Multiplayer Live Sync)
+  useEffect(() => {
+    if (!activeRoomId) return;
+
+    collabManager.joinRoom(activeRoomId, {
+      onUsersChange: (users) => {
+        setCollabUsers(users);
+      },
+      onRemoteCursor: (userId, cursor) => {
+        setCollabUsers((prev) =>
+          prev.map((u) => (u.id === userId ? { ...u, cursor, lastSeen: Date.now() } : u))
+        );
+      },
+      onRemoteDiagramSync: (data) => {
+        isRemoteUpdating.current = true;
+        if (data.title) setTitle(data.title);
+        if (data.nodes) setNodes(data.nodes);
+        if (data.edges) setEdges(data.edges);
+        if (data.pageConfig) setPageConfig(data.pageConfig);
+        setTimeout(() => {
+          isRemoteUpdating.current = false;
+        }, 150);
+      },
+      onRemoteNodesChange: (remoteNodes) => {
+        isRemoteUpdating.current = true;
+        setNodes(remoteNodes);
+        setTimeout(() => {
+          isRemoteUpdating.current = false;
+        }, 150);
+      },
+      onRemoteEdgesChange: (remoteEdges) => {
+        isRemoteUpdating.current = true;
+        setEdges(remoteEdges);
+        setTimeout(() => {
+          isRemoteUpdating.current = false;
+        }, 150);
+      },
+    });
+
+    return () => {
+      collabManager.leaveRoom();
+    };
+  }, [activeRoomId, setNodes, setEdges]);
+
+  // Pelacak pergerakan pointer mouse untuk kolaborasi real-time
+  const handleCanvasPointerMove = useCallback((e: React.PointerEvent) => {
+    if (!reactFlowWrapper.current) return;
+    const rect = reactFlowWrapper.current.getBoundingClientRect();
+    const relX = Math.round(e.clientX - rect.left);
+    const relY = Math.round(e.clientY - rect.top);
+    collabManager.sendCursor(relX, relY);
+  }, []);
+
+  // Handler impor file proyek (.galur / .json)
+  const handleImportDiagram = useCallback(
+    (imported: {
+      title: string;
+      nodes: Node[];
+      edges: Edge[];
+      pageConfig?: CanvasPageConfig;
+    }) => {
+      takeSnapshot();
+      setTitle(imported.title);
+      setNodes(imported.nodes);
+      setEdges(imported.edges);
+      if (imported.pageConfig) setPageConfig(imported.pageConfig);
+      setPages([
+        { id: 'page-1', name: 'Page 1', nodes: imported.nodes, edges: imported.edges },
+      ]);
+      setActivePageId('page-1');
+      setSaveStatus('idle');
+      collabManager.broadcastDiagramSync(imported.nodes, imported.edges, imported.title, imported.pageConfig);
+    },
+    [takeSnapshot, setNodes, setEdges]
+  );
+
   // AUTO-SAVE: Otomatis menyimpan setiap kali ada perubahan
   useEffect(() => {
     if (!currentId || nodes.length === 0) return;
@@ -231,10 +343,15 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       const updatedMeta = getAllDiagramsMeta();
       setHistoryCount(updatedMeta.length);
       setSaveStatus('saved');
+
+      // Sebarkan sinkronisasi diagram ke rekan kolaborator di room
+      if (!isRemoteUpdating.current) {
+        collabManager.broadcastDiagramSync(nodes, edges, title, pageConfig);
+      }
     }, 600);
 
     return () => clearTimeout(timer);
-  }, [nodes, edges, title, currentId, pages, activePageId]);
+  }, [nodes, edges, title, currentId, pages, activePageId, pageConfig]);
 
   // Melacak node asal saat koneksi mulai ditarik pengguna
   const connectStartRef = useRef<{ nodeId: string | null; handleId: string | null; handleType: string | null } | null>(null);
@@ -1170,6 +1287,53 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
+          {/* Active Collaborators Presence Badge */}
+          <button
+            type="button"
+            onClick={() => setIsShareModalOpen(true)}
+            title="Klik untuk membuka Ruang Kolaborasi & Tautan Berbagi"
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border transition-all cursor-pointer ${
+              collabUsers.length > 0
+                ? 'bg-emerald-50/80 border-emerald-300 text-emerald-800 shadow-xs'
+                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <span className={`w-2 h-2 rounded-full ${collabUsers.length > 0 ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+            <div className="flex items-center -space-x-1.5">
+              <div
+                className="w-5 h-5 rounded-full text-white font-bold text-[9px] flex items-center justify-center ring-1 ring-white"
+                style={{ backgroundColor: currentUser.color }}
+                title={`Anda: ${currentUser.name}`}
+              >
+                {currentUser.name.charAt(0).toUpperCase()}
+              </div>
+              {collabUsers.slice(0, 3).map((u) => (
+                <div
+                  key={u.id}
+                  className="w-5 h-5 rounded-full text-white font-bold text-[9px] flex items-center justify-center ring-1 ring-white"
+                  style={{ backgroundColor: u.color }}
+                  title={`Rekan: ${u.name}`}
+                >
+                  {u.name.charAt(0).toUpperCase()}
+                </div>
+              ))}
+            </div>
+            <span className="text-[11px] font-bold hidden sm:inline">
+              {collabUsers.length > 0 ? `${collabUsers.length + 1} Aktif` : 'Kolaborasi'}
+            </span>
+          </button>
+
+          {/* Tombol Bagikan */}
+          <button
+            type="button"
+            onClick={() => setIsShareModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-blue-200 hover:border-blue-300 hover:bg-blue-50/70 text-blue-700 text-xs font-bold transition-colors shadow-2xs cursor-pointer"
+            title="Bagikan Diagram atau Undang Rekan Kolaborasi"
+          >
+            <Share2 className="w-3.5 h-3.5 text-blue-600" />
+            <span className="hidden sm:inline">Bagikan</span>
+          </button>
+
           <button
             type="button"
             onClick={handleManualSave}
@@ -1220,6 +1384,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
         <div className="flex-1 flex flex-col h-full min-w-0 relative">
           <div
             ref={reactFlowWrapper}
+            onPointerMove={handleCanvasPointerMove}
             className={`flex-1 w-full relative print-area transition-colors ${
               interactionMode === 'pan' ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
             } ${
@@ -1232,6 +1397,9 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
             onDragOver={onDragOver}
             onDrop={onDrop}
           >
+            {/* Live Multi-User Collaboration Cursors Overlay */}
+            <CollabCursorsOverlay users={collabUsers} />
+
             {/* Tombol Melayang untuk Memanggil Pengaturan Diagram (Auto-Hide Mode) */}
             {!selectedNode && !selectedEdge && !isDiagramSettingsOpen && (
               <button
@@ -1269,6 +1437,11 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
               onPaneClick={onPaneClick}
               onNodesDelete={onNodesDelete}
               onEdgesDelete={onEdgesDelete}
+              onNodeDragStop={() => {
+                if (!isRemoteUpdating.current) {
+                  collabManager.broadcastNodesChange(nodes);
+                }
+              }}
               deleteKeyCode={['Backspace', 'Delete']}
               fitView
               snapToGrid={pageConfig.snapToGrid}
@@ -1360,6 +1533,25 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
         isOpen={isTemplateModalOpen}
         onClose={() => setIsTemplateModalOpen(false)}
         onSelectTemplate={handleSelectSpecialistTemplate}
+      />
+
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        diagramTitle={title}
+        diagramId={currentId}
+        nodes={nodes}
+        edges={edges}
+        pageConfig={pageConfig}
+        activeRoomId={activeRoomId}
+        onJoinRoom={(newRoom) => setActiveRoomId(newRoom)}
+        collabUsers={collabUsers}
+        currentUser={currentUser}
+        onUpdateUserProfile={(name, color) => {
+          collabManager.updateProfile(name, color);
+          setCurrentUser(collabManager.getCurrentUser());
+        }}
+        onImportDiagram={handleImportDiagram}
       />
     </div>
   );
