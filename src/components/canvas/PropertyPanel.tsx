@@ -8,10 +8,14 @@ import {
   Sliders, 
   Waypoints, 
   Minus, 
+  Plus,
   ArrowRight, 
   ArrowLeftRight,
   Spline,
-  MoveHorizontal
+  MoveHorizontal,
+  AlignLeft,
+  AlignCenter,
+  AlignRight
 } from 'lucide-react';
 import { MarkerType } from '@xyflow/react';
 
@@ -316,6 +320,35 @@ export default function PropertyPanel({
   const currentBorder = data.borderColor || '#3b82f6';
   const currentText = data.textColor || '#0f172a';
 
+  // State Tipografi
+  const isBold = Boolean(
+    data.bold ??
+      (data.fontWeight === 'bold' ||
+        data.fontWeight === '800' ||
+        data.fontWeight === '900' ||
+        data.fontWeight === 700)
+  );
+  const isItalic = Boolean(data.italic ?? (data.fontStyle === 'italic'));
+  const isUnderline = Boolean(
+    data.underline ??
+      (data.textDecoration === 'underline' || Boolean(data.textDecoration?.includes('underline')))
+  );
+  const isStrike = Boolean(
+    data.strike ??
+      (data.textDecoration === 'line-through' || Boolean(data.textDecoration?.includes('line-through')))
+  );
+  const currentFontFamily = data.fontFamily || 'sans';
+  const currentTextAlign = data.textAlign || 'center';
+  const currentFontSize =
+    typeof data.fontSize === 'number'
+      ? data.fontSize
+      : parseInt(data.fontSize, 10) || 13;
+
+  // State Garis Tepi & Sudut
+  const currentBorderWidth = data.borderWidth !== undefined ? Number(data.borderWidth) : 2;
+  const currentBorderStyle = data.borderStyle || 'solid';
+  const currentBorderRadius = data.borderRadius !== undefined ? String(data.borderRadius) : '8px';
+
   const colorPresets = [
     { bg: '#e8f5ed', border: '#0b4632', text: '#0b4632', name: 'Galur Hijau' },
     { bg: '#fffbeb', border: '#f59e0b', text: '#78350f', name: 'Galur Gold' },
@@ -328,15 +361,16 @@ export default function PropertyPanel({
   ];
 
   return (
-    <aside className="w-64 bg-white border-l border-slate-200 flex flex-col h-full shadow-xs no-print select-none">
+    <aside className="w-68 bg-white border-l border-slate-200 flex flex-col h-full shadow-xs no-print select-none">
       {/* Header */}
-      <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+      <div className="p-3.5 border-b border-slate-100 flex items-center justify-between">
         <div>
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-            Properti Bentuk
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+            <Sliders className="w-3.5 h-3.5 text-emerald-700" />
+            <span>Properti Bentuk</span>
           </h2>
-          <span className="text-[10px] text-slate-400 font-mono truncate block max-w-[120px]">
-            {id}
+          <span className="text-[10px] text-slate-400 font-mono truncate block max-w-[130px]">
+            {id} ({selectedNode.type})
           </span>
         </div>
         <button
@@ -348,11 +382,11 @@ export default function PropertyPanel({
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {/* Label Teks */}
+      <div className="flex-1 overflow-y-auto p-3.5 space-y-4">
+        {/* 1. Label Teks Utama */}
         <div>
-          <label className="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1 flex items-center gap-1">
-            <Type className="w-3.5 h-3.5" />
+          <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1">
+            <Type className="w-3.5 h-3.5 text-blue-600" />
             <span>Teks / Label Utama</span>
           </label>
           <input
@@ -367,7 +401,7 @@ export default function PropertyPanel({
         {/* Sublabel (Opsional) */}
         {selectedNode.type !== 'decision' && selectedNode.type !== 'text' && selectedNode.type !== 'swot_card' && (
           <div>
-            <label className="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+            <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
               Keterangan Tambahan
             </label>
             <input
@@ -387,11 +421,11 @@ export default function PropertyPanel({
               Poin Analisis (1 baris per poin)
             </label>
             <textarea
-              rows={6}
+              rows={5}
               value={Array.isArray(data.items) ? data.items.join('\n') : ''}
               onChange={(e) =>
                 onUpdateNode(id, {
-                  items: e.target.value.split('\n').filter((line) => line.trim().length > 0),
+                  items: e.target.value.split('\n').filter((line: string) => line.trim().length > 0),
                 })
               }
               className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-sans leading-relaxed"
@@ -400,10 +434,263 @@ export default function PropertyPanel({
           </div>
         )}
 
-        {/* Palet Warna Preset */}
-        <div>
-          <label className="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-2 flex items-center gap-1">
-            <Palette className="w-3.5 h-3.5" />
+        {/* --- 2. FORMAT TIPOGRAFI & GAYA TEKS (FONT, SIZE, B, I, U, S, ALIGN) --- */}
+        <div className="pt-2 border-t border-slate-100 space-y-2.5">
+          <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+            <span>Format Font & Teks</span>
+            <span className="text-[10px] font-mono text-slate-400 font-normal">{currentFontSize}px</span>
+          </label>
+
+          {/* Jenis Font (Font Family) */}
+          <div className="grid grid-cols-3 gap-1">
+            {[
+              { id: 'sans', label: 'Sans', fontClass: 'font-sans' },
+              { id: 'serif', label: 'Serif', fontClass: 'font-serif' },
+              { id: 'mono', label: 'Mono', fontClass: 'font-mono' },
+            ].map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => onUpdateNode(id, { fontFamily: f.id })}
+                className={`py-1 px-2 rounded-md border text-xs transition-all ${
+                  currentFontFamily === f.id
+                    ? 'bg-blue-50 border-blue-500 text-blue-700 font-bold shadow-2xs'
+                    : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                } ${f.fontClass}`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Ukuran Font (Font Size): Stepper & Quick Pills */}
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => onUpdateNode(id, { fontSize: Math.max(9, currentFontSize - 2) })}
+              className="w-7 h-7 rounded-md border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-700 transition-colors cursor-pointer"
+              title="Perkecil Font (-2px)"
+            >
+              <Minus className="w-3.5 h-3.5" />
+            </button>
+            
+            <div className="flex-1 grid grid-cols-4 gap-1">
+              {[
+                { size: 11, label: '11' },
+                { size: 13, label: '13' },
+                { size: 16, label: '16' },
+                { size: 20, label: '20' },
+              ].map((s) => (
+                <button
+                  key={s.size}
+                  type="button"
+                  onClick={() => onUpdateNode(id, { fontSize: s.size })}
+                  className={`py-1 text-[11px] rounded-md border transition-all cursor-pointer ${
+                    currentFontSize === s.size
+                      ? 'bg-blue-600 border-blue-600 text-white font-bold'
+                      : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => onUpdateNode(id, { fontSize: Math.min(36, currentFontSize + 2) })}
+              className="w-7 h-7 rounded-md border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-700 transition-colors cursor-pointer"
+              title="Perbesar Font (+2px)"
+            >
+              <Plus className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Gaya Format Teks: Bold, Italic, Underline, Strike */}
+          <div className="grid grid-cols-4 gap-1">
+            <button
+              type="button"
+              onClick={() => onUpdateNode(id, { bold: !isBold, fontWeight: !isBold ? 'bold' : 'normal' })}
+              className={`h-7 rounded-md border flex items-center justify-center transition-all cursor-pointer ${
+                isBold
+                  ? 'bg-blue-600 border-blue-600 text-white font-black shadow-2xs'
+                  : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+              title="Tebal (Bold)"
+            >
+              <span className="font-extrabold text-xs">B</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onUpdateNode(id, { italic: !isItalic, fontStyle: !isItalic ? 'italic' : 'normal' })}
+              className={`h-7 rounded-md border flex items-center justify-center transition-all cursor-pointer ${
+                isItalic
+                  ? 'bg-blue-600 border-blue-600 text-white shadow-2xs'
+                  : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+              title="Miring (Italic)"
+            >
+              <span className="italic font-serif font-bold text-xs">I</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onUpdateNode(id, { underline: !isUnderline })}
+              className={`h-7 rounded-md border flex items-center justify-center transition-all cursor-pointer ${
+                isUnderline
+                  ? 'bg-blue-600 border-blue-600 text-white shadow-2xs'
+                  : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+              title="Garis Bawah (Underline)"
+            >
+              <span className="underline font-bold text-xs">U</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onUpdateNode(id, { strike: !isStrike })}
+              className={`h-7 rounded-md border flex items-center justify-center transition-all cursor-pointer ${
+                isStrike
+                  ? 'bg-blue-600 border-blue-600 text-white shadow-2xs'
+                  : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+              title="Coret (Strikethrough)"
+            >
+              <span className="line-through font-bold text-xs">S</span>
+            </button>
+          </div>
+
+          {/* Perataan Teks (Alignment) */}
+          <div className="grid grid-cols-3 gap-1">
+            <button
+              type="button"
+              onClick={() => onUpdateNode(id, { textAlign: 'left' })}
+              className={`h-7 rounded-md border flex items-center justify-center gap-1 text-[11px] transition-all cursor-pointer ${
+                currentTextAlign === 'left'
+                  ? 'bg-blue-50 border-blue-500 text-blue-700 font-bold'
+                  : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+              title="Rata Kiri"
+            >
+              <AlignLeft className="w-3.5 h-3.5" />
+              <span>Kiri</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onUpdateNode(id, { textAlign: 'center' })}
+              className={`h-7 rounded-md border flex items-center justify-center gap-1 text-[11px] transition-all cursor-pointer ${
+                currentTextAlign === 'center'
+                  ? 'bg-blue-50 border-blue-500 text-blue-700 font-bold'
+                  : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+              title="Rata Tengah"
+            >
+              <AlignCenter className="w-3.5 h-3.5" />
+              <span>Tengah</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onUpdateNode(id, { textAlign: 'right' })}
+              className={`h-7 rounded-md border flex items-center justify-center gap-1 text-[11px] transition-all cursor-pointer ${
+                currentTextAlign === 'right'
+                  ? 'bg-blue-50 border-blue-500 text-blue-700 font-bold'
+                  : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+              title="Rata Kanan"
+            >
+              <AlignRight className="w-3.5 h-3.5" />
+              <span>Kanan</span>
+            </button>
+          </div>
+        </div>
+
+        {/* --- 3. FORMAT GARIS TEPI & BENTUK (BORDER & CORNER) --- */}
+        <div className="pt-2 border-t border-slate-100 space-y-2.5">
+          <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+            <span>Batas & Garis Tepi</span>
+            <span className="text-[10px] font-mono text-slate-400 font-normal">{currentBorderWidth}px</span>
+          </label>
+
+          {/* Ketebalan Garis Tepi */}
+          <div className="grid grid-cols-4 gap-1">
+            {[
+              { w: 0, label: 'Tanpa' },
+              { w: 1, label: '1px' },
+              { w: 2, label: '2px' },
+              { w: 4, label: '4px' },
+            ].map((bw) => (
+              <button
+                key={bw.w}
+                type="button"
+                onClick={() => onUpdateNode(id, { borderWidth: bw.w })}
+                className={`py-1 text-[11px] rounded-md border transition-all cursor-pointer ${
+                  currentBorderWidth === bw.w
+                    ? 'bg-emerald-50 border-emerald-600 text-emerald-800 font-bold'
+                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                {bw.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Pola Garis Tepi (Solid vs Dashed) */}
+          <div className="grid grid-cols-2 gap-1">
+            <button
+              type="button"
+              onClick={() => onUpdateNode(id, { borderStyle: 'solid' })}
+              className={`py-1 text-[11px] rounded-md border transition-all cursor-pointer ${
+                currentBorderStyle === 'solid'
+                  ? 'bg-emerald-50 border-emerald-600 text-emerald-800 font-bold'
+                  : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              Garis Utuh
+            </button>
+            <button
+              type="button"
+              onClick={() => onUpdateNode(id, { borderStyle: 'dashed' })}
+              className={`py-1 text-[11px] rounded-md border transition-all cursor-pointer ${
+                currentBorderStyle === 'dashed'
+                  ? 'bg-emerald-50 border-emerald-600 text-emerald-800 font-bold'
+                  : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              Putus-Putus
+            </button>
+          </div>
+
+          {/* Kelengkungan Sudut (Corner Radius) */}
+          <div>
+            <span className="text-[10px] font-semibold text-slate-500 uppercase block mb-1">Sudut Bentuk</span>
+            <div className="grid grid-cols-3 gap-1">
+              {[
+                { r: '0px', label: 'Persegi' },
+                { r: '8px', label: 'Halus' },
+                { r: '9999px', label: 'Bulat' },
+              ].map((rad) => (
+                <button
+                  key={rad.r}
+                  type="button"
+                  onClick={() => onUpdateNode(id, { borderRadius: rad.r })}
+                  className={`py-1 text-[11px] rounded-md border transition-all cursor-pointer ${
+                    currentBorderRadius === rad.r
+                      ? 'bg-emerald-50 border-emerald-600 text-emerald-800 font-bold'
+                      : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  {rad.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* --- 4. TEMA WARNA & COLOR PICKERS --- */}
+        <div className="pt-2 border-t border-slate-100 space-y-2.5">
+          <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1">
+            <Palette className="w-3.5 h-3.5 text-amber-600" />
             <span>Tema Warna Cepat</span>
           </label>
           <div className="grid grid-cols-4 gap-1.5">
@@ -419,7 +706,7 @@ export default function PropertyPanel({
                   })
                 }
                 title={preset.name}
-                className="h-7 rounded-md border-2 shadow-2xs hover:scale-105 transition-transform"
+                className="h-7 rounded-md border-2 shadow-2xs hover:scale-105 transition-transform cursor-pointer"
                 style={{
                   backgroundColor: preset.bg,
                   borderColor: preset.border,
@@ -431,6 +718,16 @@ export default function PropertyPanel({
 
         {/* Custom Color Pickers */}
         <div className="pt-2 border-t border-slate-100 space-y-2">
+          <div className="flex items-center justify-between text-xs text-slate-600">
+            <span>Warna Teks:</span>
+            <input
+              type="color"
+              value={currentText}
+              onChange={(e) => onUpdateNode(id, { textColor: e.target.value })}
+              className="w-7 h-7 rounded border border-slate-200 cursor-pointer"
+            />
+          </div>
+
           <div className="flex items-center justify-between text-xs text-slate-600">
             <span>Warna Latar:</span>
             <input
@@ -447,16 +744,6 @@ export default function PropertyPanel({
               type="color"
               value={currentBorder}
               onChange={(e) => onUpdateNode(id, { borderColor: e.target.value })}
-              className="w-7 h-7 rounded border border-slate-200 cursor-pointer"
-            />
-          </div>
-
-          <div className="flex items-center justify-between text-xs text-slate-600">
-            <span>Warna Teks:</span>
-            <input
-              type="color"
-              value={currentText}
-              onChange={(e) => onUpdateNode(id, { textColor: e.target.value })}
               className="w-7 h-7 rounded border border-slate-200 cursor-pointer"
             />
           </div>

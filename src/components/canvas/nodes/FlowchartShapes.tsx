@@ -3,6 +3,7 @@
 import React, { memo } from 'react';
 import { Handle, Position, NodeToolbar, useReactFlow } from '@xyflow/react';
 import { Trash2, Copy } from 'lucide-react';
+import { getNodeTextStyles } from '@/lib/nodeStyles';
 
 // Floating Quick Action Toolbar (Hapus & Duplikat Cepat)
 const NodeQuickActions = ({ id, selected }: { id: string; selected?: boolean }) => {
@@ -172,6 +173,7 @@ const SvgShapeWrapper = ({
   label,
   sublabel,
   textColor = '#0f172a',
+  data,
 }: {
   id: string;
   selected?: boolean;
@@ -181,27 +183,32 @@ const SvgShapeWrapper = ({
   label: string;
   sublabel?: string;
   textColor?: string;
-}) => (
-  <div
-    className={`relative flex items-center justify-center transition-all ${
-      selected ? 'drop-shadow-md scale-102 ring-2 ring-blue-500 rounded-lg' : ''
-    }`}
-    style={{ width, height }}
-  >
-    <NodeQuickActions id={id} selected={selected} />
-    <StandardHandles />
-    <svg width={width} height={height} className="absolute inset-0 overflow-visible">
-      {children}
-    </svg>
+  data?: any;
+}) => {
+  const textStyles = data ? getNodeTextStyles(data, 12, textColor) : { color: textColor };
+
+  return (
     <div
-      className="relative z-10 px-3 text-center pointer-events-none select-none max-w-[85%] break-words"
-      style={{ color: textColor }}
+      className={`relative flex items-center justify-center transition-all ${
+        selected ? 'drop-shadow-md scale-102 ring-2 ring-blue-500 rounded-lg' : ''
+      }`}
+      style={{ width, height }}
     >
-      <div className="font-semibold text-xs leading-tight">{label}</div>
-      {sublabel && <div className="text-[10px] opacity-75 mt-0.5">{sublabel}</div>}
+      <NodeQuickActions id={id} selected={selected} />
+      <StandardHandles />
+      <svg width={width} height={height} className="absolute inset-0 overflow-visible">
+        {children}
+      </svg>
+      <div
+        className="relative z-10 px-3 pointer-events-none select-none max-w-[85%] break-words leading-tight"
+        style={textStyles}
+      >
+        <div>{label}</div>
+        {sublabel && <div className="text-[10px] opacity-75 mt-0.5">{sublabel}</div>}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // 1. Process / Kotak Persegi Panjang
 export const ProcessSvgNode = memo((props: any) => {
@@ -211,7 +218,7 @@ export const ProcessSvgNode = memo((props: any) => {
   const text = data.textColor || '#0f172a';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} label={data.label || 'Proses'} sublabel={data.sublabel} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} label={data.label || 'Proses'} sublabel={data.sublabel} textColor={text}>
       <rect x="2" y="2" width="136" height="66" rx="4" fill={bg} stroke={border} strokeWidth="2" />
     </SvgShapeWrapper>
   );
@@ -226,7 +233,7 @@ export const DecisionSvgNode = memo((props: any) => {
   const text = data.textColor || '#1e3a8a';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} width={120} height={90} label={data.label || 'Keputusan?'} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={120} height={90} label={data.label || 'Keputusan?'} textColor={text}>
       <polygon points="60,2 118,45 60,88 2,45" fill={bg} stroke={border} strokeWidth="2" />
     </SvgShapeWrapper>
   );
@@ -241,7 +248,7 @@ export const DocumentSvgNode = memo((props: any) => {
   const text = data.textColor || '#0369a1';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} width={140} height={75} label={data.label || 'Dokumen'} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={140} height={75} label={data.label || 'Dokumen'} textColor={text}>
       <path
         d="M 2 2 L 138 2 L 138 60 Q 105 45 70 60 Q 35 75 2 60 Z"
         fill={bg}
@@ -261,7 +268,7 @@ export const OvalSvgNode = memo((props: any) => {
   const text = data.textColor || '#0f172a';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} width={130} height={70} label={data.label || 'Oval'} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={130} height={70} label={data.label || 'Oval'} textColor={text}>
       <ellipse cx="65" cy="35" rx="63" ry="33" fill={bg} stroke={border} strokeWidth="2" />
     </SvgShapeWrapper>
   );
@@ -276,7 +283,7 @@ export const TerminalSvgNode = memo((props: any) => {
   const text = data.textColor || '#065f46';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} width={140} height={60} label={data.label || 'Mulai / Selesai'} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={140} height={60} label={data.label || 'Mulai / Selesai'} textColor={text}>
       <rect x="2" y="2" width="136" height="56" rx="28" fill={bg} stroke={border} strokeWidth="2" />
     </SvgShapeWrapper>
   );
@@ -291,7 +298,7 @@ export const HexagonSvgNode = memo((props: any) => {
   const text = data.textColor || '#831843';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} width={140} height={65} label={data.label || 'Persiapan / Loop'} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={140} height={65} label={data.label || 'Persiapan / Loop'} textColor={text}>
       <polygon points="25,2 115,2 138,32.5 115,63 25,63 2,32.5" fill={bg} stroke={border} strokeWidth="2" />
     </SvgShapeWrapper>
   );
@@ -306,7 +313,7 @@ export const ParallelogramSvgNode = memo((props: any) => {
   const text = data.textColor || '#713f12';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} width={140} height={65} label={data.label || 'Input / Output Data'} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={140} height={65} label={data.label || 'Input / Output Data'} textColor={text}>
       <polygon points="25,2 138,2 115,63 2,63" fill={bg} stroke={border} strokeWidth="2" />
     </SvgShapeWrapper>
   );
@@ -321,7 +328,7 @@ export const DatabaseSvgNode = memo((props: any) => {
   const text = data.textColor || '#581c87';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} width={120} height={80} label={data.label || 'Basis Data'} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={120} height={80} label={data.label || 'Basis Data'} textColor={text}>
       <path
         d="M 2 15 C 2 5, 118 5, 118 15 L 118 65 C 118 75, 2 75, 2 65 Z"
         fill={bg}
@@ -342,7 +349,7 @@ export const PredefinedSvgNode = memo((props: any) => {
   const text = data.textColor || '#0f172a';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} width={140} height={65} label={data.label || 'Sub-Proses'} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={140} height={65} label={data.label || 'Sub-Proses'} textColor={text}>
       <rect x="2" y="2" width="136" height="61" rx="2" fill={bg} stroke={border} strokeWidth="2" />
       <line x1="20" y1="2" x2="20" y2="63" stroke={border} strokeWidth="2" />
       <line x1="120" y1="2" x2="120" y2="63" stroke={border} strokeWidth="2" />
@@ -359,7 +366,7 @@ export const DelaySvgNode = memo((props: any) => {
   const text = data.textColor || '#334155';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} width={130} height={65} label={data.label || 'Penundaan (Delay)'} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={130} height={65} label={data.label || 'Penundaan (Delay)'} textColor={text}>
       <path d="M 2 2 L 80 2 A 30 30 0 0 1 80 63 L 2 63 Z" fill={bg} stroke={border} strokeWidth="2" />
     </SvgShapeWrapper>
   );
@@ -374,7 +381,7 @@ export const SummingSvgNode = memo((props: any) => {
   const text = data.textColor || '#0369a1';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} width={65} height={65} label={data.label || ''} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={65} height={65} label={data.label || ''} textColor={text}>
       <circle cx="32.5" cy="32.5" r="30" fill={bg} stroke={border} strokeWidth="2" />
       <line x1="12" y1="12" x2="53" y2="53" stroke={border} strokeWidth="2" />
       <line x1="12" y1="53" x2="53" y2="12" stroke={border} strokeWidth="2" />
@@ -391,7 +398,7 @@ export const OrSvgNode = memo((props: any) => {
   const text = data.textColor || '#0369a1';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} width={65} height={65} label={data.label || ''} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={65} height={65} label={data.label || ''} textColor={text}>
       <circle cx="32.5" cy="32.5" r="30" fill={bg} stroke={border} strokeWidth="2" />
       <line x1="32.5" y1="3" x2="32.5" y2="62" stroke={border} strokeWidth="2" />
       <line x1="3" y1="32.5" x2="62" y2="32.5" stroke={border} strokeWidth="2" />
@@ -408,7 +415,7 @@ export const ConnectorSvgNode = memo((props: any) => {
   const text = data.textColor || '#1d4ed8';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} width={50} height={50} label={data.label || 'A'} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={50} height={50} label={data.label || 'A'} textColor={text}>
       <circle cx="25" cy="25" r="23" fill={bg} stroke={border} strokeWidth="2" />
     </SvgShapeWrapper>
   );
@@ -423,7 +430,7 @@ export const OffpageSvgNode = memo((props: any) => {
   const text = data.textColor || '#1d4ed8';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} width={70} height={70} label={data.label || 'Hal 2'} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={70} height={70} label={data.label || 'Hal 2'} textColor={text}>
       <polygon points="2,2 68,2 68,45 35,68 2,45" fill={bg} stroke={border} strokeWidth="2" />
     </SvgShapeWrapper>
   );
@@ -438,7 +445,7 @@ export const ManualInputSvgNode = memo((props: any) => {
   const text = data.textColor || '#78350f';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} width={130} height={65} label={data.label || 'Input Manual'} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={130} height={65} label={data.label || 'Input Manual'} textColor={text}>
       <polygon points="2,22 128,2 128,63 2,63" fill={bg} stroke={border} strokeWidth="2" />
     </SvgShapeWrapper>
   );
@@ -453,7 +460,7 @@ export const ManualOpSvgNode = memo((props: any) => {
   const text = data.textColor || '#78350f';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} width={130} height={65} label={data.label || 'Operasi Manual'} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={130} height={65} label={data.label || 'Operasi Manual'} textColor={text}>
       <polygon points="2,2 128,2 105,63 25,63" fill={bg} stroke={border} strokeWidth="2" />
     </SvgShapeWrapper>
   );
@@ -468,7 +475,7 @@ export const MergeSvgNode = memo((props: any) => {
   const text = data.textColor || '#1e3a8a';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} width={100} height={75} label={data.label || 'Gabung'} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={100} height={75} label={data.label || 'Gabung'} textColor={text}>
       <polygon points="2,2 98,2 50,73" fill={bg} stroke={border} strokeWidth="2" />
     </SvgShapeWrapper>
   );
@@ -483,7 +490,7 @@ export const ExtractSvgNode = memo((props: any) => {
   const text = data.textColor || '#1e3a8a';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} width={100} height={75} label={data.label || 'Ekstrak'} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={100} height={75} label={data.label || 'Ekstrak'} textColor={text}>
       <polygon points="50,2 98,73 2,73" fill={bg} stroke={border} strokeWidth="2" />
     </SvgShapeWrapper>
   );
@@ -498,7 +505,7 @@ export const CollateSvgNode = memo((props: any) => {
   const text = data.textColor || '#334155';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} width={80} height={80} label={data.label || 'Sortir'} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={80} height={80} label={data.label || 'Sortir'} textColor={text}>
       <polygon points="2,2 78,2 2,78 78,78" fill={bg} stroke={border} strokeWidth="2" />
     </SvgShapeWrapper>
   );
@@ -513,7 +520,7 @@ export const DisplaySvgNode = memo((props: any) => {
   const text = data.textColor || '#065f46';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} width={130} height={65} label={data.label || 'Tampilan Layar'} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={130} height={65} label={data.label || 'Tampilan Layar'} textColor={text}>
       <path d="M 20 2 L 105 2 Q 130 32.5 105 63 L 20 63 L 2 32.5 Z" fill={bg} stroke={border} strokeWidth="2" />
     </SvgShapeWrapper>
   );
@@ -528,7 +535,7 @@ export const BlockArrowSvgNode = memo((props: any) => {
   const text = data.textColor || '#14532d';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} width={140} height={65} label={data.label || 'Arah Alur'} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={140} height={65} label={data.label || 'Arah Alur'} textColor={text}>
       <polygon points="2,18 90,18 90,2 138,32.5 90,63 90,47 2,47" fill={bg} stroke={border} strokeWidth="2" />
     </SvgShapeWrapper>
   );

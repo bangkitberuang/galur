@@ -13,6 +13,7 @@ import {
   Sparkles,
   ChevronRight
 } from 'lucide-react';
+import { getNodeTextStyles, getNodeShapeStyles } from '@/lib/nodeStyles';
 
 // Floating Quick Action Toolbar
 const NodeQuickActions = ({ id, selected }: { id: string; selected?: boolean }) => {
@@ -283,6 +284,9 @@ export const OrgNode = memo((props: any) => {
   const avatarBg = data.avatarBg || '#0b4632';
   const badgeColor = data.badgeColor || '#059669';
 
+  const shapeStyles = getNodeShapeStyles(data, '#ffffff', '#e2e8f0');
+  const textStyles = getNodeTextStyles(data, 12, '#0f172a');
+
   const initials = name
     .split(' ')
     .slice(0, 2)
@@ -292,9 +296,10 @@ export const OrgNode = memo((props: any) => {
 
   return (
     <div
-      className={`bg-white rounded-2xl shadow-md border border-slate-200 p-3 min-w-[200px] max-w-[240px] text-left transition-all ${
+      className={`rounded-2xl shadow-md border p-3 min-w-[200px] max-w-[240px] text-left transition-all ${
         selected ? 'ring-2 ring-emerald-500 shadow-xl' : ''
       }`}
+      style={{ ...shapeStyles, ...textStyles }}
     >
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
@@ -307,7 +312,7 @@ export const OrgNode = memo((props: any) => {
           {initials || <User className="w-4 h-4" />}
         </div>
         <div className="min-w-0">
-          <h4 className="font-bold text-xs text-slate-900 truncate">{name}</h4>
+          <h4 className="font-bold text-xs truncate" style={{ color: textStyles.color }}>{name}</h4>
           <p className="text-[11px] font-semibold text-slate-600 truncate">{role}</p>
         </div>
       </div>

@@ -45,28 +45,33 @@ body {
   box-shadow: 0 0 12px rgba(16, 185, 129, 0.9) !important;
 }
 
-/* Edge Reconnection Handles (Titik Tuju / Titik Asal Garis) */
+/* Edge Reconnection Handles (Titik Tuju / Titik Asal Garis - Ramping & Tidak Mengganggu) */
 .react-flow__edgeupdater {
   cursor: grab !important;
   fill: #3b82f6 !important;
   stroke: #ffffff !important;
-  stroke-width: 2.5px !important;
-  opacity: 0.9;
-  transition: opacity 0.15s ease, transform 0.15s ease, fill 0.15s ease;
+  stroke-width: 2px !important;
+  r: 5.5px !important;
+  opacity: 0 !important; /* Tersembunyi secara default agar kanvas bersih */
+  transition: opacity 0.15s ease, fill 0.15s ease, transform 0.15s ease;
 }
 
+/* Hanya muncul saat garis di-hover atau sedang dipilih */
 .react-flow__edge:hover .react-flow__edgeupdater,
-.react-flow__edge.selected .react-flow__edgeupdater,
+.react-flow__edge.selected .react-flow__edgeupdater {
+  opacity: 1 !important;
+}
+
 .react-flow__edgeupdater:hover {
   opacity: 1 !important;
   fill: #f59e0b !important;
-  transform: scale(1.35);
+  r: 7.5px !important;
 }
 
 .react-flow__edgeupdater:active {
   cursor: grabbing !important;
   fill: #ef4444 !important;
-  transform: scale(1.5);
+  r: 8.5px !important;
 }
 
 .react-flow__node.selected {
@@ -75,21 +80,48 @@ body {
   border-radius: 10px;
 }
 
-/* Print CSS */
+/* Print CSS - Bersihkan semua elemen kontrol kanvas saat dicetak atau disimpan ke PDF */
 @media print {
+  @page {
+    margin: 10mm;
+  }
+
   body {
     background: white !important;
     color: black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
   
-  .no-print {
-    display: none !important;
-  }
-  
+  /* Sembunyikan elemen UI editor & kontrol */
+  .no-print,
   .react-flow__controls,
   .react-flow__minimap,
-  .react-flow__background {
+  .react-flow__background,
+  .react-flow__handle,
+  .react-flow__edgeupdater,
+  .react-flow__edgeupdater-source,
+  .react-flow__edgeupdater-target,
+  .react-flow__resize-control,
+  .react-flow__resizer,
+  .react-flow__nodesselection-rect,
+  .react-flow__selection,
+  .react-flow__panel,
+  .react-flow__attribution {
     display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+
+  /* Hilangkan garis seleksi / highlight node saat dicetak */
+  .react-flow__node.selected {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  .react-flow__edge.selected .react-flow__edge-path {
+    stroke: #64748b !important;
+    stroke-width: 2px !important;
   }
   
   .print-area {
@@ -102,3 +134,4 @@ body {
     padding: 0 !important;
   }
 }
+

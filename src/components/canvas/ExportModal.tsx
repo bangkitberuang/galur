@@ -32,11 +32,26 @@ export default function ExportModal({ isOpen, onClose, diagramTitle }: ExportMod
 
       const fileName = `${diagramTitle.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
 
+      // Filter agar titik handle koneksi, kontrol pengubah garis, dan tombol cepat tidak ikut terekspor
+      const exportFilter = (node: HTMLElement) => {
+        if (node.classList) {
+          if (node.classList.contains('react-flow__handle')) return false;
+          if (node.classList.contains('react-flow__edgeupdater')) return false;
+          if (node.classList.contains('react-flow__edgeupdater-source')) return false;
+          if (node.classList.contains('react-flow__edgeupdater-target')) return false;
+          if (node.classList.contains('no-print')) return false;
+          if (node.classList.contains('react-flow__resize-control')) return false;
+          if (node.classList.contains('react-flow__resizer')) return false;
+        }
+        return true;
+      };
+
       if (format === 'jpg') {
         const dataUrl = await toJpeg(element, {
           backgroundColor: '#ffffff',
           pixelRatio: quality,
           quality: 0.95,
+          filter: exportFilter as any,
         });
         const link = document.createElement('a');
         link.download = `${fileName}.jpg`;
@@ -46,6 +61,7 @@ export default function ExportModal({ isOpen, onClose, diagramTitle }: ExportMod
         const dataUrl = await toPng(element, {
           backgroundColor: '#ffffff',
           pixelRatio: quality,
+          filter: exportFilter as any,
         });
         const link = document.createElement('a');
         link.download = `${fileName}.png`;
@@ -55,6 +71,7 @@ export default function ExportModal({ isOpen, onClose, diagramTitle }: ExportMod
         const dataUrl = await toPng(element, {
           backgroundColor: '#ffffff',
           pixelRatio: quality,
+          filter: exportFilter as any,
         });
 
         const pdf = new jsPDF({

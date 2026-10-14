@@ -169,105 +169,135 @@ export const SPECIALIST_CATEGORIES: CategoryTemplate[] = [
   {
     id: 'org',
     name: 'Bagan Organisasi',
-    description: 'Hierarki kepemimpinan perusahaan, pembagian departemen, dan rantai komando.',
+    description: 'Hierarki korporat berjenjang lengkap: Presiden Direktur, 5 Divisi Utama, dan 26 Departemen Fungsional operasional.',
     iconName: 'Users',
     accentColor: '#d97706',
-    badge: 'Manajemen & SDM',
+    badge: 'Struktur Korporat & SDM',
     nodes: [
+      // 1. Level 1: President
       {
-        id: 'org-1',
-        type: 'org_node',
-        position: { x: 340, y: 60 },
+        id: 'org-pres',
+        type: 'process',
+        position: { x: 445, y: 30 },
         data: {
-          name: 'Raden Arya Permana',
-          role: 'Direktur Utama (CEO)',
-          dept: 'Dewan Eksekutif',
-          avatarBg: '#0b4632',
-          badgeColor: '#f59e0b',
+          label: 'President',
+          color: '#cfe2f3',
+          borderColor: '#3b82f6',
+          textColor: '#1e3a8a',
         },
       },
+
+      // 2. Level 2: 5 Divisi Utama
       {
-        id: 'org-2',
-        type: 'org_node',
-        position: { x: 120, y: 220 },
-        data: {
-          name: 'Citra Dewi Lestari',
-          role: 'Direktur Teknologi (CTO)',
-          dept: 'Teknologi & Produk',
-          avatarBg: '#1e3a8a',
-          badgeColor: '#3b82f6',
-        },
+        id: 'org-div-a',
+        type: 'process',
+        position: { x: 40, y: 120 },
+        data: { label: 'Product A Division', color: '#f9cb9c', borderColor: '#d97706', textColor: '#78350f' },
       },
       {
-        id: 'org-3',
-        type: 'org_node',
-        position: { x: 560, y: 220 },
-        data: {
-          name: 'Dimas Wicaksono',
-          role: 'Direktur Operasional (COO)',
-          dept: 'Operasional & Bisnis',
-          avatarBg: '#065f46',
-          badgeColor: '#10b981',
-        },
+        id: 'org-div-b',
+        type: 'process',
+        position: { x: 235, y: 120 },
+        data: { label: 'Product B Division', color: '#f9cb9c', borderColor: '#d97706', textColor: '#78350f' },
       },
       {
-        id: 'org-4',
-        type: 'org_node',
-        position: { x: 20, y: 390 },
-        data: {
-          name: 'Fajar Nugraha',
-          role: 'Lead Full-Stack Eng.',
-          dept: 'Tim Rekayasa Perangkat Lunak',
-          avatarBg: '#374151',
-          badgeColor: '#6b7280',
-        },
+        id: 'org-div-c',
+        type: 'process',
+        position: { x: 430, y: 120 },
+        data: { label: 'Product C Division', color: '#f9cb9c', borderColor: '#d97706', textColor: '#78350f' },
       },
       {
-        id: 'org-5',
-        type: 'org_node',
-        position: { x: 230, y: 390 },
-        data: {
-          name: 'Anisa Safitri',
-          role: 'Lead UI/UX Designer',
-          dept: 'Desain Produk & Riset',
-          avatarBg: '#701a75',
-          badgeColor: '#ec4899',
-        },
+        id: 'org-div-d',
+        type: 'process',
+        position: { x: 625, y: 120 },
+        data: { label: 'Product D Division', color: '#f9cb9c', borderColor: '#d97706', textColor: '#78350f' },
       },
+      {
+        id: 'org-div-adm',
+        type: 'process',
+        position: { x: 820, y: 120 },
+        data: { label: 'Administration & Finance Division', color: '#a2c4c9', borderColor: '#0d9488', textColor: '#134e4a' },
+      },
+
+      // 3. Departemen Product A
+      { id: 'org-a-1', type: 'process', position: { x: 65, y: 190 }, data: { label: 'Research & Department', color: '#fce5cd', borderColor: '#f59e0b', textColor: '#451a03' } },
+      { id: 'org-a-2', type: 'process', position: { x: 65, y: 245 }, data: { label: 'Manufacturing', color: '#fce5cd', borderColor: '#f59e0b', textColor: '#451a03' } },
+      { id: 'org-a-3', type: 'process', position: { x: 65, y: 300 }, data: { label: 'Accounting / Finance', color: '#fce5cd', borderColor: '#f59e0b', textColor: '#451a03' } },
+      { id: 'org-a-4', type: 'process', position: { x: 65, y: 355 }, data: { label: 'Marketing', color: '#fce5cd', borderColor: '#f59e0b', textColor: '#451a03' } },
+      { id: 'org-a-5', type: 'process', position: { x: 65, y: 410 }, data: { label: 'Customer Service', color: '#fce5cd', borderColor: '#f59e0b', textColor: '#451a03' } },
+
+      // 4. Departemen Product B
+      { id: 'org-b-1', type: 'process', position: { x: 260, y: 190 }, data: { label: 'Research & Department', color: '#fce5cd', borderColor: '#f59e0b', textColor: '#451a03' } },
+      { id: 'org-b-2', type: 'process', position: { x: 260, y: 245 }, data: { label: 'Manufacturing', color: '#fce5cd', borderColor: '#f59e0b', textColor: '#451a03' } },
+      { id: 'org-b-3', type: 'process', position: { x: 260, y: 300 }, data: { label: 'Accounting / Finance', color: '#fce5cd', borderColor: '#f59e0b', textColor: '#451a03' } },
+      { id: 'org-b-4', type: 'process', position: { x: 260, y: 355 }, data: { label: 'Marketing', color: '#fce5cd', borderColor: '#f59e0b', textColor: '#451a03' } },
+      { id: 'org-b-5', type: 'process', position: { x: 260, y: 410 }, data: { label: 'Customer Service', color: '#fce5cd', borderColor: '#f59e0b', textColor: '#451a03' } },
+
+      // 5. Departemen Product C
+      { id: 'org-c-1', type: 'process', position: { x: 455, y: 190 }, data: { label: 'Research & Department', color: '#fce5cd', borderColor: '#f59e0b', textColor: '#451a03' } },
+      { id: 'org-c-2', type: 'process', position: { x: 455, y: 245 }, data: { label: 'Manufacturing', color: '#fce5cd', borderColor: '#f59e0b', textColor: '#451a03' } },
+      { id: 'org-c-3', type: 'process', position: { x: 455, y: 300 }, data: { label: 'Accounting / Finance', color: '#fce5cd', borderColor: '#f59e0b', textColor: '#451a03' } },
+      { id: 'org-c-4', type: 'process', position: { x: 455, y: 355 }, data: { label: 'Marketing', color: '#fce5cd', borderColor: '#f59e0b', textColor: '#451a03' } },
+      { id: 'org-c-5', type: 'process', position: { x: 455, y: 410 }, data: { label: 'Customer Service', color: '#fce5cd', borderColor: '#f59e0b', textColor: '#451a03' } },
+
+      // 6. Departemen Product D
+      { id: 'org-d-1', type: 'process', position: { x: 650, y: 190 }, data: { label: 'Research & Department', color: '#fce5cd', borderColor: '#f59e0b', textColor: '#451a03' } },
+      { id: 'org-d-2', type: 'process', position: { x: 650, y: 245 }, data: { label: 'Manufacturing', color: '#fce5cd', borderColor: '#f59e0b', textColor: '#451a03' } },
+      { id: 'org-d-3', type: 'process', position: { x: 650, y: 300 }, data: { label: 'Accounting / Finance', color: '#fce5cd', borderColor: '#f59e0b', textColor: '#451a03' } },
+      { id: 'org-d-4', type: 'process', position: { x: 650, y: 355 }, data: { label: 'Marketing', color: '#fce5cd', borderColor: '#f59e0b', textColor: '#451a03' } },
+      { id: 'org-d-5', type: 'process', position: { x: 650, y: 410 }, data: { label: 'Customer Service', color: '#fce5cd', borderColor: '#f59e0b', textColor: '#451a03' } },
+
+      // 7. Departemen Administration & Finance
+      { id: 'org-adm-1', type: 'process', position: { x: 845, y: 190 }, data: { label: 'Human Resources', color: '#d9ead3', borderColor: '#16a34a', textColor: '#064e3b' } },
+      { id: 'org-adm-2', type: 'process', position: { x: 845, y: 245 }, data: { label: 'Procurement', color: '#d9ead3', borderColor: '#16a34a', textColor: '#064e3b' } },
+      { id: 'org-adm-3', type: 'process', position: { x: 845, y: 300 }, data: { label: 'Accounting / Finance', color: '#d9ead3', borderColor: '#16a34a', textColor: '#064e3b' } },
+      { id: 'org-adm-4', type: 'process', position: { x: 845, y: 355 }, data: { label: 'PR / Communications', color: '#d9ead3', borderColor: '#16a34a', textColor: '#064e3b' } },
+      { id: 'org-adm-5', type: 'process', position: { x: 845, y: 410 }, data: { label: 'Training / Safety', color: '#d9ead3', borderColor: '#16a34a', textColor: '#064e3b' } },
+      { id: 'org-adm-6', type: 'process', position: { x: 845, y: 465 }, data: { label: 'Legal', color: '#d9ead3', borderColor: '#16a34a', textColor: '#064e3b' } },
     ],
     edges: [
-      {
-        id: 'edge-org-1',
-        source: 'org-1',
-        target: 'org-2',
-        type: 'smoothstep',
-        markerEnd: { type: MarkerType.ArrowClosed, color: '#475569' },
-        style: { stroke: '#475569', strokeWidth: 2 },
-      },
-      {
-        id: 'edge-org-2',
-        source: 'org-1',
-        target: 'org-3',
-        type: 'smoothstep',
-        markerEnd: { type: MarkerType.ArrowClosed, color: '#475569' },
-        style: { stroke: '#475569', strokeWidth: 2 },
-      },
-      {
-        id: 'edge-org-3',
-        source: 'org-2',
-        target: 'org-4',
-        type: 'smoothstep',
-        markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
-        style: { stroke: '#3b82f6', strokeWidth: 2 },
-      },
-      {
-        id: 'edge-org-4',
-        source: 'org-2',
-        target: 'org-5',
-        type: 'smoothstep',
-        markerEnd: { type: MarkerType.ArrowClosed, color: '#ec4899' },
-        style: { stroke: '#ec4899', strokeWidth: 2 },
-      },
+      // President to 5 Divisions
+      { id: 'e-pres-a', source: 'org-pres', target: 'org-div-a', type: 'smoothstep', style: { stroke: '#475569', strokeWidth: 1.8 } },
+      { id: 'e-pres-b', source: 'org-pres', target: 'org-div-b', type: 'smoothstep', style: { stroke: '#475569', strokeWidth: 1.8 } },
+      { id: 'e-pres-c', source: 'org-pres', target: 'org-div-c', type: 'smoothstep', style: { stroke: '#475569', strokeWidth: 1.8 } },
+      { id: 'e-pres-d', source: 'org-pres', target: 'org-div-d', type: 'smoothstep', style: { stroke: '#475569', strokeWidth: 1.8 } },
+      { id: 'e-pres-adm', source: 'org-pres', target: 'org-div-adm', type: 'smoothstep', style: { stroke: '#475569', strokeWidth: 1.8 } },
+
+      // Product A Division to Departments
+      { id: 'e-a-1', source: 'org-div-a', target: 'org-a-1', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#d97706', strokeWidth: 1.5 } },
+      { id: 'e-a-2', source: 'org-div-a', target: 'org-a-2', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#d97706', strokeWidth: 1.5 } },
+      { id: 'e-a-3', source: 'org-div-a', target: 'org-a-3', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#d97706', strokeWidth: 1.5 } },
+      { id: 'e-a-4', source: 'org-div-a', target: 'org-a-4', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#d97706', strokeWidth: 1.5 } },
+      { id: 'e-a-5', source: 'org-div-a', target: 'org-a-5', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#d97706', strokeWidth: 1.5 } },
+
+      // Product B Division to Departments
+      { id: 'e-b-1', source: 'org-div-b', target: 'org-b-1', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#d97706', strokeWidth: 1.5 } },
+      { id: 'e-b-2', source: 'org-div-b', target: 'org-b-2', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#d97706', strokeWidth: 1.5 } },
+      { id: 'e-b-3', source: 'org-div-b', target: 'org-b-3', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#d97706', strokeWidth: 1.5 } },
+      { id: 'e-b-4', source: 'org-div-b', target: 'org-b-4', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#d97706', strokeWidth: 1.5 } },
+      { id: 'e-b-5', source: 'org-div-b', target: 'org-b-5', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#d97706', strokeWidth: 1.5 } },
+
+      // Product C Division to Departments
+      { id: 'e-c-1', source: 'org-div-c', target: 'org-c-1', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#d97706', strokeWidth: 1.5 } },
+      { id: 'e-c-2', source: 'org-div-c', target: 'org-c-2', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#d97706', strokeWidth: 1.5 } },
+      { id: 'e-c-3', source: 'org-div-c', target: 'org-c-3', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#d97706', strokeWidth: 1.5 } },
+      { id: 'e-c-4', source: 'org-div-c', target: 'org-c-4', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#d97706', strokeWidth: 1.5 } },
+      { id: 'e-c-5', source: 'org-div-c', target: 'org-c-5', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#d97706', strokeWidth: 1.5 } },
+
+      // Product D Division to Departments
+      { id: 'e-d-1', source: 'org-div-d', target: 'org-d-1', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#d97706', strokeWidth: 1.5 } },
+      { id: 'e-d-2', source: 'org-div-d', target: 'org-d-2', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#d97706', strokeWidth: 1.5 } },
+      { id: 'e-d-3', source: 'org-div-d', target: 'org-d-3', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#d97706', strokeWidth: 1.5 } },
+      { id: 'e-d-4', source: 'org-div-d', target: 'org-d-4', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#d97706', strokeWidth: 1.5 } },
+      { id: 'e-d-5', source: 'org-div-d', target: 'org-d-5', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#d97706', strokeWidth: 1.5 } },
+
+      // Administration & Finance to Departments
+      { id: 'e-adm-1', source: 'org-div-adm', target: 'org-adm-1', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#0d9488', strokeWidth: 1.5 } },
+      { id: 'e-adm-2', source: 'org-div-adm', target: 'org-adm-2', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#0d9488', strokeWidth: 1.5 } },
+      { id: 'e-adm-3', source: 'org-div-adm', target: 'org-adm-3', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#0d9488', strokeWidth: 1.5 } },
+      { id: 'e-adm-4', source: 'org-div-adm', target: 'org-adm-4', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#0d9488', strokeWidth: 1.5 } },
+      { id: 'e-adm-5', source: 'org-div-adm', target: 'org-adm-5', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#0d9488', strokeWidth: 1.5 } },
+      { id: 'e-adm-6', source: 'org-div-adm', target: 'org-adm-6', type: 'smoothstep', sourceHandle: 'bottom-left', targetHandle: 'l-out', style: { stroke: '#0d9488', strokeWidth: 1.5 } },
     ],
   },
 
