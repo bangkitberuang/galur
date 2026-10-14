@@ -31,7 +31,9 @@ import {
   History, 
   Undo2, 
   Redo2, 
-  FolderOpen 
+  FolderOpen,
+  LayoutTemplate,
+  Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -42,6 +44,7 @@ import Sidebar from './Sidebar';
 import PropertyPanel from './PropertyPanel';
 import ExportModal from './ExportModal';
 import HistoryModal from './HistoryModal';
+import TemplateModal from './TemplateModal';
 import CanvasToolbar from './CanvasToolbar';
 import { 
   saveDiagramToStorage, 
@@ -49,6 +52,7 @@ import {
   getAllDiagramsMeta, 
   initDefaultDiagramsIfEmpty 
 } from '@/lib/diagramStorage';
+import { getTemplateByCategory, CategoryTemplate } from '@/lib/specialistTemplates';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 interface DiagramEditorInnerProps {
@@ -69,6 +73,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   const [edgeType, setEdgeType] = useState<string>('step'); // 'step' | 'default' | 'straight'
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [isNewMenuOpen, setIsNewMenuOpen] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('saved');
   const [storageType, setStorageType] = useState<'cloud' | 'local'>('local');
@@ -111,7 +116,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     setSaveStatus('idle');
   }, [future, nodes, edges, setNodes, setEdges]);
 
-  // Inisialisasi awal: Muat diagram dari riwayat
+  // Inisialisasi awal: Muat diagram dari riwayat atau parameter template
   useEffect(() => {
     initDefaultDiagramsIfEmpty();
     const metaList = getAllDiagramsMeta();
@@ -120,6 +125,20 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     let targetId = 'flowchart-demo-1';
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
+      const urlTemplate = urlParams.get('template');
+      if (urlTemplate) {
+        const found = getTemplateByCategory(urlTemplate);
+        if (found) {
+          const newId = `diag_${found.id}_${Date.now()}`;
+          setCurrentId(newId);
+          setTitle(`Template ${found.name}`);
+          setNodes(found.nodes || []);
+          setEdges(found.edges || []);
+          window.history.replaceState(null, '', `/editor?id=${newId}`);
+          return;
+        }
+      }
+
       const urlId = urlParams.get('id') || diagramId;
       if (urlId) {
         targetId = urlId;
@@ -438,6 +457,25 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     setTimeout(() => fitView({ padding: 0.2 }), 100);
   };
 
+  // Muat Template Spesialis dari Modal Pustaka
+  const handleSelectSpecialistTemplate = (template: CategoryTemplate) => {
+    takeSnapshot();
+    const newId = `diag_${template.id}_${Date.now()}`;
+    setCurrentId(newId);
+    setTitle(`Template ${template.name}`);
+    setNodes(template.nodes || []);
+    setEdges(template.edges || []);
+    setSelectedNode(null);
+    setSelectedEdge(null);
+    setSaveStatus('idle');
+
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', `/editor?id=${newId}`);
+    }
+
+    setTimeout(() => fitView({ padding: 0.2 }), 100);
+  };
+
   // Simpan Manual
   const handleManualSave = async () => {
     setSaveStatus('saving');
@@ -564,9 +602,41 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
                     <div className="text-[10px] text-slate-400">Pohon ide brainstorming</div>
                   </div>
                 </button>
+
+                <div className="my-1 border-t border-slate-100" />
+
+                <button
+                  onClick={() => {
+                    setIsNewMenuOpen(false);
+                    setIsTemplateModalOpen(true);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left hover:bg-amber-50/80 text-xs font-medium text-slate-800 transition-colors bg-amber-50/40 border border-amber-200/50"
+                >
+                  <div className="w-6 h-6 rounded-lg bg-[#ea9932] text-white flex items-center justify-center">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-100 fill-amber-100" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-amber-950">Template Spesialis (11)</div>
+                    <div className="text-[10px] text-amber-700">UML, ERD, SWOT, Org, dll.</div>
+                  </div>
+                </button>
               </div>
             )}
           </div>
+
+          {/* Tombol Pustaka Template Spesialis */}
+          <button
+            type="button"
+            onClick={() => setIsTemplateModalOpen(true)}
+            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-amber-500 hover:bg-amber-50/60 text-slate-700 hover:text-amber-800 text-xs font-semibold transition-all shadow-2xs cursor-pointer"
+            title="Pustaka Template Spesialis (UML, ERD, SWOT, dll. dari Gambar 3)"
+          >
+            <LayoutTemplate className="w-3.5 h-3.5 text-amber-600" />
+            <span>Template Spesialis</span>
+            <span className="px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">
+              11
+            </span>
+          </button>
 
           {/* Tombol Riwayat Diagram dengan Jumlah Berkas */}
           <button
@@ -738,6 +808,12 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
         currentDiagramId={currentId}
         onLoadDiagram={handleLoadFromHistory}
         onNewDiagram={() => handleCreateNew('blank')}
+      />
+
+      <TemplateModal
+        isOpen={isTemplateModalOpen}
+        onClose={() => setIsTemplateModalOpen(false)}
+        onSelectTemplate={handleSelectSpecialistTemplate}
       />
     </div>
   );

@@ -27,7 +27,11 @@ import {
   ArrowRight,
   Shuffle,
   Triangle,
-  Layers
+  Layers,
+  Code2,
+  Users,
+  Target,
+  Sparkles
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -39,6 +43,7 @@ interface SidebarProps {
 export default function Sidebar({ onAddNode, edgeType, setEdgeType }: SidebarProps) {
   const [isFlowchartOpen, setIsFlowchartOpen] = useState(true);
   const [isOtherOpen, setIsOtherOpen] = useState(true);
+  const [isSpecialistOpen, setIsSpecialistOpen] = useState(true);
 
   const onDragStart = (event: React.DragEvent, nodeType: string, defaultLabel: string) => {
     event.dataTransfer.setData('application/reactflow', JSON.stringify({ type: nodeType, label: defaultLabel }));
@@ -200,6 +205,90 @@ export default function Sidebar({ onAddNode, edgeType, setEdgeType }: SidebarPro
                 <div className="flex-1 min-w-0">
                   <div className="text-xs font-semibold text-slate-700">Layanan Cloud</div>
                   <div className="text-[10px] text-slate-400">Server atau API luar</div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 3. SEKSI BENTUK SPESIALIS (GAMBAR 3: UML, ERD, ORG, SWOT) */}
+        <div className="space-y-1.5 border-t border-slate-100 pt-3">
+          <button
+            onClick={() => setIsSpecialistOpen(!isSpecialistOpen)}
+            className="w-full flex items-center justify-between text-[11px] font-bold text-slate-700 hover:text-emerald-700 uppercase tracking-wider px-1 py-1 rounded transition-colors"
+          >
+            <span className="flex items-center gap-1">
+              {isSpecialistOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+              Bentuk Spesialis (Gambar 3)
+            </span>
+            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800">
+              4
+            </span>
+          </button>
+
+          {isSpecialistOpen && (
+            <div className="space-y-1 pt-1">
+              {/* UML Class */}
+              <div
+                draggable
+                onDragStart={(e) => onDragStart(e, 'uml_class', 'KelasUML')}
+                onClick={() => onAddNode('uml_class', 'KelasUML')}
+                className="flex items-center gap-2.5 p-2 rounded-xl border border-slate-100 hover:border-blue-500 hover:bg-blue-50/40 cursor-grab active:cursor-grabbing transition-all group"
+              >
+                <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-200 group-hover:bg-blue-100 flex items-center justify-center text-blue-600 transition-colors">
+                  <Code2 className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-semibold text-slate-700">UML Class</div>
+                  <div className="text-[10px] text-slate-400">Atribut & Metode OOP</div>
+                </div>
+              </div>
+
+              {/* ERD Table */}
+              <div
+                draggable
+                onDragStart={(e) => onDragStart(e, 'erd_entity', 'tabel_erd')}
+                onClick={() => onAddNode('erd_entity', 'tabel_erd')}
+                className="flex items-center gap-2.5 p-2 rounded-xl border border-slate-100 hover:border-emerald-500 hover:bg-emerald-50/40 cursor-grab active:cursor-grabbing transition-all group"
+              >
+                <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 group-hover:bg-emerald-100 flex items-center justify-center text-emerald-700 transition-colors">
+                  <Database className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-semibold text-slate-700">Tabel ERD (Entity)</div>
+                  <div className="text-[10px] text-slate-400">Kolom PK, FK & Tipe Data</div>
+                </div>
+              </div>
+
+              {/* Org Chart Node */}
+              <div
+                draggable
+                onDragStart={(e) => onDragStart(e, 'org_node', 'Nama Pejabat')}
+                onClick={() => onAddNode('org_node', 'Nama Pejabat')}
+                className="flex items-center gap-2.5 p-2 rounded-xl border border-slate-100 hover:border-amber-500 hover:bg-amber-50/40 cursor-grab active:cursor-grabbing transition-all group"
+              >
+                <div className="w-7 h-7 rounded-lg bg-amber-50 border border-amber-200 group-hover:bg-amber-100 flex items-center justify-center text-amber-700 transition-colors">
+                  <Users className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-semibold text-slate-700">Bagan Organisasi</div>
+                  <div className="text-[10px] text-slate-400">Kartu Avatar & Jabatan</div>
+                </div>
+              </div>
+
+              {/* SWOT Card */}
+              <div
+                draggable
+                onDragStart={(e) => onDragStart(e, 'swot_card', 'Strengths')}
+                onClick={() => onAddNode('swot_card', 'Strengths')}
+                className="flex items-center gap-2.5 p-2 rounded-xl border border-slate-100 hover:border-orange-500 hover:bg-orange-50/40 cursor-grab active:cursor-grabbing transition-all group"
+              >
+                <div className="w-7 h-7 rounded-lg bg-orange-50 border border-orange-200 group-hover:bg-orange-100 flex items-center justify-center text-[#ea9932] transition-colors">
+                  <Target className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-semibold text-slate-700">Kartu Analisis SWOT</div>
+                  <div className="text-[10px] text-slate-400">Kuadran S / W / O / T</div>
                 </div>
               </div>
             </div>

@@ -16,16 +16,29 @@ import {
   LogOut, 
   Cloud,
   HardDrive,
-  Sparkles
+  Sparkles,
+  ArrowRight,
+  Check,
+  Code2,
+  Database,
+  Users,
+  LayoutGrid,
+  Server,
+  Zap,
+  Gauge,
+  Target,
+  Boxes
 } from 'lucide-react';
 import { supabase, isSupabaseConfigured, DiagramRecord } from '@/lib/supabase';
 import { getAllDiagramsMeta, deleteDiagramFromStorage } from '@/lib/diagramStorage';
+import { SPECIALIST_CATEGORIES } from '@/lib/specialistTemplates';
 
 export default function DashboardPage() {
   const [diagrams, setDiagrams] = useState<DiagramRecord[]>([]);
   const [search, setSearch] = useState('');
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState<string>('swot');
 
   // Periksa status login pengguna
   useEffect(() => {
@@ -210,57 +223,103 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {/* Template Cepat */}
-        <section className="space-y-3">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500">
-            Pilih Template Siap Pakai
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Link
-              href="/editor"
-              className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-600 hover:shadow-md transition-all group"
-            >
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                <GitFork className="w-5 h-5" />
+        {/* Kategori & Template Spesialis (11 Kategori Sesuai Gambar 3) */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm sm:text-base font-extrabold uppercase tracking-wider text-slate-800">
+                  Kategori & Template Spesialis
+                </h2>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  11 Kategori Lengkap
+                </span>
               </div>
-              <h3 className="font-bold text-sm text-slate-800 group-hover:text-emerald-800 transition-colors">
-                Flowchart & Alur Keputusan
-              </h3>
-              <p className="text-xs text-slate-500 mt-1">
-                Gaya standar Visio dengan bentuk proses, diamond IF, dan konektor siku-siku.
+              <p className="text-xs text-slate-500 mt-0.5">
+                Pilih format diagram siap pakai sesuai daftar kategori teknis & bisnis
               </p>
-            </Link>
-
-            <Link
-              href="/editor"
-              className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-amber-500 hover:shadow-md transition-all group"
-            >
-              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                <Network className="w-5 h-5" />
-              </div>
-              <h3 className="font-bold text-sm text-slate-800 group-hover:text-amber-800 transition-colors">
-                Mind Map & Brainstorming
-              </h3>
-              <p className="text-xs text-slate-500 mt-1">
-                Pohon ide dinamis dengan tombol tambah cabang otomatis dan garis lengkung.
-              </p>
-            </Link>
-
-            <Link
-              href="/editor"
-              className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-700 hover:shadow-md transition-all group"
-            >
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                <Layers className="w-5 h-5" />
-              </div>
-              <h3 className="font-bold text-sm text-slate-800 group-hover:text-emerald-900 transition-colors">
-                Arsitektur Cloud & Database
-              </h3>
-              <p className="text-xs text-slate-500 mt-1">
-                Visualisasi sistem layanan server, cloud API, dan relasi basis data.
-              </p>
-            </Link>
+            </div>
           </div>
+
+          {/* Tab Pill 11 Kategori dari Gambar 3 */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none">
+            {SPECIALIST_CATEGORIES.map((cat) => {
+              const isSelected = cat.id === activeCategory;
+              const isSwot = cat.id === 'swot';
+
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                    isSelected
+                      ? isSwot
+                        ? 'bg-[#ea9932] text-white shadow-md shadow-amber-500/20 ring-2 ring-[#ea9932]/40'
+                        : 'bg-[#0b4632] text-amber-300 shadow-md shadow-emerald-950/20'
+                      : 'bg-white border border-slate-200 text-slate-700 hover:border-emerald-500 hover:text-emerald-800'
+                  }`}
+                >
+                  <span>{cat.name}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Featured Selected Template Card */}
+          {(() => {
+            const currentCat = SPECIALIST_CATEGORIES.find((c) => c.id === activeCategory) || SPECIALIST_CATEGORIES[0];
+            return (
+              <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-all animate-in fade-in duration-150">
+                <div className="space-y-3 max-w-2xl">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full text-white"
+                      style={{ backgroundColor: currentCat.accentColor }}
+                    >
+                      {currentCat.badge}
+                    </span>
+                    <span className="text-xs text-slate-400 font-medium">
+                      {currentCat.nodes.length} Bentuk Pre-configured • {currentCat.edges.length} Relasi Garis
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                      Template {currentCat.name}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
+                      {currentCat.description}
+                    </p>
+                  </div>
+
+                  {/* List komponen contoh */}
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {currentCat.nodes.slice(0, 4).map((n) => (
+                      <span
+                        key={n.id}
+                        className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200"
+                      >
+                        {String(n.data.label || n.data.className || n.data.tableName || n.data.name || n.data.title || 'Objek')}
+                      </span>
+                    ))}
+                    {currentCat.nodes.length > 4 && (
+                      <span className="text-[11px] font-medium px-2 py-1 text-slate-400">
+                        +{currentCat.nodes.length - 4} lainnya
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <Link
+                  href={`/editor?template=${currentCat.id}`}
+                  className="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-[#0b4632] hover:bg-[#073022] text-amber-300 font-bold text-sm shadow-md shadow-emerald-950/20 hover:scale-102 transition-all shrink-0"
+                >
+                  <span>Buka Template {currentCat.name}</span>
+                  <ArrowRight className="w-4 h-4 text-amber-300" />
+                </Link>
+              </div>
+            );
+          })()}
         </section>
 
         {/* Koleksi Diagram Pengguna */}

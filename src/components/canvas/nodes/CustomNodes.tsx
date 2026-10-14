@@ -453,9 +453,11 @@ export const TextNode = memo((props: any) => {
 TextNode.displayName = 'TextNode';
 
 import { flowchartNodeTypes } from './FlowchartShapes';
+import { specialistNodeTypes } from './SpecialistNodes';
 
 export const nodeTypes: any = {
   ...flowchartNodeTypes,
+  ...specialistNodeTypes,
   process: ProcessNode,
   decision: DecisionNode,
   terminal: TerminalNode,
