@@ -33,7 +33,53 @@ interface CustomEdgeData {
   [key: string]: any;
 }
 
-// 1. Edge Siku-Siku Patah (SmoothStep / Step - Visio Standard) dengan Kontrol Geser Posisi 3 Siku (Kiri/Kanan & Atas/Bawah), Reset & Tombol Hapus (×)
+// Helper perhitungan rounded corner SVG untuk orthogonal step custom
+function getPointDistance(p1: { x: number; y: number }, p2: { x: number; y: number }) {
+  return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+}
+
+function roundedCornerPath(
+  pPrev: { x: number; y: number },
+  pCurr: { x: number; y: number },
+  pNext: { x: number; y: number },
+  radius: number
+) {
+  const r = Math.min(getPointDistance(pPrev, pCurr) / 2, getPointDistance(pCurr, pNext) / 2, radius);
+  const { x, y } = pCurr;
+  if ((pPrev.x === x && x === pNext.x) || (pPrev.y === y && y === pNext.y)) {
+    return `L${x} ${y}`;
+  }
+  // Masuk horizontal, belok vertikal
+  if (pPrev.y === y) {
+    const dirX = pPrev.x < x ? -1 : 1;
+    const dirY = pCurr.y < pNext.y ? 1 : -1;
+    return `L ${x + r * dirX},${y} Q ${x},${y} ${x},${y + r * dirY}`;
+  }
+  // Masuk vertikal, belok horizontal
+  const dirY = pPrev.y < y ? -1 : 1;
+  const dirX = pCurr.x < pNext.x ? 1 : -1;
+  return `L ${x},${y + r * dirY} Q ${x},${y} ${x + r * dirX},${y}`;
+}
+
+function pointsToSvgPath(points: { x: number; y: number }[], borderRadius = 8) {
+  if (points.length < 2) return '';
+  const clean: { x: number; y: number }[] = [points[0]];
+  for (let i = 1; i < points.length; i++) {
+    const prev = clean[clean.length - 1];
+    if (Math.abs(prev.x - points[i].x) > 1 || Math.abs(prev.y - points[i].y) > 1) {
+      clean.push(points[i]);
+    }
+  }
+  if (clean.length < 2) return '';
+  let path = `M${clean[0].x} ${clean[0].y}`;
+  for (let i = 1; i < clean.length - 1; i++) {
+    path += ' ' + roundedCornerPath(clean[i - 1], clean[i], clean[i + 1], borderRadius);
+  }
+  path += ` L${clean[clean.length - 1].x} ${clean[clean.length - 1].y}`;
+  return path;
+}
+
+// 1. Edge Siku-Siku Patah (SmoothStep / Step - Visio Standard) dengan Kontrol Geser Posisi Siku, Reset & Tombol Hapus (×)
 export const RemovableStepEdge = memo((props: EdgeProps) => {
   const {
     id,
@@ -61,33 +107,188 @@ export const RemovableStepEdge = memo((props: EdgeProps) => {
   const defaultCenterX = (sourceX + targetX) / 2;
   const defaultCenterY = (sourceY + targetY) / 2;
 
-  // Sesuaikan offset dinamis untuk koneksi satu sisi (looping top-top, bottom-bottom, dll.)
+  // Deteksi orientasi koneksi garis
+  const isHorizontalFlow =
+    (sourcePosition === 'right' || sourcePosition === 'left') &&
+    (targetPosition === 'left' || targetPosition === 'right');
+
+  const isVerticalFlow =
+    (sourcePosition === 'top' || sourcePosition === 'bottom') &&
+    (targetPosition === 'bottom' || targetPosition === 'top');
+
+  const isLoopTop = sourcePosition === 'top' && targetPosition === 'top';
+  const isLoopBottom = sourcePosition === 'bottom' && targetPosition === 'bottom';
+  const isLoopLeft = sourcePosition === 'left' && targetPosition === 'left';
+  const isLoopRight = sourcePosition === 'right' && targetPosition === 'right';
+
+  const isCornerHV =
+    (sourcePosition === 'right' || sourcePosition === 'left') &&
+    (targetPosition === 'top' || targetPosition === 'bottom');
+
+  const isCornerVH =
+    (sourcePosition === 'top' || sourcePosition === 'bottom') &&
+    (targetPosition === 'right' || targetPosition === 'left');
+
+  // Sesuaikan offset dinamis untuk koneksi loop satu sisi
   let effectiveOffset = currentOffset;
-  if (sourcePosition === 'top' && targetPosition === 'top') {
+  if (isLoopTop) {
     effectiveOffset = Math.max(10, Math.min(350, currentOffset - shiftY));
-  } else if (sourcePosition === 'bottom' && targetPosition === 'bottom') {
+  } else if (isLoopBottom) {
     effectiveOffset = Math.max(10, Math.min(350, currentOffset + shiftY));
-  } else if (sourcePosition === 'left' && targetPosition === 'left') {
+  } else if (isLoopLeft) {
     effectiveOffset = Math.max(10, Math.min(350, currentOffset - shiftX));
-  } else if (sourcePosition === 'right' && targetPosition === 'right') {
+  } else if (isLoopRight) {
     effectiveOffset = Math.max(10, Math.min(350, currentOffset + shiftX));
   }
 
-  const effectiveCenterX = defaultCenterX + shiftX;
-  const effectiveCenterY = defaultCenterY + shiftY;
+  // Hitung jalur SVG dan posisi titik kontrol handle yang tepat
+  let edgePath = '';
+  let mainDotX = defaultCenterX;
+  let mainDotY = defaultCenterY;
+  let dragCursor = 'cursor-grab active:cursor-grabbing';
+  let dotTooltip = 'Titik Kontrol Garis: Klik & tahan untuk menggeser posisi garis';
 
-  const [edgePath, labelX, labelY] = getSmoothStepPath({
-    sourceX,
-    sourceY,
-    targetX,
-    targetY,
-    sourcePosition,
-    targetPosition,
-    borderRadius: 8,
-    offset: effectiveOffset,
-    centerX: shiftX !== 0 ? effectiveCenterX : undefined,
-    centerY: shiftY !== 0 ? effectiveCenterY : undefined,
-  });
+  if (isHorizontalFlow) {
+    const effectiveCenterX = defaultCenterX + shiftX;
+    mainDotX = effectiveCenterX;
+    mainDotY = (sourceY + targetY) / 2;
+    dragCursor = 'cursor-ew-resize';
+    dotTooltip = 'Geser siku garis ke kiri atau kanan (↔)';
+
+    const [stdPath] = getSmoothStepPath({
+      sourceX,
+      sourceY,
+      targetX,
+      targetY,
+      sourcePosition,
+      targetPosition,
+      borderRadius: 8,
+      offset: effectiveOffset,
+      centerX: effectiveCenterX,
+    });
+    edgePath = stdPath;
+  } else if (isVerticalFlow) {
+    const effectiveCenterY = defaultCenterY + shiftY;
+    mainDotX = (sourceX + targetX) / 2;
+    mainDotY = effectiveCenterY;
+    dragCursor = 'cursor-ns-resize';
+    dotTooltip = 'Geser siku garis ke atas atau bawah (↕)';
+
+    const [stdPath] = getSmoothStepPath({
+      sourceX,
+      sourceY,
+      targetX,
+      targetY,
+      sourcePosition,
+      targetPosition,
+      borderRadius: 8,
+      offset: effectiveOffset,
+      centerY: effectiveCenterY,
+    });
+    edgePath = stdPath;
+  } else if (isCornerHV) {
+    const cornerX = targetX + shiftX;
+    mainDotX = cornerX;
+    mainDotY = (sourceY + targetY) / 2;
+    dragCursor = 'cursor-ew-resize';
+    dotTooltip = 'Geser siku vertikal ke kiri atau kanan (↔)';
+
+    if (shiftX !== 0) {
+      const stubY = targetY - (targetPosition === 'top' ? 20 : -20);
+      edgePath = pointsToSvgPath([
+        { x: sourceX, y: sourceY },
+        { x: cornerX, y: sourceY },
+        { x: cornerX, y: stubY },
+        { x: targetX, y: stubY },
+        { x: targetX, y: targetY },
+      ], 8);
+    } else {
+      const [stdPath, lx, ly] = getSmoothStepPath({
+        sourceX,
+        sourceY,
+        targetX,
+        targetY,
+        sourcePosition,
+        targetPosition,
+        borderRadius: 8,
+        offset: effectiveOffset,
+      });
+      edgePath = stdPath;
+      mainDotX = typeof lx === 'number' && !isNaN(lx) ? lx : cornerX;
+      mainDotY = typeof ly === 'number' && !isNaN(ly) ? ly : (sourceY + targetY) / 2;
+    }
+  } else if (isCornerVH) {
+    const cornerY = targetY + shiftY;
+    mainDotX = (sourceX + targetX) / 2;
+    mainDotY = cornerY;
+    dragCursor = 'cursor-ns-resize';
+    dotTooltip = 'Geser siku horisontal ke atas atau bawah (↕)';
+
+    if (shiftY !== 0) {
+      const stubX = targetX - (targetPosition === 'left' ? 20 : -20);
+      edgePath = pointsToSvgPath([
+        { x: sourceX, y: sourceY },
+        { x: sourceX, y: cornerY },
+        { x: stubX, y: cornerY },
+        { x: stubX, y: targetY },
+        { x: targetX, y: targetY },
+      ], 8);
+    } else {
+      const [stdPath, lx, ly] = getSmoothStepPath({
+        sourceX,
+        sourceY,
+        targetX,
+        targetY,
+        sourcePosition,
+        targetPosition,
+        borderRadius: 8,
+        offset: effectiveOffset,
+      });
+      edgePath = stdPath;
+      mainDotX = typeof lx === 'number' && !isNaN(lx) ? lx : (sourceX + targetX) / 2;
+      mainDotY = typeof ly === 'number' && !isNaN(ly) ? ly : cornerY;
+    }
+  } else {
+    // Loop (satu sisi) atau fallback umum
+    const [stdPath, lx, ly] = getSmoothStepPath({
+      sourceX,
+      sourceY,
+      targetX,
+      targetY,
+      sourcePosition,
+      targetPosition,
+      borderRadius: 8,
+      offset: effectiveOffset,
+      centerX: shiftX !== 0 ? defaultCenterX + shiftX : undefined,
+      centerY: shiftY !== 0 ? defaultCenterY + shiftY : undefined,
+    });
+    edgePath = stdPath;
+
+    if (isLoopTop) {
+      dragCursor = 'cursor-ns-resize';
+      dotTooltip = 'Geser jarak loop atas (↕)';
+      mainDotX = (sourceX + targetX) / 2 + shiftX;
+      mainDotY = Math.min(sourceY, targetY) - effectiveOffset;
+    } else if (isLoopBottom) {
+      dragCursor = 'cursor-ns-resize';
+      dotTooltip = 'Geser jarak loop bawah (↕)';
+      mainDotX = (sourceX + targetX) / 2 + shiftX;
+      mainDotY = Math.max(sourceY, targetY) + effectiveOffset;
+    } else if (isLoopLeft) {
+      dragCursor = 'cursor-ew-resize';
+      dotTooltip = 'Geser jarak loop kiri (↔)';
+      mainDotX = Math.min(sourceX, targetX) - effectiveOffset;
+      mainDotY = (sourceY + targetY) / 2 + shiftY;
+    } else if (isLoopRight) {
+      dragCursor = 'cursor-ew-resize';
+      dotTooltip = 'Geser jarak loop kanan (↔)';
+      mainDotX = Math.max(sourceX, targetX) + effectiveOffset;
+      mainDotY = (sourceY + targetY) / 2 + shiftY;
+    } else {
+      mainDotX = typeof lx === 'number' && !isNaN(lx) ? lx : defaultCenterX + shiftX;
+      mainDotY = typeof ly === 'number' && !isNaN(ly) ? ly : defaultCenterY + shiftY;
+    }
+  }
 
   const handleDelete = (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -234,12 +435,11 @@ export const RemovableStepEdge = memo((props: EdgeProps) => {
     window.addEventListener('pointerup', onPointerUp);
   };
 
-  // Drag langsung titik kontrol di tengah garis (2D: bebas geser X & Y sekaligus)
+  // Drag langsung titik kontrol di tengah garis (menggerakkan segmen siku yang relevan)
   const handleMainDotPointerDown = (e: React.PointerEvent) => {
     e.stopPropagation();
     e.preventDefault();
 
-    // Otomatis tandai garis ini terpilih (selected)
     setEdges((edges) =>
       edges.map((edge) => ({
         ...edge,
@@ -261,22 +461,15 @@ export const RemovableStepEdge = memo((props: EdgeProps) => {
       const nextShiftX = Math.max(-400, Math.min(400, Math.round(initialShiftX + deltaX)));
       const nextShiftY = Math.max(-400, Math.min(400, Math.round(initialShiftY + deltaY)));
 
-      // Untuk koneksi loop satu sisi (top-top atau bottom-bottom), drag Y menyesuaikan jarak clearance offset
       let nextOffset = initialOffset;
-      if (sourcePosition === 'top' && targetPosition === 'top') {
-        // Tarik ke atas (deltaY negatif) -> offset menjauh (nilai membesar)
+      if (isLoopTop) {
         nextOffset = Math.max(10, Math.min(350, Math.round(initialOffset - deltaY)));
-      } else if (sourcePosition === 'bottom' && targetPosition === 'bottom') {
-        // Tarik ke bawah (deltaY positif) -> offset menjauh (nilai membesar)
+      } else if (isLoopBottom) {
         nextOffset = Math.max(10, Math.min(350, Math.round(initialOffset + deltaY)));
-      } else if (sourcePosition === 'left' && targetPosition === 'left') {
-        // Tarik ke kiri (deltaX negatif) -> offset menjauh (nilai membesar)
+      } else if (isLoopLeft) {
         nextOffset = Math.max(10, Math.min(350, Math.round(initialOffset - deltaX)));
-      } else if (sourcePosition === 'right' && targetPosition === 'right') {
-        // Tarik ke kanan (deltaX positif) -> offset menjauh (nilai membesar)
+      } else if (isLoopRight) {
         nextOffset = Math.max(10, Math.min(350, Math.round(initialOffset + deltaX)));
-      } else {
-        nextOffset = Math.max(10, Math.min(350, Math.round(initialOffset + deltaY)));
       }
 
       setEdges((edges) =>
@@ -304,68 +497,6 @@ export const RemovableStepEdge = memo((props: EdgeProps) => {
     window.addEventListener('pointermove', onPointerMove);
     window.addEventListener('pointerup', onPointerUp);
   };
-
-  // Hitung posisi titik kontrol utama yang MENEMPEL PRESISI pada segmen fisik garis
-  let mainDotX = defaultCenterX + shiftX;
-  let mainDotY = defaultCenterY + shiftY;
-
-  if (sourcePosition === 'top' && targetPosition === 'top') {
-    // Jalur loop atas: segmen horizontal berada di y = topY
-    const topY = Math.min(sourceY, targetY) - effectiveOffset;
-    mainDotX = (sourceX + targetX) / 2 + shiftX;
-    mainDotY = topY;
-  } else if (sourcePosition === 'bottom' && targetPosition === 'bottom') {
-    // Jalur loop bawah: segmen horizontal berada di y = btmY
-    const btmY = Math.max(sourceY, targetY) + effectiveOffset;
-    mainDotX = (sourceX + targetX) / 2 + shiftX;
-    mainDotY = btmY;
-  } else if (sourcePosition === 'left' && targetPosition === 'left') {
-    // Jalur loop kiri: segmen vertikal berada di x = leftX
-    const leftX = Math.min(sourceX, targetX) - effectiveOffset;
-    mainDotX = leftX;
-    mainDotY = (sourceY + targetY) / 2 + shiftY;
-  } else if (sourcePosition === 'right' && targetPosition === 'right') {
-    // Jalur loop kanan: segmen vertikal berada di x = rightX
-    const rightX = Math.max(sourceX, targetX) + effectiveOffset;
-    mainDotX = rightX;
-    mainDotY = (sourceY + targetY) / 2 + shiftY;
-  } else if (
-    (sourcePosition === 'bottom' && targetPosition === 'top') ||
-    (sourcePosition === 'top' && targetPosition === 'bottom')
-  ) {
-    // Aliran vertikal normal: segmen horizontal berada di tengah vertikal
-    mainDotX = (sourceX + targetX) / 2 + shiftX;
-    mainDotY = effectiveCenterY;
-  } else if (
-    (sourcePosition === 'right' && targetPosition === 'left') ||
-    (sourcePosition === 'left' && targetPosition === 'right')
-  ) {
-    // Aliran horizontal normal: segmen vertikal berada di tengah horizontal
-    mainDotX = effectiveCenterX;
-    mainDotY = (sourceY + targetY) / 2 + shiftY;
-  } else {
-    // Kombinasi siku lainnya atau fallback ke posisi kalkulasi path
-    mainDotX = typeof labelX === 'number' && !isNaN(labelX) ? labelX : effectiveCenterX;
-    mainDotY = typeof labelY === 'number' && !isNaN(labelY) ? labelY : effectiveCenterY;
-  }
-
-  // Titik tengah segmen sekunder (untuk jalur multi-siku 3 arah)
-  let hDotX = defaultCenterX;
-  let hDotY = defaultCenterY;
-
-  if (sourcePosition === 'top' && targetPosition === 'bottom') {
-    hDotX = (sourceX + effectiveCenterX) / 2;
-    hDotY = sourceY - effectiveOffset;
-  } else if (sourcePosition === 'bottom' && targetPosition === 'top') {
-    hDotX = (sourceX + targetX) / 2;
-    hDotY = effectiveCenterY;
-  } else if (sourcePosition === 'right' && targetPosition === 'left') {
-    hDotX = (sourceX + effectiveCenterX) / 2;
-    hDotY = sourceY;
-  } else if (sourcePosition === 'left' && targetPosition === 'right') {
-    hDotX = (sourceX + effectiveCenterX) / 2;
-    hDotY = sourceY;
-  }
 
   const showControls = selected || isHovered;
 
@@ -404,35 +535,6 @@ export const RemovableStepEdge = memo((props: EdgeProps) => {
       />
 
       <EdgeLabelRenderer>
-        {/* Titik Geser Sekunder (pada segmen siku terpisah jika jarak cukup jauh) */}
-        {(Math.abs(hDotX - mainDotX) > 40 || Math.abs(hDotY - mainDotY) > 40) && (
-          <div
-            style={{
-              position: 'absolute',
-              transform: `translate(-50%, -50%) translate(${hDotX}px,${hDotY}px)`,
-              pointerEvents: 'all',
-            }}
-            className="nodrag nopan no-print z-40 select-none group/hdot"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <div
-              onPointerDown={handlePointerDownY}
-              title="Titik Siku Horisontal: Klik & tahan lalu geser atas-bawah untuk mengatur posisi garis"
-              className={`w-3.5 h-3.5 rounded-full border-2 transition-transform cursor-ns-resize shadow-xs flex items-center justify-center ${
-                showControls
-                  ? 'bg-emerald-600 border-white ring-2 ring-emerald-400/80 scale-110'
-                  : 'bg-white border-emerald-600 hover:scale-125 hover:bg-emerald-50'
-              }`}
-            >
-              <div className={`w-1 h-1 rounded-full ${showControls ? 'bg-white' : 'bg-emerald-600'}`} />
-            </div>
-            <div className="absolute top-full mt-1.5 px-2 py-0.5 rounded bg-slate-900/95 text-white text-[9px] font-semibold whitespace-nowrap opacity-0 group-hover/hdot:opacity-100 transition-opacity pointer-events-none shadow-md z-50">
-              Titik Siku Horisontal (↕)
-            </div>
-          </div>
-        )}
-
         {/* Titik Geser Utama & Floating Action Capsule */}
         <div
           style={{
@@ -485,65 +587,69 @@ export const RemovableStepEdge = memo((props: EdgeProps) => {
 
             <div className="w-[1px] h-3.5 bg-slate-200 mx-0.5" />
 
-            {/* Grup Geser Kiri / Kanan (Siku Vertikal) */}
-            <div className="flex items-center bg-slate-50 rounded-full border border-slate-200/80 p-0.5" title="Geser siku garis ke Kiri atau Kanan">
-              <button
-                type="button"
-                onClick={(e) => handleNudgeX(-20, e)}
-                title="Geser siku garis ke kiri (-20px)"
-                className="p-1 rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-              </button>
-              <div
-                onPointerDown={handlePointerDownX}
-                title="Klik & tahan lalu geser mouse ke kiri/kanan untuk menggeser posisi garis vertikal"
-                className="flex items-center gap-1 px-1.5 py-0.5 rounded-full hover:bg-blue-100 text-slate-700 hover:text-blue-700 transition-colors cursor-ew-resize select-none"
-              >
-                <MoveHorizontal className="w-3 h-3 text-slate-500 hover:text-blue-600" />
-                <span className="text-[10px] font-mono font-bold leading-none">
-                  {shiftX === 0 ? '↔ Tengah' : `↔ ${shiftX > 0 ? '+' : ''}${shiftX}px`}
-                </span>
+            {/* Grup Geser Kiri / Kanan (Tampil jika garis memiliki segmen siku vertikal) */}
+            {(!isVerticalFlow && !isLoopTop && !isLoopBottom) && (
+              <div className="flex items-center bg-slate-50 rounded-full border border-slate-200/80 p-0.5" title="Geser siku garis ke Kiri atau Kanan (↔)">
+                <button
+                  type="button"
+                  onClick={(e) => handleNudgeX(-20, e)}
+                  title="Geser siku garis ke kiri (-20px)"
+                  className="p-1 rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </button>
+                <div
+                  onPointerDown={handlePointerDownX}
+                  title="Klik & tahan lalu geser mouse ke kiri/kanan untuk menggeser posisi garis vertikal"
+                  className="flex items-center gap-1 px-1.5 py-0.5 rounded-full hover:bg-blue-100 text-slate-700 hover:text-blue-700 transition-colors cursor-ew-resize select-none"
+                >
+                  <MoveHorizontal className="w-3 h-3 text-slate-500 hover:text-blue-600" />
+                  <span className="text-[10px] font-mono font-bold leading-none">
+                    {shiftX === 0 ? '↔ Tengah' : `↔ ${shiftX > 0 ? '+' : ''}${shiftX}px`}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => handleNudgeX(20, e)}
+                  title="Geser siku garis ke kanan (+20px)"
+                  className="p-1 rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
+                >
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={(e) => handleNudgeX(20, e)}
-                title="Geser siku garis ke kanan (+20px)"
-                className="p-1 rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
-              >
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+            )}
 
-            {/* Grup Geser Atas / Bawah (Siku Horisontal / Offset) */}
-            <div className="flex items-center bg-slate-50 rounded-full border border-slate-200/80 p-0.5" title="Geser siku garis ke Atas atau Bawah">
-              <button
-                type="button"
-                onClick={(e) => handleNudgeY(-15, e)}
-                title="Geser siku garis ke atas (-15px)"
-                className="p-1 rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
-              >
-                <ChevronUp className="w-3.5 h-3.5" />
-              </button>
-              <div
-                onPointerDown={handlePointerDownY}
-                title="Klik & tahan lalu geser mouse ke atas/bawah untuk menggeser posisi garis horisontal"
-                className="flex items-center gap-1 px-1.5 py-0.5 rounded-full hover:bg-blue-100 text-slate-700 hover:text-blue-700 transition-colors cursor-ns-resize select-none"
-              >
-                <MoveVertical className="w-3 h-3 text-slate-500 hover:text-blue-600" />
-                <span className="text-[10px] font-mono font-bold leading-none">
-                  {shiftY !== 0 ? `↕ ${shiftY > 0 ? '+' : ''}${shiftY}px` : `↕ ${currentOffset}px`}
-                </span>
+            {/* Grup Geser Atas / Bawah (Tampil jika garis memiliki segmen siku horisontal/offset) */}
+            {(!isHorizontalFlow && !isLoopLeft && !isLoopRight && !isCornerHV) && (
+              <div className="flex items-center bg-slate-50 rounded-full border border-slate-200/80 p-0.5" title="Geser siku garis ke Atas atau Bawah (↕)">
+                <button
+                  type="button"
+                  onClick={(e) => handleNudgeY(-15, e)}
+                  title="Geser siku garis ke atas (-15px)"
+                  className="p-1 rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
+                >
+                  <ChevronUp className="w-3.5 h-3.5" />
+                </button>
+                <div
+                  onPointerDown={handlePointerDownY}
+                  title="Klik & tahan lalu geser mouse ke atas/bawah untuk menggeser posisi garis horisontal"
+                  className="flex items-center gap-1 px-1.5 py-0.5 rounded-full hover:bg-blue-100 text-slate-700 hover:text-blue-700 transition-colors cursor-ns-resize select-none"
+                >
+                  <MoveVertical className="w-3 h-3 text-slate-500 hover:text-blue-600" />
+                  <span className="text-[10px] font-mono font-bold leading-none">
+                    {shiftY !== 0 ? `↕ ${shiftY > 0 ? '+' : ''}${shiftY}px` : `↕ ${currentOffset}px`}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => handleNudgeY(15, e)}
+                  title="Geser siku garis ke bawah (+15px)"
+                  className="p-1 rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
+                >
+                  <ChevronDown className="w-3.5 h-3.5" />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={(e) => handleNudgeY(15, e)}
-                title="Geser siku garis ke bawah (+15px)"
-                className="p-1 rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
-              >
-                <ChevronDown className="w-3.5 h-3.5" />
-              </button>
-            </div>
+            )}
 
             <div className="w-[1px] h-3.5 bg-slate-200 mx-0.5" />
 
@@ -568,7 +674,7 @@ export const RemovableStepEdge = memo((props: EdgeProps) => {
             </button>
           </div>
 
-          {/* Titik Geser Utama di Tengah Garis (Sleek 30% Smaller Handle Dot) */}
+          {/* Titik Geser Utama di Siku Garis (Sleek 30% Smaller Handle Dot, Aktif Menggeser Siku) */}
           <div
             onPointerDown={handleMainDotPointerDown}
             onClick={(e) => {
@@ -580,8 +686,8 @@ export const RemovableStepEdge = memo((props: EdgeProps) => {
                 }))
               );
             }}
-            title="Titik Kontrol Garis: Klik & tahan titik ini lalu geser mouse untuk memindahkan posisi garis"
-            className="group/dot relative p-1 flex items-center justify-center cursor-grab active:cursor-grabbing select-none pointer-events-auto transition-all"
+            title={dotTooltip}
+            className={`group/dot relative p-1 flex items-center justify-center ${dragCursor} select-none pointer-events-auto transition-all`}
           >
             {showControls ? (
               // Saat Hover atau Garis Terpilih: 14px (ringkas, sleek & presisi)
