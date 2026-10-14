@@ -194,12 +194,22 @@ export const UMLClassNode = memo((props: any) => {
   const borderColor = data.borderColor || '#2563eb';
   const headerBg = data.headerColor || '#1d4ed8';
 
+  const baseFontSize = typeof data.fontSize === 'number'
+    ? data.fontSize
+    : (data.fontSize ? parseInt(data.fontSize, 10) || 12 : 12);
+  const textStyles = getNodeTextStyles(data, baseFontSize);
   const shapeStyles = getNodeShapeStyles(data, '#ffffff', borderColor);
 
   return (
     <div
-      className="bg-white rounded-xl shadow-md border overflow-hidden min-w-[200px] text-xs font-mono transition-all w-full h-full"
-      style={{ ...shapeStyles, borderColor }}
+      className={`bg-white rounded-xl shadow-md border overflow-hidden min-w-[200px] transition-all w-full h-full ${
+        selected ? 'ring-2 ring-blue-500 shadow-xl' : ''
+      }`}
+      style={{
+        ...shapeStyles,
+        borderColor,
+        fontFamily: textStyles.fontFamily || 'monospace',
+      }}
     >
       <UniversalNodeResizer id={id} isVisible={selected} minWidth={160} minHeight={100} />
       <NodeQuickActions id={id} selected={selected} />
@@ -207,19 +217,48 @@ export const UMLClassNode = memo((props: any) => {
 
       {/* Header */}
       <div className="p-2.5 text-center text-white font-bold" style={{ backgroundColor: headerBg }}>
-        <div className="text-[10px] opacity-80 uppercase tracking-widest">{stereotype}</div>
-        <div className="text-sm font-sans font-extrabold">{className}</div>
+        <div
+          className="opacity-80 uppercase tracking-widest leading-tight"
+          style={{ fontSize: `${Math.max(9, Math.round(baseFontSize * 0.8))}px` }}
+        >
+          {stereotype}
+        </div>
+        <div
+          className="font-sans font-extrabold leading-tight mt-0.5"
+          style={{
+            fontSize: `${Math.max(12, Math.round(baseFontSize * 1.15))}px`,
+            fontWeight: textStyles.fontWeight || 800,
+            fontStyle: textStyles.fontStyle,
+            textDecoration: textStyles.textDecoration,
+          }}
+        >
+          {className}
+        </div>
       </div>
 
       {/* Atribut */}
-      <div className="p-2 border-b border-slate-200 bg-slate-50/50 space-y-0.5 text-[11px] text-slate-700">
+      <div
+        className="p-2 border-b border-slate-200 bg-slate-50/50 space-y-0.5 text-slate-700"
+        style={{
+          fontSize: `${baseFontSize}px`,
+          color: data.textColor || undefined,
+          fontStyle: textStyles.fontStyle,
+        }}
+      >
         {attributes.map((attr, idx) => (
           <div key={idx} className="truncate">{attr}</div>
         ))}
       </div>
 
       {/* Metode */}
-      <div className="p-2 bg-white space-y-0.5 text-[11px] text-slate-800">
+      <div
+        className="p-2 bg-white space-y-0.5 text-slate-800"
+        style={{
+          fontSize: `${baseFontSize}px`,
+          color: data.textColor || undefined,
+          fontStyle: textStyles.fontStyle,
+        }}
+      >
         {methods.map((method, idx) => (
           <div key={idx} className="truncate">{method}</div>
         ))}
@@ -241,15 +280,20 @@ export const ERDEntityNode = memo((props: any) => {
       ];
   const headerBg = data.headerBg || '#0b4632';
 
+  const baseFontSize = typeof data.fontSize === 'number'
+    ? data.fontSize
+    : (data.fontSize ? parseInt(data.fontSize, 10) || 12 : 12);
+  const textStyles = getNodeTextStyles(data, baseFontSize);
   const shapeStyles = getNodeShapeStyles(data, '#ffffff', '#cbd5e1');
 
   return (
     <div
-      className={`bg-white rounded-xl shadow-md border border-slate-300 overflow-hidden min-w-[200px] text-xs font-mono transition-all ${
+      className={`bg-white rounded-xl shadow-md border border-slate-300 overflow-hidden min-w-[200px] transition-all ${
         selected ? 'ring-2 ring-emerald-500 shadow-lg' : ''
       }`}
       style={{
         ...shapeStyles,
+        fontFamily: textStyles.fontFamily || 'monospace',
         width: props.width || data.width ? `${props.width || data.width}px` : undefined,
         height: props.height || data.height ? `${props.height || data.height}px` : undefined,
       }}
@@ -262,29 +306,67 @@ export const ERDEntityNode = memo((props: any) => {
       <div className="p-2.5 text-white flex items-center justify-between font-sans font-bold" style={{ backgroundColor: headerBg }}>
         <div className="flex items-center gap-1.5">
           <Database className="w-3.5 h-3.5 text-amber-300" />
-          <span className="font-extrabold">{tableName}</span>
+          <span
+            className="font-extrabold"
+            style={{
+              fontSize: `${Math.max(12, Math.round(baseFontSize * 1.15))}px`,
+              fontWeight: textStyles.fontWeight || 800,
+              fontStyle: textStyles.fontStyle,
+              textDecoration: textStyles.textDecoration,
+            }}
+          >
+            {tableName}
+          </span>
         </div>
-        <span className="text-[10px] font-normal px-1.5 py-0.2 rounded bg-white/20 text-white">Entity</span>
+        <span
+          className="font-normal px-1.5 py-0.2 rounded bg-white/20 text-white"
+          style={{ fontSize: `${Math.max(9, Math.round(baseFontSize * 0.8))}px` }}
+        >
+          Entity
+        </span>
       </div>
 
       {/* Field Rows */}
       <div className="divide-y divide-slate-100">
         {fields.map((f: any, idx: number) => (
-          <div key={idx} className="px-3 py-1.5 flex items-center justify-between text-[11px] hover:bg-slate-50 transition-colors">
-            <div className="flex items-center gap-1.5 font-medium text-slate-800 truncate">
+          <div
+            key={idx}
+            className="px-3 py-1.5 flex items-center justify-between hover:bg-slate-50 transition-colors"
+            style={{ fontSize: `${baseFontSize}px` }}
+          >
+            <div
+              className="flex items-center gap-1.5 font-medium text-slate-800 truncate"
+              style={{
+                fontFamily: textStyles.fontFamily,
+                fontWeight: textStyles.fontWeight,
+                fontStyle: textStyles.fontStyle,
+                color: data.textColor || undefined,
+              }}
+            >
               {f.isPK && (
-                <span className="text-[9px] font-bold px-1 rounded bg-amber-100 text-amber-800 border border-amber-300">
+                <span
+                  className="font-bold px-1 rounded bg-amber-100 text-amber-800 border border-amber-300"
+                  style={{ fontSize: `${Math.max(9, Math.round(baseFontSize * 0.75))}px` }}
+                >
                   PK
                 </span>
               )}
               {f.isFK && (
-                <span className="text-[9px] font-bold px-1 rounded bg-blue-100 text-blue-800 border border-blue-300">
+                <span
+                  className="font-bold px-1 rounded bg-blue-100 text-blue-800 border border-blue-300"
+                  style={{ fontSize: `${Math.max(9, Math.round(baseFontSize * 0.75))}px` }}
+                >
                   FK
                 </span>
               )}
               <span>{f.name}</span>
             </div>
-            <span className="text-slate-400 text-[10px] uppercase font-mono ml-3">{f.type}</span>
+            <span
+              className="text-slate-400 uppercase font-mono ml-3"
+              style={{ fontSize: `${Math.max(9, Math.round(baseFontSize * 0.85))}px` }}
+            >
+              {f.type}
+            </span>
           </div>
         ))}
       </div>
@@ -307,8 +389,11 @@ export const OrgNode = memo((props: any) => {
   const [editingField, setEditingField] = useState<'name' | 'role' | 'dept' | null>(null);
   const [tempValue, setTempValue] = useState('');
 
+  const baseFontSize = typeof data.fontSize === 'number'
+    ? data.fontSize
+    : (data.fontSize ? parseInt(data.fontSize, 10) || 12 : 12);
   const shapeStyles = getNodeShapeStyles(data, '#ffffff', '#e2e8f0');
-  const textStyles = getNodeTextStyles(data, 12, '#0f172a');
+  const textStyles = getNodeTextStyles(data, baseFontSize, data.textColor || '#0f172a');
 
   const initials = String(name)
     .trim()
@@ -362,7 +447,7 @@ export const OrgNode = memo((props: any) => {
       }`}
       style={{
         ...shapeStyles,
-        ...textStyles,
+        fontFamily: textStyles.fontFamily,
         width: props.width || data.width ? `${props.width || data.width}px` : undefined,
         height: props.height || data.height ? `${props.height || data.height}px` : undefined,
       }}
@@ -390,14 +475,24 @@ export const OrgNode = memo((props: any) => {
                 if (e.key === 'Enter') handleSaveEdit('name');
                 if (e.key === 'Escape') setEditingField(null);
               }}
-              className="w-full px-1.5 py-0.5 border border-emerald-500 rounded bg-white text-xs font-bold text-slate-900 focus:outline-hidden"
+              className="w-full px-1.5 py-0.5 border border-emerald-500 rounded bg-white font-bold text-slate-900 focus:outline-hidden"
+              style={{ fontSize: `${Math.max(12, Math.round(baseFontSize * 1.15))}px`, fontFamily: textStyles.fontFamily }}
             />
           ) : (
             <h4
               onDoubleClick={(e) => handleStartEdit('name', name, e)}
               title="Klik ganda untuk mengedit nama"
-              className="font-bold text-xs truncate cursor-text hover:bg-slate-100/80 px-1 py-0.5 -mx-1 rounded transition-colors"
-              style={{ color: textStyles.color }}
+              className="font-bold truncate cursor-text hover:bg-slate-100/80 px-1 py-0.5 -mx-1 rounded transition-colors"
+              style={{
+                fontSize: `${Math.max(12, Math.round(baseFontSize * 1.15))}px`,
+                fontFamily: textStyles.fontFamily,
+                fontWeight: textStyles.fontWeight || 700,
+                fontStyle: textStyles.fontStyle,
+                textDecoration: textStyles.textDecoration,
+                color: textStyles.color,
+                textAlign: textStyles.textAlign,
+                textTransform: textStyles.textTransform,
+              }}
             >
               {name}
             </h4>
@@ -414,13 +509,21 @@ export const OrgNode = memo((props: any) => {
                 if (e.key === 'Enter') handleSaveEdit('role');
                 if (e.key === 'Escape') setEditingField(null);
               }}
-              className="w-full px-1.5 py-0.5 border border-emerald-500 rounded bg-white text-[11px] font-semibold text-slate-700 focus:outline-hidden mt-0.5"
+              className="w-full px-1.5 py-0.5 border border-emerald-500 rounded bg-white font-semibold text-slate-700 focus:outline-hidden mt-0.5"
+              style={{ fontSize: `${baseFontSize}px`, fontFamily: textStyles.fontFamily }}
             />
           ) : (
             <p
               onDoubleClick={(e) => handleStartEdit('role', role, e)}
               title="Klik ganda untuk mengedit jabatan"
-              className="text-[11px] font-semibold text-slate-600 truncate cursor-text hover:bg-slate-100/80 px-1 py-0.5 -mx-1 rounded transition-colors"
+              className="font-semibold text-slate-600 truncate cursor-text hover:bg-slate-100/80 px-1 py-0.5 -mx-1 rounded transition-colors"
+              style={{
+                fontSize: `${baseFontSize}px`,
+                fontFamily: textStyles.fontFamily,
+                fontStyle: textStyles.fontStyle,
+                textAlign: textStyles.textAlign,
+                color: data.textColor ? `${data.textColor}cc` : undefined,
+              }}
             >
               {role}
             </p>
@@ -440,14 +543,19 @@ export const OrgNode = memo((props: any) => {
               if (e.key === 'Enter') handleSaveEdit('dept');
               if (e.key === 'Escape') setEditingField(null);
             }}
-            className="w-full px-1.5 py-0.5 border border-emerald-500 rounded bg-white text-[10px] font-bold text-slate-800 focus:outline-hidden"
+            className="w-full px-1.5 py-0.5 border border-emerald-500 rounded bg-white font-bold text-slate-800 focus:outline-hidden"
+            style={{ fontSize: `${Math.max(9, Math.round(baseFontSize * 0.85))}px`, fontFamily: textStyles.fontFamily }}
           />
         ) : (
           <span
             onDoubleClick={(e) => handleStartEdit('dept', dept, e)}
             title="Klik ganda untuk mengedit departemen"
-            className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white truncate max-w-[200px] cursor-text hover:opacity-90 transition-opacity"
-            style={{ backgroundColor: badgeColor }}
+            className="font-bold px-2 py-0.5 rounded-full text-white truncate max-w-[200px] cursor-text hover:opacity-90 transition-opacity"
+            style={{
+              backgroundColor: badgeColor,
+              fontSize: `${Math.max(9, Math.round(baseFontSize * 0.85))}px`,
+              fontFamily: textStyles.fontFamily,
+            }}
           >
             {dept}
           </span>
@@ -461,6 +569,7 @@ OrgNode.displayName = 'OrgNode';
 // 4. SWOT QUADRANT CARD NODE (Matriks 4 Kuadran dengan Watermark Huruf S / W / O / T)
 export const SWOTCardNode = memo((props: any) => {
   const { id, data, selected } = props;
+  const { setNodes } = useReactFlow();
   const swotType = (data.type || 'S').toUpperCase() as 'S' | 'W' | 'O' | 'T';
 
   const defaultTitles: Record<'S' | 'W' | 'O' | 'T', string> = {
@@ -517,7 +626,53 @@ export const SWOTCardNode = memo((props: any) => {
     ? data.items 
     : (defaultSampleItems[swotType] || defaultSampleItems.S);
 
+  const baseFontSize = typeof data.fontSize === 'number'
+    ? data.fontSize
+    : (data.fontSize ? parseInt(data.fontSize, 10) || 12 : 12);
+  const titleFontSize = Math.max(14, Math.round(baseFontSize * 1.35));
+
+  const textStyles = getNodeTextStyles(data, baseFontSize, text);
   const shapeStyles = getNodeShapeStyles(data, bg, border);
+
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [tempText, setTempText] = useState('');
+
+  const handleStartEditTitle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingIndex(null);
+    setEditingTitle(true);
+    setTempText(title);
+  };
+
+  const handleSaveTitle = () => {
+    const val = tempText.trim();
+    if (val.length > 0) {
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, title: val, label: val } } : n))
+      );
+    }
+    setEditingTitle(false);
+  };
+
+  const handleStartEditItem = (idx: number, currentVal: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingTitle(false);
+    setEditingIndex(idx);
+    setTempText(currentVal);
+  };
+
+  const handleSaveItem = (idx: number) => {
+    const val = tempText.trim();
+    if (val.length > 0) {
+      const newItems = [...items];
+      newItems[idx] = val;
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, items: newItems } } : n))
+      );
+    }
+    setEditingIndex(null);
+  };
 
   return (
     <div
@@ -528,6 +683,7 @@ export const SWOTCardNode = memo((props: any) => {
         ...shapeStyles,
         backgroundColor: bg,
         borderColor: border,
+        fontFamily: textStyles.fontFamily,
         width: props.width || data.width ? `${props.width || data.width}px` : undefined,
         height: props.height || data.height ? `${props.height || data.height}px` : undefined,
       }}
@@ -536,7 +692,7 @@ export const SWOTCardNode = memo((props: any) => {
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
 
-      {/* Giant Background Watermark Letter (S / W / O / T) persis seperti pada Gambar Contoh */}
+      {/* Giant Background Watermark Letter (S / W / O / T) */}
       <div
         className="absolute inset-0 flex items-center justify-center pointer-events-none select-none font-black font-sans leading-none z-0"
         style={{ fontSize: '210px', color: watermark }}
@@ -547,19 +703,90 @@ export const SWOTCardNode = memo((props: any) => {
 
       {/* Judul Kuadran (Tengah) */}
       <div className="relative z-10 text-center mb-3">
-        <h3 className="font-bold text-lg lowercase tracking-tight text-slate-900 drop-shadow-2xs">
-          {title}
-        </h3>
+        {editingTitle ? (
+          <input
+            autoFocus
+            type="text"
+            value={tempText}
+            onChange={(e) => setTempText(e.target.value)}
+            onBlur={handleSaveTitle}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSaveTitle();
+              if (e.key === 'Escape') setEditingTitle(false);
+            }}
+            className="w-full px-2 py-0.5 border border-emerald-500 rounded bg-white font-bold text-center text-slate-900 focus:outline-hidden"
+            style={{ fontSize: `${titleFontSize}px`, fontFamily: textStyles.fontFamily }}
+          />
+        ) : (
+          <h3
+            onDoubleClick={handleStartEditTitle}
+            title="Klik ganda untuk mengedit judul"
+            className="font-bold lowercase tracking-tight drop-shadow-2xs cursor-text hover:bg-black/5 px-1 py-0.5 rounded transition-colors inline-block"
+            style={{
+              fontSize: `${titleFontSize}px`,
+              fontFamily: textStyles.fontFamily,
+              fontWeight: textStyles.fontWeight || 800,
+              fontStyle: textStyles.fontStyle,
+              textDecoration: textStyles.textDecoration,
+              textAlign: textStyles.textAlign || 'center',
+              color: textStyles.color,
+              textTransform: textStyles.textTransform,
+            }}
+          >
+            {title}
+          </h3>
+        )}
       </div>
 
       {/* Daftar Poin Analisis (Bullet Points) */}
-      <ul className="relative z-10 space-y-2 text-xs font-medium leading-relaxed" style={{ color: text }}>
-        {items.map((item, idx) => (
-          <li key={idx} className="flex items-start gap-2">
-            <span className="font-black text-sm leading-none mt-0.5">•</span>
-            <span className="leading-snug">{item}</span>
-          </li>
-        ))}
+      <ul className="relative z-10 space-y-2 leading-relaxed" style={{ color: textStyles.color }}>
+        {items.map((item, idx) => {
+          const isItemEditing = editingIndex === idx;
+          return isItemEditing ? (
+            <textarea
+              key={idx}
+              autoFocus
+              rows={2}
+              value={tempText}
+              onChange={(e) => setTempText(e.target.value)}
+              onBlur={() => handleSaveItem(idx)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSaveItem(idx);
+                }
+                if (e.key === 'Escape') setEditingIndex(null);
+              }}
+              className="w-full p-1.5 rounded-lg border border-emerald-500 bg-white text-slate-800 focus:outline-hidden shadow-xs leading-snug"
+              style={{ fontSize: `${baseFontSize}px`, fontFamily: textStyles.fontFamily }}
+            />
+          ) : (
+            <li
+              key={idx}
+              onDoubleClick={(e) => handleStartEditItem(idx, item, e)}
+              title="Klik ganda untuk mengedit poin analisis"
+              className="flex items-start gap-2 cursor-text hover:bg-black/5 rounded px-1 py-0.5 transition-colors"
+              style={{
+                fontSize: `${baseFontSize}px`,
+                fontFamily: textStyles.fontFamily,
+                fontWeight: textStyles.fontWeight,
+                fontStyle: textStyles.fontStyle,
+                textDecoration: textStyles.textDecoration,
+                textAlign: textStyles.textAlign,
+                color: textStyles.color,
+                lineHeight: textStyles.lineHeight,
+              }}
+            >
+              <span
+                className="font-black leading-none mt-0.5 shrink-0"
+                style={{ fontSize: `${Math.max(12, baseFontSize)}px` }}
+              >
+                •
+              </span>
+              <span className="leading-snug flex-1 break-words">{item}</span>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
@@ -569,45 +796,162 @@ SWOTCardNode.displayName = 'SWOTCardNode';
 // 5. FISHBONE HEAD NODE (Kepala Ikan - Akibat / Masalah Utama Ishikawa)
 export const FishboneHeadNode = memo((props: any) => {
   const { id, data, selected } = props;
+  const { setNodes } = useReactFlow();
   const problem = data.label || data.problem || 'Akibat / Masalah Utama';
   const subtitle = data.subtitle || data.metric || 'Definisikan masalah yang ingin dipecahkan';
   const color = data.color || '#fff1f2';
   const borderColor = data.borderColor || '#e11d48';
   const headerColor = data.headerColor || '#be123c';
 
+  const baseFontSize = typeof data.fontSize === 'number'
+    ? data.fontSize
+    : (data.fontSize ? parseInt(data.fontSize, 10) || 13 : 13);
+  const textStyles = getNodeTextStyles(data, baseFontSize, data.textColor || '#0f172a');
+  const shapeStyles = getNodeShapeStyles(data, color, borderColor);
+
+  const [editingProblem, setEditingProblem] = useState(false);
+  const [editingSubtitle, setEditingSubtitle] = useState(false);
+  const [tempVal, setTempVal] = useState('');
+
+  const handleStartEdit = (field: 'problem' | 'subtitle', current: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (field === 'problem') {
+      setEditingProblem(true);
+      setEditingSubtitle(false);
+    } else {
+      setEditingSubtitle(true);
+      setEditingProblem(false);
+    }
+    setTempVal(current);
+  };
+
+  const handleSave = (field: 'problem' | 'subtitle') => {
+    const trimmed = tempVal.trim();
+    if (trimmed.length > 0) {
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === id
+            ? {
+                ...n,
+                data: {
+                  ...n.data,
+                  ...(field === 'problem' ? { problem: trimmed, label: trimmed } : { subtitle: trimmed, metric: trimmed }),
+                },
+              }
+            : n
+        )
+      );
+    }
+    setEditingProblem(false);
+    setEditingSubtitle(false);
+  };
+
   return (
     <div
       className={`relative min-w-[250px] max-w-[290px] p-4 rounded-2xl border-2 shadow-lg transition-all select-none ${
         selected ? 'ring-3 ring-rose-500 shadow-xl scale-102' : ''
       }`}
-      style={{ backgroundColor: color, borderColor: borderColor }}
+      style={{
+        ...shapeStyles,
+        backgroundColor: color,
+        borderColor: borderColor,
+        fontFamily: textStyles.fontFamily,
+      }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={200} minHeight={100} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
 
       {/* Fish Head Badge */}
       <div className="flex items-center gap-1.5 mb-2">
         <span 
-          className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider text-white flex items-center gap-1 shadow-xs"
-          style={{ backgroundColor: headerColor }}
+          className="px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider text-white flex items-center gap-1 shadow-xs"
+          style={{
+            backgroundColor: headerColor,
+            fontSize: `${Math.max(9, Math.round(baseFontSize * 0.8))}px`,
+            fontFamily: textStyles.fontFamily,
+          }}
         >
           <AlertTriangle className="w-3 h-3" />
           <span>Masalah Utama</span>
         </span>
-        <span className="text-[10px] font-bold text-rose-700">Akibat (Effect)</span>
+        <span
+          className="font-bold text-rose-700"
+          style={{ fontSize: `${Math.max(9, Math.round(baseFontSize * 0.8))}px` }}
+        >
+          Akibat (Effect)
+        </span>
       </div>
 
       {/* Problem Statement */}
-      <div className="text-sm font-extrabold text-slate-900 leading-snug">
-        {problem}
-      </div>
+      {editingProblem ? (
+        <textarea
+          autoFocus
+          rows={2}
+          value={tempVal}
+          onChange={(e) => setTempVal(e.target.value)}
+          onBlur={() => handleSave('problem')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSave('problem');
+            }
+            if (e.key === 'Escape') setEditingProblem(false);
+          }}
+          className="w-full p-1.5 border border-rose-500 rounded bg-white text-slate-900 font-extrabold focus:outline-hidden"
+          style={{ fontSize: `${Math.max(12, Math.round(baseFontSize * 1.15))}px`, fontFamily: textStyles.fontFamily }}
+        />
+      ) : (
+        <div
+          onDoubleClick={(e) => handleStartEdit('problem', problem, e)}
+          title="Klik ganda untuk mengedit masalah utama"
+          className="font-extrabold leading-snug cursor-text hover:bg-black/5 px-1 py-0.5 -mx-1 rounded transition-colors break-words"
+          style={{
+            fontSize: `${Math.max(12, Math.round(baseFontSize * 1.15))}px`,
+            fontFamily: textStyles.fontFamily,
+            fontWeight: textStyles.fontWeight || 800,
+            fontStyle: textStyles.fontStyle,
+            textAlign: textStyles.textAlign,
+            color: textStyles.color,
+            textTransform: textStyles.textTransform,
+          }}
+        >
+          {problem}
+        </div>
+      )}
 
       {/* Subtitle / KPI Metric */}
-      {subtitle && (
-        <div className="mt-2.5 pt-2 border-t border-rose-200/80 text-[11px] font-semibold text-rose-800 leading-tight flex items-center gap-1.5">
-          <Activity className="w-3.5 h-3.5 shrink-0 text-rose-600" />
-          <span className="truncate">{subtitle}</span>
-        </div>
+      {editingSubtitle ? (
+        <input
+          autoFocus
+          type="text"
+          value={tempVal}
+          onChange={(e) => setTempVal(e.target.value)}
+          onBlur={() => handleSave('subtitle')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleSave('subtitle');
+            if (e.key === 'Escape') setEditingSubtitle(false);
+          }}
+          className="w-full mt-2 px-1.5 py-0.5 border border-rose-500 rounded bg-white text-rose-800 font-semibold focus:outline-hidden"
+          style={{ fontSize: `${Math.max(10, Math.round(baseFontSize * 0.85))}px`, fontFamily: textStyles.fontFamily }}
+        />
+      ) : (
+        subtitle && (
+          <div
+            onDoubleClick={(e) => handleStartEdit('subtitle', subtitle, e)}
+            title="Klik ganda untuk mengedit metrik/subjudul"
+            className="mt-2.5 pt-2 border-t border-rose-200/80 font-semibold text-rose-800 leading-tight flex items-center gap-1.5 cursor-text hover:bg-black/5 px-1 py-0.5 rounded transition-colors"
+            style={{
+              fontSize: `${Math.max(10, Math.round(baseFontSize * 0.85))}px`,
+              fontFamily: textStyles.fontFamily,
+              fontStyle: textStyles.fontStyle,
+              textAlign: textStyles.textAlign,
+            }}
+          >
+            <Activity className="w-3.5 h-3.5 shrink-0 text-rose-600" />
+            <span className="truncate">{subtitle}</span>
+          </div>
+        )
       )}
     </div>
   );
@@ -617,6 +961,7 @@ FishboneHeadNode.displayName = 'FishboneHeadNode';
 // 6. FISHBONE CATEGORY NODE (Tulang Cabang 6M: Man, Machine, Method, Material, Measurement, Milieu)
 export const FishboneCategoryNode = memo((props: any) => {
   const { id, data, selected } = props;
+  const { setNodes } = useReactFlow();
   const category = data.category || data.label || 'KATEGORI (6M)';
   const title = data.title || '';
   const items: string[] = Array.isArray(data.items) && data.items.length > 0
@@ -626,35 +971,113 @@ export const FishboneCategoryNode = memo((props: any) => {
   const borderColor = data.borderColor || '#3b82f6';
   const headerColor = data.headerColor || '#2563eb';
 
+  const baseFontSize = typeof data.fontSize === 'number'
+    ? data.fontSize
+    : (data.fontSize ? parseInt(data.fontSize, 10) || 11 : 11);
+  const textStyles = getNodeTextStyles(data, baseFontSize, data.textColor || '#334155');
+  const shapeStyles = getNodeShapeStyles(data, color, borderColor);
+
+  const [editingItemIdx, setEditingItemIdx] = useState<number | null>(null);
+  const [tempText, setTempText] = useState('');
+
+  const handleStartEditItem = (idx: number, current: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingItemIdx(idx);
+    setTempText(current);
+  };
+
+  const handleSaveItem = (idx: number) => {
+    const trimmed = tempText.trim();
+    if (trimmed.length > 0) {
+      const newItems = [...items];
+      newItems[idx] = trimmed;
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, items: newItems } } : n))
+      );
+    }
+    setEditingItemIdx(null);
+  };
+
   return (
     <div
       className={`relative min-w-[220px] max-w-[260px] p-3 rounded-xl border-2 shadow-md transition-all select-none ${
         selected ? 'ring-3 ring-blue-500 shadow-xl scale-102' : ''
       }`}
-      style={{ backgroundColor: color, borderColor: borderColor }}
+      style={{
+        ...shapeStyles,
+        backgroundColor: color,
+        borderColor: borderColor,
+        fontFamily: textStyles.fontFamily,
+      }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={180} minHeight={80} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
 
       {/* Header Badge */}
       <div className="flex items-center justify-between gap-1 mb-2">
         <span
-          className="px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider text-white shadow-2xs"
-          style={{ backgroundColor: headerColor }}
+          className="px-2.5 py-0.5 rounded-lg font-black uppercase tracking-wider text-white shadow-2xs"
+          style={{
+            backgroundColor: headerColor,
+            fontSize: `${Math.max(9, Math.round(baseFontSize * 0.85))}px`,
+            fontFamily: textStyles.fontFamily,
+          }}
         >
           {category}
         </span>
-        {title && <span className="text-[11px] font-bold text-slate-700 truncate">{title}</span>}
+        {title && (
+          <span
+            className="font-bold text-slate-700 truncate"
+            style={{ fontSize: `${baseFontSize}px`, fontFamily: textStyles.fontFamily }}
+          >
+            {title}
+          </span>
+        )}
       </div>
 
       {/* Sub-causes List */}
-      <ul className="space-y-1.5 text-xs text-slate-700 leading-relaxed">
-        {items.map((item, idx) => (
-          <li key={idx} className="flex items-start gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ backgroundColor: borderColor }} />
-            <span className="font-medium text-[11px] leading-tight">{item}</span>
-          </li>
-        ))}
+      <ul className="space-y-1.5 leading-relaxed" style={{ color: textStyles.color }}>
+        {items.map((item, idx) => {
+          const isItemEditing = editingItemIdx === idx;
+          return isItemEditing ? (
+            <input
+              key={idx}
+              autoFocus
+              type="text"
+              value={tempText}
+              onChange={(e) => setTempText(e.target.value)}
+              onBlur={() => handleSaveItem(idx)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSaveItem(idx);
+                if (e.key === 'Escape') setEditingItemIdx(null);
+              }}
+              className="w-full px-1.5 py-0.5 border border-blue-500 rounded bg-white text-slate-800 text-xs focus:outline-hidden"
+              style={{ fontSize: `${baseFontSize}px`, fontFamily: textStyles.fontFamily }}
+            />
+          ) : (
+            <li
+              key={idx}
+              onDoubleClick={(e) => handleStartEditItem(idx, item, e)}
+              title="Klik ganda untuk mengedit penyebab"
+              className="flex items-start gap-1.5 cursor-text hover:bg-black/5 rounded px-1 py-0.5 transition-colors"
+              style={{
+                fontSize: `${baseFontSize}px`,
+                fontFamily: textStyles.fontFamily,
+                fontWeight: textStyles.fontWeight,
+                fontStyle: textStyles.fontStyle,
+                textAlign: textStyles.textAlign,
+                color: textStyles.color,
+              }}
+            >
+              <span
+                className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
+                style={{ backgroundColor: borderColor }}
+              />
+              <span className="font-medium leading-tight flex-1 break-words">{item}</span>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
@@ -664,6 +1087,7 @@ FishboneCategoryNode.displayName = 'FishboneCategoryNode';
 // 7. CANVAS BLOCK NODE (Blok Universal untuk Lean Canvas, Business Model Canvas, Value Proposition Canvas)
 export const CanvasBlockNode = memo((props: any) => {
   const { id, data, selected } = props;
+  const { setNodes } = useReactFlow();
   const badgeNumber = data.badgeNumber || data.number || '';
   const title = data.label || data.title || 'Blok Kanvas';
   const subtitle = data.subtitle || data.prompt || '';
@@ -677,14 +1101,79 @@ export const CanvasBlockNode = memo((props: any) => {
   const nodeWidth = props.width || data.width;
   const nodeHeight = props.height || data.height;
 
+  // Base font size
+  const baseFontSize = typeof data.fontSize === 'number'
+    ? data.fontSize
+    : (data.fontSize ? parseInt(data.fontSize, 10) || 12 : 12);
+
+  // Proportional font sizing
+  const titleFontSize = Math.max(12, Math.round(baseFontSize * 1.15));
+  const subtitleFontSize = Math.max(10, Math.round(baseFontSize * 0.85));
+  const badgeSize = Math.max(20, Math.round(baseFontSize * 1.5));
+  const badgeFontSize = Math.max(10, Math.round(baseFontSize * 0.8));
+
+  const textStyles = getNodeTextStyles(data, baseFontSize, data.textColor || '#1e293b');
+  const shapeStyles = getNodeShapeStyles(data, color, borderColor);
+
+  // Inline editing state
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingItemIdx, setEditingItemIdx] = useState<number | null>(null);
+  const [tempValue, setTempValue] = useState('');
+
+  const handleStartEditTitle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingItemIdx(null);
+    setEditingTitle(true);
+    setTempValue(title);
+  };
+
+  const handleSaveTitle = () => {
+    const val = tempValue.trim();
+    if (val.length > 0) {
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === id
+            ? { ...n, data: { ...n.data, label: val, title: val } }
+            : n
+        )
+      );
+    }
+    setEditingTitle(false);
+  };
+
+  const handleStartEditItem = (idx: number, currentVal: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingTitle(false);
+    setEditingItemIdx(idx);
+    setTempValue(currentVal);
+  };
+
+  const handleSaveItem = (idx: number) => {
+    const val = tempValue.trim();
+    if (val.length > 0) {
+      const newItems = [...items];
+      newItems[idx] = val;
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === id
+            ? { ...n, data: { ...n.data, items: newItems } }
+            : n
+        )
+      );
+    }
+    setEditingItemIdx(null);
+  };
+
   return (
     <div
       className={`relative min-w-[180px] p-3.5 rounded-2xl border-2 shadow-sm transition-all select-none flex flex-col justify-start ${
         selected ? 'ring-3 ring-emerald-600 shadow-xl scale-101' : ''
       }`}
       style={{
+        ...shapeStyles,
         backgroundColor: color,
         borderColor: borderColor,
+        fontFamily: textStyles.fontFamily,
         width: nodeWidth ? `${nodeWidth}px` : undefined,
         height: nodeHeight ? `${nodeHeight}px` : undefined,
       }}
@@ -697,35 +1186,120 @@ export const CanvasBlockNode = memo((props: any) => {
       <div className="flex items-center gap-2 mb-1">
         {badgeNumber && (
           <span 
-            className="w-5 h-5 rounded-md text-[10px] font-black text-white flex items-center justify-center shrink-0 shadow-2xs"
-            style={{ backgroundColor: headerColor }}
+            className="rounded-md font-black text-white flex items-center justify-center shrink-0 shadow-2xs"
+            style={{
+              backgroundColor: headerColor,
+              width: `${badgeSize}px`,
+              height: `${badgeSize}px`,
+              fontSize: `${badgeFontSize}px`,
+            }}
           >
             {badgeNumber}
           </span>
         )}
-        <h4 className="font-extrabold text-xs text-slate-900 tracking-tight leading-tight">
-          {title}
-        </h4>
+        {editingTitle ? (
+          <input
+            autoFocus
+            type="text"
+            value={tempValue}
+            onChange={(e) => setTempValue(e.target.value)}
+            onBlur={handleSaveTitle}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSaveTitle();
+              if (e.key === 'Escape') setEditingTitle(false);
+            }}
+            className="w-full px-1.5 py-0.5 border border-emerald-500 rounded bg-white text-slate-900 focus:outline-hidden font-bold"
+            style={{ fontSize: `${titleFontSize}px`, fontFamily: textStyles.fontFamily }}
+          />
+        ) : (
+          <h4
+            onDoubleClick={handleStartEditTitle}
+            title="Klik ganda untuk mengedit judul blok"
+            className="tracking-tight leading-tight cursor-text hover:bg-black/5 px-1 py-0.5 -mx-1 rounded transition-colors truncate"
+            style={{
+              fontSize: `${titleFontSize}px`,
+              fontFamily: textStyles.fontFamily,
+              fontWeight: data?.bold !== undefined ? (data.bold ? 800 : 400) : 800,
+              fontStyle: textStyles.fontStyle,
+              textDecoration: textStyles.textDecoration,
+              textAlign: textStyles.textAlign,
+              color: data.textColor || '#0f172a',
+              textTransform: textStyles.textTransform,
+              letterSpacing: textStyles.letterSpacing,
+            }}
+          >
+            {title}
+          </h4>
+        )}
       </div>
 
       {/* Subtitle / Guiding Question */}
       {subtitle && (
-        <p className="text-[10px] font-semibold text-slate-500 mb-2 leading-tight">
+        <p
+          className="font-medium mb-2 leading-tight"
+          style={{
+            fontSize: `${subtitleFontSize}px`,
+            fontFamily: textStyles.fontFamily,
+            fontStyle: textStyles.fontStyle,
+            textAlign: textStyles.textAlign,
+            color: data.textColor ? `${data.textColor}99` : '#64748b',
+          }}
+        >
           {subtitle}
         </p>
       )}
 
       {/* Bullet / Sticky Items */}
       <div className="space-y-1.5 mt-1 flex-1">
-        {items.map((item, idx) => (
-          <div
-            key={idx}
-            className="p-1.5 rounded-lg bg-slate-50/80 border border-slate-200/70 text-[11px] font-medium text-slate-700 leading-snug flex items-start gap-1.5 shadow-3xs"
-          >
-            <span className="text-emerald-700 font-bold mt-0.5">•</span>
-            <span>{item}</span>
-          </div>
-        ))}
+        {items.map((item, idx) => {
+          const isItemEditing = editingItemIdx === idx;
+          return isItemEditing ? (
+            <textarea
+              key={idx}
+              autoFocus
+              rows={2}
+              value={tempValue}
+              onChange={(e) => setTempValue(e.target.value)}
+              onBlur={() => handleSaveItem(idx)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSaveItem(idx);
+                }
+                if (e.key === 'Escape') setEditingItemIdx(null);
+              }}
+              className="w-full p-1.5 rounded-lg border border-emerald-500 bg-white text-slate-800 focus:outline-hidden shadow-xs leading-snug"
+              style={{ fontSize: `${baseFontSize}px`, fontFamily: textStyles.fontFamily }}
+            />
+          ) : (
+            <div
+              key={idx}
+              onDoubleClick={(e) => handleStartEditItem(idx, item, e)}
+              title="Klik ganda untuk mengedit poin analisis"
+              className="p-1.5 rounded-lg bg-slate-50/80 border border-slate-200/70 leading-snug flex items-start gap-1.5 shadow-3xs cursor-text hover:bg-slate-100/90 transition-colors"
+              style={{
+                fontSize: `${baseFontSize}px`,
+                fontFamily: textStyles.fontFamily,
+                fontWeight: textStyles.fontWeight,
+                fontStyle: textStyles.fontStyle,
+                textDecoration: textStyles.textDecoration,
+                textAlign: textStyles.textAlign,
+                color: data.textColor || '#334155',
+                lineHeight: textStyles.lineHeight,
+                letterSpacing: textStyles.letterSpacing,
+                textTransform: textStyles.textTransform,
+              }}
+            >
+              <span
+                className="font-bold shrink-0 mt-0.5 leading-none"
+                style={{ fontSize: `${baseFontSize}px`, color: headerColor }}
+              >
+                •
+              </span>
+              <span className="flex-1 break-words">{item}</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -735,6 +1309,7 @@ CanvasBlockNode.displayName = 'CanvasBlockNode';
 // 8. 5-WHYS STEP NODE (Rantai Analisis Kausalitas Bertingkat Toyota TPS)
 export const WhyStepNode = memo((props: any) => {
   const { id, data, selected } = props;
+  const { setNodes } = useReactFlow();
   const stepNumber = data.stepNumber || data.step || 1;
   const question = data.question || `Mengapa #${stepNumber}?`;
   const answer = data.label || data.answer || 'Uraian penyebab pada level ini...';
@@ -743,8 +1318,33 @@ export const WhyStepNode = memo((props: any) => {
   const color = data.color || (isRootCause ? '#ecfdf5' : '#ffffff');
   const borderColor = data.borderColor || (isRootCause ? '#059669' : '#e2e8f0');
 
+  const baseFontSize = typeof data.fontSize === 'number'
+    ? data.fontSize
+    : (data.fontSize ? parseInt(data.fontSize, 10) || 12 : 12);
+  const textStyles = getNodeTextStyles(data, baseFontSize, data.textColor || '#1e293b');
+  const shapeStyles = getNodeShapeStyles(data, color, borderColor);
+
   const nodeWidth = props.width || data.width;
   const nodeHeight = props.height || data.height;
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempText, setTempText] = useState('');
+
+  const handleStartEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsEditing(true);
+    setTempText(answer);
+  };
+
+  const handleSave = () => {
+    const val = tempText.trim();
+    if (val.length > 0) {
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, answer: val, label: val } } : n))
+      );
+    }
+    setIsEditing(false);
+  };
 
   return (
     <div
@@ -752,8 +1352,10 @@ export const WhyStepNode = memo((props: any) => {
         selected ? 'ring-3 ring-emerald-600 shadow-xl scale-102' : ''
       }`}
       style={{
+        ...shapeStyles,
         backgroundColor: color,
         borderColor: borderColor,
+        fontFamily: textStyles.fontFamily,
         width: nodeWidth ? `${nodeWidth}px` : undefined,
         height: nodeHeight ? `${nodeHeight}px` : undefined,
       }}
@@ -764,32 +1366,84 @@ export const WhyStepNode = memo((props: any) => {
 
       {/* Step Header */}
       <div className="flex items-center justify-between gap-1 mb-2">
-        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1 ${
-          isRootCause ? 'bg-emerald-700 text-white shadow-xs' : 'bg-slate-200 text-slate-800'
-        }`}>
+        <span
+          className={`px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 ${
+            isRootCause ? 'bg-emerald-700 text-white shadow-xs' : 'bg-slate-200 text-slate-800'
+          }`}
+          style={{
+            fontSize: `${Math.max(9, Math.round(baseFontSize * 0.85))}px`,
+            fontFamily: textStyles.fontFamily,
+            fontWeight: 800,
+          }}
+        >
           {isRootCause ? <CheckCircle2 className="w-3 h-3" /> : <HelpCircle className="w-3 h-3 text-slate-600" />}
           <span>{isRootCause ? 'Akar Masalah (Root Cause)' : `Mengapa #${stepNumber}`}</span>
         </span>
       </div>
 
       {/* Question */}
-      <div className="text-xs font-bold text-slate-800 mb-1 leading-snug">
+      <div
+        className="mb-1 leading-snug"
+        style={{
+          fontSize: `${baseFontSize}px`,
+          fontFamily: textStyles.fontFamily,
+          fontWeight: 700,
+          fontStyle: textStyles.fontStyle,
+          color: data.textColor || '#1e293b',
+        }}
+      >
         {question}
       </div>
 
       {/* Answer / Finding */}
-      <div className="p-2 rounded-xl bg-white/90 border border-slate-200 text-xs font-medium text-slate-700 leading-snug shadow-3xs">
-        {answer}
-      </div>
+      {isEditing ? (
+        <textarea
+          autoFocus
+          rows={3}
+          value={tempText}
+          onChange={(e) => setTempText(e.target.value)}
+          onBlur={handleSave}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setIsEditing(false);
+          }}
+          className="w-full p-2 rounded-xl bg-white border border-emerald-500 text-slate-800 focus:outline-hidden leading-snug shadow-3xs"
+          style={{ fontSize: `${baseFontSize}px`, fontFamily: textStyles.fontFamily }}
+        />
+      ) : (
+        <div
+          onDoubleClick={handleStartEdit}
+          title="Klik ganda untuk mengedit uraian jawaban"
+          className="p-2 rounded-xl bg-white/90 border border-slate-200 leading-snug shadow-3xs cursor-text hover:bg-slate-50 transition-colors"
+          style={{
+            fontSize: `${baseFontSize}px`,
+            fontFamily: textStyles.fontFamily,
+            fontWeight: textStyles.fontWeight,
+            fontStyle: textStyles.fontStyle,
+            textDecoration: textStyles.textDecoration,
+            textAlign: textStyles.textAlign,
+            color: data.textColor || '#334155',
+          }}
+        >
+          {answer}
+        </div>
+      )}
 
       {/* Countermeasure / Solusi jika Root Cause */}
       {isRootCause && solution && (
-        <div className="mt-2.5 pt-2 border-t border-emerald-200 text-[11px] font-semibold text-emerald-900 bg-emerald-100/60 p-2 rounded-xl">
-          <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-black text-emerald-800 mb-0.5">
+        <div className="mt-2.5 pt-2 border-t border-emerald-200 text-emerald-900 bg-emerald-100/60 p-2 rounded-xl">
+          <div
+            className="flex items-center gap-1 uppercase tracking-wider font-black text-emerald-800 mb-0.5"
+            style={{ fontSize: `${Math.max(9, Math.round(baseFontSize * 0.8))}px` }}
+          >
             <Lightbulb className="w-3 h-3 text-amber-500 fill-amber-500" />
             <span>Tindakan Solutif (Kaizen)</span>
           </div>
-          <p className="leading-snug">{solution}</p>
+          <p
+            className="leading-snug font-semibold"
+            style={{ fontSize: `${Math.max(10, Math.round(baseFontSize * 0.9))}px`, fontFamily: textStyles.fontFamily }}
+          >
+            {solution}
+          </p>
         </div>
       )}
     </div>
@@ -800,6 +1454,7 @@ WhyStepNode.displayName = 'WhyStepNode';
 // 9. PRIORITY MATRIX CARD NODE (Kuadran Matriks Eisenhower & Dampak vs Usaha)
 export const PriorityCardNode = memo((props: any) => {
   const { id, data, selected } = props;
+  const { setNodes } = useReactFlow();
   const quadrant = (data.quadrant || 'Q1').toUpperCase();
   const title = data.label || data.title || 'Kuadran Prioritas';
   const subtitle = data.subtitle || '';
@@ -813,14 +1468,65 @@ export const PriorityCardNode = memo((props: any) => {
   const nodeWidth = props.width || data.width;
   const nodeHeight = props.height || data.height;
 
+  const baseFontSize = typeof data.fontSize === 'number'
+    ? data.fontSize
+    : (data.fontSize ? parseInt(data.fontSize, 10) || 12 : 12);
+  const titleFontSize = Math.max(13, Math.round(baseFontSize * 1.15));
+  const subtitleFontSize = Math.max(10, Math.round(baseFontSize * 0.85));
+
+  const textStyles = getNodeTextStyles(data, baseFontSize, data.textColor || '#0f172a');
+  const shapeStyles = getNodeShapeStyles(data, color, borderColor);
+
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingItemIdx, setEditingItemIdx] = useState<number | null>(null);
+  const [tempValue, setTempValue] = useState('');
+
+  const handleStartEditTitle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingItemIdx(null);
+    setEditingTitle(true);
+    setTempValue(title);
+  };
+
+  const handleSaveTitle = () => {
+    const val = tempValue.trim();
+    if (val.length > 0) {
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, label: val, title: val } } : n))
+      );
+    }
+    setEditingTitle(false);
+  };
+
+  const handleStartEditItem = (idx: number, currentVal: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingTitle(false);
+    setEditingItemIdx(idx);
+    setTempValue(currentVal);
+  };
+
+  const handleSaveItem = (idx: number) => {
+    const val = tempValue.trim();
+    if (val.length > 0) {
+      const newItems = [...items];
+      newItems[idx] = val;
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, items: newItems } } : n))
+      );
+    }
+    setEditingItemIdx(null);
+  };
+
   return (
     <div
       className={`relative min-w-[220px] p-4 rounded-2xl border-2 shadow-md transition-all select-none ${
         selected ? 'ring-3 ring-emerald-600 shadow-xl scale-102' : ''
       }`}
       style={{
+        ...shapeStyles,
         backgroundColor: color,
         borderColor: borderColor,
+        fontFamily: textStyles.fontFamily,
         width: nodeWidth ? `${nodeWidth}px` : undefined,
         height: nodeHeight ? `${nodeHeight}px` : undefined,
       }}
@@ -832,29 +1538,111 @@ export const PriorityCardNode = memo((props: any) => {
       {/* Quadrant Badge */}
       <div className="flex items-center justify-between gap-1 mb-2">
         <span 
-          className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider text-white shadow-xs"
-          style={{ backgroundColor: badgeColor }}
+          className="px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider text-white shadow-xs"
+          style={{
+            backgroundColor: badgeColor,
+            fontSize: `${Math.max(9, Math.round(baseFontSize * 0.85))}px`,
+            fontFamily: textStyles.fontFamily,
+          }}
         >
           {quadrant}
         </span>
-        {subtitle && <span className="text-[10px] font-bold text-slate-500 truncate">{subtitle}</span>}
+        {subtitle && (
+          <span
+            className="font-bold text-slate-500 truncate"
+            style={{ fontSize: `${subtitleFontSize}px`, fontFamily: textStyles.fontFamily }}
+          >
+            {subtitle}
+          </span>
+        )}
       </div>
 
-      <h4 className="font-extrabold text-sm text-slate-900 tracking-tight leading-tight mb-2">
-        {title}
-      </h4>
+      {editingTitle ? (
+        <input
+          autoFocus
+          type="text"
+          value={tempValue}
+          onChange={(e) => setTempValue(e.target.value)}
+          onBlur={handleSaveTitle}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleSaveTitle();
+            if (e.key === 'Escape') setEditingTitle(false);
+          }}
+          className="w-full px-1.5 py-0.5 border border-emerald-500 rounded bg-white text-slate-900 focus:outline-hidden font-bold mb-2"
+          style={{ fontSize: `${titleFontSize}px`, fontFamily: textStyles.fontFamily }}
+        />
+      ) : (
+        <h4
+          onDoubleClick={handleStartEditTitle}
+          title="Klik ganda untuk mengedit judul kuadran"
+          className="tracking-tight leading-tight mb-2 cursor-text hover:bg-black/5 px-1 py-0.5 -mx-1 rounded transition-colors truncate"
+          style={{
+            fontSize: `${titleFontSize}px`,
+            fontFamily: textStyles.fontFamily,
+            fontWeight: textStyles.fontWeight || 800,
+            fontStyle: textStyles.fontStyle,
+            textDecoration: textStyles.textDecoration,
+            textAlign: textStyles.textAlign,
+            color: data.textColor || '#0f172a',
+            textTransform: textStyles.textTransform,
+            letterSpacing: textStyles.letterSpacing,
+          }}
+        >
+          {title}
+        </h4>
+      )}
 
       {/* Action Items */}
       <div className="space-y-1.5">
-        {items.map((item, idx) => (
-          <div
-            key={idx}
-            className="p-1.5 rounded-lg bg-slate-50/80 border border-slate-200/80 text-xs font-medium text-slate-700 leading-snug flex items-start gap-1.5"
-          >
-            <span className="text-amber-600 font-bold">•</span>
-            <span>{item}</span>
-          </div>
-        ))}
+        {items.map((item, idx) => {
+          const isItemEditing = editingItemIdx === idx;
+          return isItemEditing ? (
+            <textarea
+              key={idx}
+              autoFocus
+              rows={2}
+              value={tempValue}
+              onChange={(e) => setTempValue(e.target.value)}
+              onBlur={() => handleSaveItem(idx)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSaveItem(idx);
+                }
+                if (e.key === 'Escape') setEditingItemIdx(null);
+              }}
+              className="w-full p-1.5 rounded-lg border border-emerald-500 bg-white text-slate-800 focus:outline-hidden shadow-xs leading-snug"
+              style={{ fontSize: `${baseFontSize}px`, fontFamily: textStyles.fontFamily }}
+            />
+          ) : (
+            <div
+              key={idx}
+              onDoubleClick={(e) => handleStartEditItem(idx, item, e)}
+              title="Klik ganda untuk mengedit tugas"
+              className="p-1.5 rounded-lg bg-slate-50/80 border border-slate-200/80 leading-snug flex items-start gap-1.5 cursor-text hover:bg-slate-100/90 transition-colors"
+              style={{
+                fontSize: `${baseFontSize}px`,
+                fontFamily: textStyles.fontFamily,
+                fontWeight: textStyles.fontWeight,
+                fontStyle: textStyles.fontStyle,
+                textDecoration: textStyles.textDecoration,
+                textAlign: textStyles.textAlign,
+                color: data.textColor || '#334155',
+                lineHeight: textStyles.lineHeight,
+                letterSpacing: textStyles.letterSpacing,
+                textTransform: textStyles.textTransform,
+              }}
+            >
+              <span
+                className="font-bold shrink-0 mt-0.5 leading-none"
+                style={{ fontSize: `${baseFontSize}px`, color: badgeColor }}
+              >
+                •
+              </span>
+              <span className="flex-1 break-words">{item}</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -1140,17 +1928,34 @@ export const ProcessLegendNode = memo((props: any) => {
   const items = Array.isArray(data.items) && data.items.length > 0 ? data.items : defaultItems;
   const title = data.title || data.label || 'Process flow shapes';
 
+  const baseFontSize = typeof data.fontSize === 'number'
+    ? data.fontSize
+    : (data.fontSize ? parseInt(data.fontSize, 10) || 12 : 12);
+  const textStyles = getNodeTextStyles(data, baseFontSize, data.textColor || '#0f172a');
+  const shapeStyles = getNodeShapeStyles(data, '#ffffff', '#e2e8f0');
+
   return (
     <div
       className={`relative px-4 py-3 rounded-2xl bg-white/95 backdrop-blur-xs border border-slate-200 shadow-md min-w-[200px] transition-all select-none ${
         selected ? 'ring-2 ring-blue-500 shadow-lg border-blue-400' : ''
       }`}
+      style={{
+        ...shapeStyles,
+        fontFamily: textStyles.fontFamily,
+      }}
     >
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
 
       {/* Header Legenda */}
-      <div className="text-[11px] font-bold text-slate-800 uppercase tracking-wider mb-2.5 pb-1.5 border-b border-slate-100 flex items-center gap-1.5">
+      <div
+        className="font-bold uppercase tracking-wider mb-2.5 pb-1.5 border-b border-slate-100 flex items-center gap-1.5"
+        style={{
+          fontSize: `${baseFontSize}px`,
+          fontFamily: textStyles.fontFamily,
+          color: textStyles.color,
+        }}
+      >
         <Activity className="w-3.5 h-3.5 text-blue-600" />
         <span>{title}</span>
       </div>
@@ -1158,7 +1963,15 @@ export const ProcessLegendNode = memo((props: any) => {
       {/* Daftar Indikator Peran / Bentuk */}
       <div className="space-y-1.5">
         {items.map((item: any, idx: number) => (
-          <div key={idx} className="flex items-center gap-2.5 text-xs font-semibold text-slate-700">
+          <div
+            key={idx}
+            className="flex items-center gap-2.5 font-semibold text-slate-700"
+            style={{
+              fontSize: `${baseFontSize}px`,
+              fontFamily: textStyles.fontFamily,
+              color: textStyles.color,
+            }}
+          >
             <span
               className="w-3 h-3 rounded-full shrink-0 shadow-2xs border border-black/10"
               style={{ backgroundColor: item.color || '#3b82f6' }}
