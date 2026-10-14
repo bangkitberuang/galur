@@ -185,12 +185,14 @@ export const UMLClassNode = memo((props: any) => {
   const borderColor = data.borderColor || '#2563eb';
   const headerBg = data.headerColor || '#1d4ed8';
 
+  const shapeStyles = getNodeShapeStyles(data, '#ffffff', borderColor);
+
   return (
     <div
       className={`bg-white rounded-xl shadow-md border overflow-hidden min-w-[200px] text-xs font-mono transition-all ${
         selected ? 'ring-2 ring-emerald-500 shadow-lg' : ''
       }`}
-      style={{ borderColor }}
+      style={{ ...shapeStyles, borderColor }}
     >
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
@@ -231,11 +233,14 @@ export const ERDEntityNode = memo((props: any) => {
       ];
   const headerBg = data.headerBg || '#0b4632';
 
+  const shapeStyles = getNodeShapeStyles(data, '#ffffff', '#cbd5e1');
+
   return (
     <div
       className={`bg-white rounded-xl shadow-md border border-slate-300 overflow-hidden min-w-[220px] text-xs font-mono transition-all ${
         selected ? 'ring-2 ring-emerald-500 shadow-lg' : ''
       }`}
+      style={shapeStyles}
     >
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
@@ -493,12 +498,14 @@ export const SWOTCardNode = memo((props: any) => {
     ? data.items 
     : (defaultSampleItems[swotType] || defaultSampleItems.S);
 
+  const shapeStyles = getNodeShapeStyles(data, bg, border);
+
   return (
     <div
       className={`relative rounded-xl shadow-md border p-5 min-w-[300px] max-w-[330px] min-h-[320px] flex flex-col justify-start transition-all overflow-hidden select-none ${
         selected ? 'ring-3 ring-emerald-700 shadow-xl scale-101' : ''
       }`}
-      style={{ backgroundColor: bg, borderColor: border }}
+      style={{ ...shapeStyles, backgroundColor: bg, borderColor: border }}
     >
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />

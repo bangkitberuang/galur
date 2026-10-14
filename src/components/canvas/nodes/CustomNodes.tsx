@@ -1,6 +1,6 @@
 'use client';
 
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { Handle, Position, useReactFlow, MarkerType, NodeToolbar } from '@xyflow/react';
 import { 
   Plus, 
@@ -60,21 +60,105 @@ const NodeQuickActions = ({ id, selected }: { id: string; selected?: boolean }) 
       className="flex items-center gap-1 bg-white/95 backdrop-blur-xs px-2 py-1 rounded-xl shadow-xl border border-slate-200 no-print animate-in fade-in zoom-in-95 duration-100 z-50 -top-2"
     >
       <button
+        type="button"
         onClick={handleDuplicate}
-        className="p-1 rounded-md text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+        className="p-1 rounded-md text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
         title="Duplikat Bentuk Ini"
       >
         <Copy className="w-3.5 h-3.5" />
       </button>
       <div className="w-[1px] h-3.5 bg-slate-200 mx-0.5" />
       <button
+        type="button"
         onClick={handleDelete}
-        className="p-1 rounded-md text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
+        className="p-1 rounded-md text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors cursor-pointer"
         title="Hapus Bentuk Ini (atau tekan Delete / Backspace di keyboard)"
       >
         <Trash2 className="w-3.5 h-3.5" />
       </button>
     </NodeToolbar>
+  );
+};
+
+// Inline Editable Label Helper untuk Semua Node (Double-Click pada Kanvas)
+const InlineEditableLabel = ({
+  id,
+  label,
+  sublabel,
+  textStyles,
+  isTextarea = false,
+  className = '',
+}: {
+  id: string;
+  label: string;
+  sublabel?: string;
+  textStyles?: React.CSSProperties;
+  isTextarea?: boolean;
+  className?: string;
+}) => {
+  const { setNodes } = useReactFlow();
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempLabel, setTempLabel] = useState(label || '');
+
+  const handleSave = () => {
+    const trimmed = tempLabel.trim();
+    if (trimmed.length > 0) {
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, label: trimmed } } : n))
+      );
+    }
+    setIsEditing(false);
+  };
+
+  if (isEditing) {
+    if (isTextarea) {
+      return (
+        <textarea
+          autoFocus
+          rows={3}
+          value={tempLabel}
+          onChange={(e) => setTempLabel(e.target.value)}
+          onBlur={handleSave}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setIsEditing(false);
+          }}
+          className="w-full px-1.5 py-1 text-xs border border-blue-500 rounded bg-white text-slate-900 focus:outline-hidden leading-relaxed shadow-xs"
+        />
+      );
+    }
+    return (
+      <input
+        autoFocus
+        type="text"
+        value={tempLabel}
+        onChange={(e) => setTempLabel(e.target.value)}
+        onBlur={handleSave}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') handleSave();
+          if (e.key === 'Escape') setIsEditing(false);
+        }}
+        className="w-full px-1.5 py-0.5 border border-blue-500 bg-white/95 rounded text-xs text-slate-900 focus:outline-hidden font-medium text-center shadow-xs"
+      />
+    );
+  }
+
+  return (
+    <div
+      onDoubleClick={(e) => {
+        e.stopPropagation();
+        setTempLabel(label || '');
+        setIsEditing(true);
+      }}
+      title="Klik ganda untuk mengedit teks langsung"
+      className={`cursor-text hover:bg-black/5 rounded px-1 py-0.5 transition-colors select-none ${className}`}
+    >
+      <div style={textStyles}>{label}</div>
+      {sublabel && (
+        <div className="text-xs opacity-75 mt-0.5" style={{ fontSize: '11px' }}>
+          {sublabel}
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -187,7 +271,7 @@ const StandardHandles = () => (
   </>
 );
 
-// 1. Process Node (Kotak Proses Standar Visio)
+// 1. Process Node (Kotak Proses Standar)
 export const ProcessNode = memo((props: any) => {
   const { id, data, selected } = props;
   const text = data.textColor || '#0f172a';
@@ -201,18 +285,18 @@ export const ProcessNode = memo((props: any) => {
     >
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
-      <div style={getNodeTextStyles(data, 14)}>{data.label || 'Proses'}</div>
-      {data.sublabel && (
-        <div className="text-xs opacity-75 mt-0.5" style={getNodeTextStyles({ ...data, fontSize: 11 })}>
-          {data.sublabel}
-        </div>
-      )}
+      <InlineEditableLabel
+        id={id}
+        label={data.label || 'Proses'}
+        sublabel={data.sublabel}
+        textStyles={getNodeTextStyles(data, 14, text)}
+      />
     </div>
   );
 });
 ProcessNode.displayName = 'ProcessNode';
 
-// 2. Decision Node (Belah Ketupat / Diamond Keputusan Visio)
+// 2. Decision Node (Belah Ketupat / Diamond Keputusan)
 export const DecisionNode = memo((props: any) => {
   const { id, data, selected } = props;
   const text = data.textColor || '#1e3a8a';
@@ -227,18 +311,19 @@ export const DecisionNode = memo((props: any) => {
         }`}
         style={getNodeShapeStyles(data, '#eff6ff', '#2563eb')}
       />
-      <div
-        className="relative z-10 px-2 text-center text-xs font-semibold select-none max-w-[80px] break-words"
-        style={{ ...getNodeTextStyles(data, 12), color: text }}
-      >
-        {data.label || 'Keputusan?'}
+      <div className="relative z-10 px-2 text-center text-xs font-semibold select-none max-w-[85px] break-words">
+        <InlineEditableLabel
+          id={id}
+          label={data.label || 'Keputusan?'}
+          textStyles={{ ...getNodeTextStyles(data, 12), color: text }}
+        />
       </div>
     </div>
   );
 });
 DecisionNode.displayName = 'DecisionNode';
 
-// 3. Terminal Node (Mulai / Selesai - Kapsul Bulat Visio)
+// 3. Terminal Node (Mulai / Selesai - Kapsul Bulat)
 export const TerminalNode = memo((props: any) => {
   const { id, data, selected } = props;
   const text = data.textColor || '#065f46';
@@ -252,8 +337,12 @@ export const TerminalNode = memo((props: any) => {
     >
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
-      <PlayCircle className="w-3.5 h-3.5 opacity-80" />
-      <span style={getNodeTextStyles(data, 13)}>{data.label || 'Mulai / Selesai'}</span>
+      <PlayCircle className="w-3.5 h-3.5 opacity-80 shrink-0" />
+      <InlineEditableLabel
+        id={id}
+        label={data.label || 'Mulai / Selesai'}
+        textStyles={getNodeTextStyles(data, 13, text)}
+      />
     </div>
   );
 });
@@ -274,8 +363,12 @@ export const ParallelogramNode = memo((props: any) => {
         }`}
         style={getNodeShapeStyles(data, '#fefce8', '#ca8a04')}
       />
-      <div className="relative z-10 px-4 text-center text-xs font-semibold select-none" style={{ ...getNodeTextStyles(data, 12), color: text }}>
-        {data.label || 'Input / Output'}
+      <div className="relative z-10 px-4 text-center text-xs font-semibold select-none">
+        <InlineEditableLabel
+          id={id}
+          label={data.label || 'Input / Output'}
+          textStyles={{ ...getNodeTextStyles(data, 12), color: text }}
+        />
       </div>
     </div>
   );
@@ -299,7 +392,11 @@ export const DocumentNode = memo((props: any) => {
       <div className="flex items-center justify-center gap-1 mb-0.5 opacity-70">
         <FileText className="w-3.5 h-3.5" />
       </div>
-      <div style={getNodeTextStyles(data, 12)}>{data.label || 'Dokumen Laporan'}</div>
+      <InlineEditableLabel
+        id={id}
+        label={data.label || 'Dokumen Laporan'}
+        textStyles={getNodeTextStyles(data, 12, text)}
+      />
     </div>
   );
 });
@@ -323,7 +420,11 @@ export const PredefinedNode = memo((props: any) => {
       {/* Garis Ganda Kiri & Kanan */}
       <div className="absolute left-2.5 top-0 bottom-0 w-[1.5px]" style={{ backgroundColor: border }} />
       <div className="absolute right-2.5 top-0 bottom-0 w-[1.5px]" style={{ backgroundColor: border }} />
-      <div style={getNodeTextStyles(data, 12)}>{data.label || 'Sub-Proses Khusus'}</div>
+      <InlineEditableLabel
+        id={id}
+        label={data.label || 'Sub-Proses Khusus'}
+        textStyles={getNodeTextStyles(data, 12, text)}
+      />
     </div>
   );
 });
@@ -343,7 +444,11 @@ export const HexagonNode = memo((props: any) => {
     >
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
-      <div style={getNodeTextStyles(data, 12)}>{data.label || 'Persiapan / Loop'}</div>
+      <InlineEditableLabel
+        id={id}
+        label={data.label || 'Persiapan / Loop'}
+        textStyles={getNodeTextStyles(data, 12, text)}
+      />
     </div>
   );
 });
@@ -363,13 +468,17 @@ export const ConnectorNode = memo((props: any) => {
     >
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
-      <span style={getNodeTextStyles(data, 12)}>{data.label || 'A'}</span>
+      <InlineEditableLabel
+        id={id}
+        label={data.label || 'A'}
+        textStyles={getNodeTextStyles(data, 12, text)}
+      />
     </div>
   );
 });
 ConnectorNode.displayName = 'ConnectorNode';
 
-// 9. Database Node (Silinder Basis Data Visio)
+// 9. Database Node (Silinder Basis Data)
 export const DatabaseNode = memo((props: any) => {
   const { id, data, selected } = props;
   const text = data.textColor || '#581c87';
@@ -384,14 +493,18 @@ export const DatabaseNode = memo((props: any) => {
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
       <Database className="w-4 h-4 mb-1 text-purple-600" />
-      <div style={getNodeTextStyles(data, 14)}>{data.label || 'Database'}</div>
-      {data.sublabel && <div className="text-xs opacity-75">{data.sublabel}</div>}
+      <InlineEditableLabel
+        id={id}
+        label={data.label || 'Database'}
+        sublabel={data.sublabel}
+        textStyles={getNodeTextStyles(data, 14, text)}
+      />
     </div>
   );
 });
 DatabaseNode.displayName = 'DatabaseNode';
 
-// 10. Cloud / Network Node (Layanan Cloud Visio)
+// 10. Cloud / Network Node (Layanan Cloud)
 export const CloudNode = memo((props: any) => {
   const { id, data, selected } = props;
   const text = data.textColor || '#14532d';
@@ -406,13 +519,17 @@ export const CloudNode = memo((props: any) => {
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
       <Cloud className="w-4 h-4 mb-1 text-green-600" />
-      <div style={getNodeTextStyles(data, 14)}>{data.label || 'Cloud / Service'}</div>
+      <InlineEditableLabel
+        id={id}
+        label={data.label || 'Cloud / Service'}
+        textStyles={getNodeTextStyles(data, 14, text)}
+      />
     </div>
   );
 });
 CloudNode.displayName = 'CloudNode';
 
-// 11. Mind Map Node (Modern Branching Node dengan useReactFlow hook langsung)
+// 11. Mind Map Node (Modern Branching Node)
 export const MindMapNode = memo((props: any) => {
   const { id, data, selected } = props;
   const { getNode, getEdges, setNodes, setEdges } = useReactFlow();
@@ -474,10 +591,15 @@ export const MindMapNode = memo((props: any) => {
         style={{ ...shapeStyles, ...textStyles }}
       >
         <StandardHandles />
-        <div>{data.label || (isRoot ? 'Topik Utama' : 'Sub Ide')}</div>
+        <InlineEditableLabel
+          id={id}
+          label={data.label || (isRoot ? 'Topik Utama' : 'Sub Ide')}
+          textStyles={textStyles}
+        />
       </div>
 
       <button
+        type="button"
         onClick={handleAddChild}
         title="Tambah Cabang Ide Baru"
         className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 cursor-pointer no-print"
@@ -508,17 +630,22 @@ export const StickyNoteNode = memo((props: any) => {
         <StickyNote className="w-3 h-3" />
         <span>Catatan</span>
       </div>
-      <div className="whitespace-pre-wrap">{data.label || 'Tulis catatan ide di sini...'}</div>
+      <InlineEditableLabel
+        id={id}
+        isTextarea={true}
+        label={data.label || 'Tulis catatan ide di sini...'}
+        textStyles={{ ...textStyles, whiteSpace: 'pre-wrap' }}
+      />
     </div>
   );
 });
 StickyNoteNode.displayName = 'StickyNoteNode';
 
-// 13. Text Node (Teks Melayang Bebas dengan Dukungan Rotasi & Format Sumbu Diagram)
+// 13. Text Node (Teks Melayang Bebas)
 export const TextNode = memo((props: any) => {
   const { id, data, selected } = props;
-  const rotation = data.rotation ? `rotate(${data.rotation}deg)` : undefined;
   const textStyles = getNodeTextStyles(data, 14, '#0f172a');
+  const shapeStyles = getNodeShapeStyles(data, 'transparent', 'transparent');
 
   return (
     <div
@@ -526,16 +653,17 @@ export const TextNode = memo((props: any) => {
         selected ? 'ring-2 ring-emerald-600 bg-emerald-50/50' : ''
       }`}
       style={{
+        ...shapeStyles,
         ...textStyles,
-        transform: rotation,
-        letterSpacing: data.letterSpacing || undefined,
       }}
     >
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
-      <span className="inline-block leading-normal">
-        {data.label || 'Teks'}
-      </span>
+      <InlineEditableLabel
+        id={id}
+        label={data.label || 'Teks'}
+        textStyles={textStyles}
+      />
     </div>
   );
 });
