@@ -6,23 +6,18 @@ import {
   Search, 
   Trash2, 
   ExternalLink, 
-  Clock, 
   X, 
   Layers, 
   FilePlus, 
-  Check, 
-  FolderOpen,
-  Calendar
+  Calendar,
+  CheckCircle2
 } from 'lucide-react';
+import { 
+  getAllDiagramsMeta, 
+  deleteDiagramFromStorage, 
+  DiagramMetadata 
+} from '@/lib/diagramStorage';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-
-export interface SavedDiagramMeta {
-  id: string;
-  title: string;
-  updatedAt: string;
-  nodeCount: number;
-  edgeCount: number;
-}
 
 interface HistoryModalProps {
   isOpen: boolean;
@@ -39,86 +34,29 @@ export default function HistoryModal({
   onLoadDiagram,
   onNewDiagram,
 }: HistoryModalProps) {
-  const [diagrams, setDiagrams] = useState<SavedDiagramMeta[]>([]);
+  const [diagrams, setDiagrams] = useState<DiagramMetadata[]>([]);
   const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  // Muat seluruh daftar riwayat diagram
-  const loadHistory = async () => {
-    setLoading(true);
-    const list: SavedDiagramMeta[] = [];
-
-    // 1. Baca dari Supabase jika terhubung
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data } = await supabase
-          .from('diagrams')
-          .select('id, title, updated_at, data')
-          .order('updated_at', { ascending: false });
-
-        if (data && data.length > 0) {
-          data.forEach((item: any) => {
-            list.push({
-              id: item.id,
-              title: item.title || 'Diagram Tanpa Judul',
-              updatedAt: item.updated_at || new Date().toISOString(),
-              nodeCount: item.data?.nodes?.length || 0,
-              edgeCount: item.data?.edges?.length || 0,
-            });
-          });
-        }
-      } catch (e) {
-        console.warn('Gagal memuat dari Supabase:', e);
-      }
-    }
-
-    // 2. Baca dari LocalStorage
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith('galur_diagram_') && !key.includes('index')) {
-        const id = key.replace('galur_diagram_', '');
-        // Cegah duplikasi jika sudah dimuat dari Supabase
-        if (!list.some((item) => item.id === id)) {
-          try {
-            const raw = localStorage.getItem(key);
-            if (raw) {
-              const parsed = JSON.parse(raw);
-              list.push({
-                id,
-                title: parsed.title || 'Diagram Tanpa Judul',
-                updatedAt: parsed.updated_at || new Date().toISOString(),
-                nodeCount: parsed.nodes?.length || 0,
-                edgeCount: parsed.edges?.length || 0,
-              });
-            }
-          } catch (err) {}
-        }
-      }
-    }
-
-    // Urutkan dari yang paling baru diubah
-    list.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-
+  const refreshList = () => {
+    const list = getAllDiagramsMeta();
     setDiagrams(list);
-    setLoading(false);
   };
 
   useEffect(() => {
     if (isOpen) {
-      loadHistory();
+      refreshList();
     }
   }, [isOpen]);
 
   const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm('Hapus diagram ini dari riwayat penyimpanan?')) return;
+    if (!confirm('Apakah Anda yakin ingin menghapus diagram ini dari riwayat?')) return;
 
-    localStorage.removeItem(`galur_diagram_${id}`);
+    deleteDiagramFromStorage(id);
     if (isSupabaseConfigured && supabase) {
       supabase.from('diagrams').delete().eq('id', id).then(() => {});
     }
-
-    setDiagrams((prev) => prev.filter((item) => item.id !== id));
+    refreshList();
   };
 
   if (!isOpen) return null;
@@ -128,20 +66,25 @@ export default function HistoryModal({
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs no-print">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs no-print p-4">
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
               <History className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">
-                Riwayat & Arsip Diagram
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-bold text-slate-900">
+                  Riwayat Diagram Anda
+                </h2>
+                <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[11px] font-bold">
+                  {diagrams.length} Berkas
+                </span>
+              </div>
               <p className="text-xs text-slate-500">
-                Seluruh diagram yang pernah Anda simpan ({diagrams.length} diagram tersimpan)
+                Pilih diagram yang pernah Anda buat untuk membukanya kembali
               </p>
             </div>
           </div>
@@ -152,14 +95,14 @@ export default function HistoryModal({
                 onClose();
                 onNewDiagram();
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-xs transition-all"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
             >
               <FilePlus className="w-3.5 h-3.5" />
               <span>Diagram Baru</span>
             </button>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -182,19 +125,9 @@ export default function HistoryModal({
 
         {/* List Riwayat */}
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
-          {loading ? (
-            <div className="p-12 text-center text-xs text-slate-400">
-              Memuat riwayat diagram...
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="p-12 text-center space-y-2">
-              <FolderOpen className="w-10 h-10 text-slate-300 mx-auto" />
-              <p className="text-sm font-semibold text-slate-600">
-                Belum ada riwayat diagram yang tersimpan
-              </p>
-              <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                Setiap kali Anda menekan tombol <strong>Simpan</strong>, diagram akan otomatis tercatat dan dapat dibuka kembali kapan saja di sini.
-              </p>
+          {filtered.length === 0 ? (
+            <div className="p-10 text-center text-slate-400 text-xs">
+              Tidak ada diagram yang cocok dengan kata kunci pencarian.
             </div>
           ) : (
             filtered.map((item) => {
@@ -213,8 +146,8 @@ export default function HistoryModal({
                   }}
                   className={`p-3.5 rounded-2xl border transition-all flex items-center justify-between cursor-pointer group ${
                     isCurrent
-                      ? 'border-blue-500 bg-blue-50/50 shadow-xs'
-                      : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-slate-50/70 shadow-2xs'
+                      ? 'border-blue-500 bg-blue-50/60 shadow-xs ring-1 ring-blue-500'
+                      : 'border-slate-200 bg-white hover:border-blue-400 hover:bg-slate-50/80 shadow-2xs'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
@@ -234,8 +167,8 @@ export default function HistoryModal({
                           {item.title}
                         </h4>
                         {isCurrent && (
-                          <span className="text-[9px] font-semibold uppercase px-2 py-0.5 rounded-full bg-blue-600 text-white">
-                            Sedang Dibuka
+                          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-600 text-white flex items-center gap-1">
+                            <CheckCircle2 className="w-2.5 h-2.5" /> Sedang Aktif
                           </span>
                         )}
                       </div>
@@ -254,8 +187,8 @@ export default function HistoryModal({
                   <div className="flex items-center gap-1.5 shrink-0 ml-3">
                     <button
                       onClick={(e) => handleDelete(item.id, e)}
-                      title="Hapus dari Riwayat"
-                      className="p-1.5 rounded-lg text-slate-300 hover:text-red-600 hover:bg-red-50 transition-colors"
+                      title="Hapus Diagram dari Riwayat"
+                      className="p-1.5 rounded-lg text-slate-300 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -271,11 +204,11 @@ export default function HistoryModal({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between text-xs text-slate-500">
-          <span>Pilih salah satu berkas di atas untuk memuatnya ke kanvas.</span>
+        <div className="p-4 border-t border-slate-100 bg-slate-50/70 flex items-center justify-between text-xs text-slate-500">
+          <span>Semua diagram otomatis tersimpan ke riwayat browser dan akun Anda.</span>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold text-xs hover:bg-slate-50"
+            className="px-4 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold text-xs hover:bg-slate-50 cursor-pointer"
           >
             Tutup
           </button>

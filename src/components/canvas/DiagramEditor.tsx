@@ -20,20 +20,18 @@ import {
 import { 
   Save, 
   Download, 
-  FilePlus,
-  Trash2,
+  FilePlus, 
+  Trash2, 
   Cloud, 
   HardDrive, 
   Check, 
-  Sparkles,
-  ChevronDown,
-  RefreshCw,
-  GitFork,
-  Network,
-  History,
-  Undo2,
-  Redo2,
-  FolderOpen
+  ChevronDown, 
+  GitFork, 
+  Network, 
+  History, 
+  Undo2, 
+  Redo2, 
+  FolderOpen 
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -43,120 +41,13 @@ import Sidebar from './Sidebar';
 import PropertyPanel from './PropertyPanel';
 import ExportModal from './ExportModal';
 import HistoryModal from './HistoryModal';
+import { 
+  saveDiagramToStorage, 
+  getDiagramById, 
+  getAllDiagramsMeta, 
+  initDefaultDiagramsIfEmpty 
+} from '@/lib/diagramStorage';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-
-// Template Awal Bawaan Flowchart
-const flowchartTemplate: { nodes: Node[]; edges: Edge[] } = {
-  nodes: [
-    {
-      id: 'node-1',
-      type: 'terminal',
-      position: { x: 280, y: 80 },
-      data: { label: 'Mulai Alur', color: '#ecfdf5', borderColor: '#10b981', textColor: '#065f46' },
-    },
-    {
-      id: 'node-2',
-      type: 'process',
-      position: { x: 260, y: 190 },
-      data: { label: 'Input Data & Ide', sublabel: 'GALUR Studio', color: '#ffffff', borderColor: '#3b82f6', textColor: '#0f172a' },
-    },
-    {
-      id: 'node-3',
-      type: 'decision',
-      position: { x: 275, y: 310 },
-      data: { label: 'Valid?', color: '#eff6ff', borderColor: '#2563eb', textColor: '#1e3a8a' },
-    },
-    {
-      id: 'node-4',
-      type: 'mindmap',
-      position: { x: 520, y: 220 },
-      data: { label: 'Topik Mind Map (Klik +)', isRoot: false, color: '#f0fdf4', borderColor: '#22c55e', textColor: '#14532d' },
-    },
-    {
-      id: 'node-5',
-      type: 'terminal',
-      position: { x: 280, y: 480 },
-      data: { label: 'Selesai & Ekspor', color: '#fef2f2', borderColor: '#ef4444', textColor: '#991b1b' },
-    },
-  ],
-  edges: [
-    {
-      id: 'edge-1-2',
-      source: 'node-1',
-      target: 'node-2',
-      type: 'smoothstep',
-      markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
-      style: { stroke: '#3b82f6', strokeWidth: 2 },
-    },
-    {
-      id: 'edge-2-3',
-      source: 'node-2',
-      target: 'node-3',
-      type: 'smoothstep',
-      markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
-      style: { stroke: '#3b82f6', strokeWidth: 2 },
-    },
-    {
-      id: 'edge-2-4',
-      source: 'node-2',
-      target: 'node-4',
-      type: 'default',
-      markerEnd: { type: MarkerType.ArrowClosed, color: '#10b981' },
-      style: { stroke: '#10b981', strokeWidth: 2, strokeDasharray: '4 4' },
-      label: 'ide baru',
-    },
-    {
-      id: 'edge-3-5',
-      source: 'node-3',
-      target: 'node-5',
-      type: 'smoothstep',
-      markerEnd: { type: MarkerType.ArrowClosed, color: '#ef4444' },
-      style: { stroke: '#ef4444', strokeWidth: 2 },
-      label: 'Ya',
-    },
-  ],
-};
-
-const mindmapTemplate: { nodes: Node[]; edges: Edge[] } = {
-  nodes: [
-    {
-      id: 'root-mindmap',
-      type: 'mindmap',
-      position: { x: 350, y: 250 },
-      data: { label: 'Gagasan Utama', isRoot: true, color: '#1e293b', borderColor: '#0f172a', textColor: '#ffffff' },
-    },
-    {
-      id: 'child-1',
-      type: 'mindmap',
-      position: { x: 600, y: 160 },
-      data: { label: 'Cabang Strategi', color: '#eff6ff', borderColor: '#3b82f6', textColor: '#1e3a8a' },
-    },
-    {
-      id: 'child-2',
-      type: 'mindmap',
-      position: { x: 600, y: 320 },
-      data: { label: 'Cabang Eksekusi', color: '#ecfdf5', borderColor: '#10b981', textColor: '#065f46' },
-    },
-  ],
-  edges: [
-    {
-      id: 'edge-root-1',
-      source: 'root-mindmap',
-      target: 'child-1',
-      type: 'default',
-      markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
-      style: { stroke: '#3b82f6', strokeWidth: 2 },
-    },
-    {
-      id: 'edge-root-2',
-      source: 'root-mindmap',
-      target: 'child-2',
-      type: 'default',
-      markerEnd: { type: MarkerType.ArrowClosed, color: '#10b981' },
-      style: { stroke: '#10b981', strokeWidth: 2 },
-    },
-  ],
-};
 
 interface DiagramEditorInnerProps {
   diagramId?: string;
@@ -167,15 +58,10 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition, fitView } = useReactFlow();
 
-  // ID Diagram yang sedang dibuka
-  const [currentId, setCurrentId] = useState<string>(() => {
-    if (diagramId) return diagramId;
-    return `diag_${Date.now()}`;
-  });
-
+  const [currentId, setCurrentId] = useState<string>('flowchart-demo-1');
   const [title, setTitle] = useState(initialTitle);
-  const [nodes, setNodes, onNodesChange] = useNodesState(flowchartTemplate.nodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(flowchartTemplate.edges);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
   const [edgeType, setEdgeType] = useState<string>('step'); // 'step' | 'default' | 'straight'
@@ -184,6 +70,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   const [isNewMenuOpen, setIsNewMenuOpen] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('saved');
   const [storageType, setStorageType] = useState<'cloud' | 'local'>('local');
+  const [historyCount, setHistoryCount] = useState<number>(0);
 
   // Undo & Redo History Stack
   const [past, setPast] = useState<Array<{ nodes: Node[]; edges: Edge[] }>>([]);
@@ -222,28 +109,60 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     setSaveStatus('idle');
   }, [future, nodes, edges, setNodes, setEdges]);
 
-  // Muat data dari localStorage atau URL query saat pertama kali dibuka
+  // Inisialisasi awal: Muat diagram dari riwayat
   useEffect(() => {
+    initDefaultDiagramsIfEmpty();
+    const metaList = getAllDiagramsMeta();
+    setHistoryCount(metaList.length);
+
+    let targetId = 'flowchart-demo-1';
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const urlId = urlParams.get('id') || diagramId;
-
       if (urlId) {
-        setCurrentId(urlId);
-        const saved = localStorage.getItem(`galur_diagram_${urlId}`);
-        if (saved) {
-          try {
-            const parsed = JSON.parse(saved);
-            if (parsed.nodes) setNodes(parsed.nodes);
-            if (parsed.edges) setEdges(parsed.edges);
-            if (parsed.title) setTitle(parsed.title);
-          } catch (e) {
-            console.error('Gagal membaca diagram dari cache lokal', e);
-          }
-        }
+        targetId = urlId;
+      } else if (metaList.length > 0) {
+        targetId = metaList[0].id;
+      }
+    }
+
+    const loaded = getDiagramById(targetId);
+    if (loaded) {
+      setCurrentId(loaded.id);
+      setTitle(loaded.title);
+      setNodes(loaded.nodes || []);
+      setEdges(loaded.edges || []);
+      if (typeof window !== 'undefined') {
+        window.history.replaceState(null, '', `/editor?id=${loaded.id}`);
       }
     }
   }, [diagramId, setNodes, setEdges]);
+
+  // AUTO-SAVE: Otomatis menyimpan setiap kali ada perubahan
+  useEffect(() => {
+    if (!currentId || nodes.length === 0) return;
+
+    setSaveStatus('saving');
+    const timer = setTimeout(() => {
+      saveDiagramToStorage({
+        id: currentId,
+        title,
+        updatedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        nodeCount: nodes.length,
+        edgeCount: edges.length,
+        type: 'custom',
+        nodes,
+        edges,
+      });
+
+      const updatedMeta = getAllDiagramsMeta();
+      setHistoryCount(updatedMeta.length);
+      setSaveStatus('saved');
+    }, 600);
+
+    return () => clearTimeout(timer);
+  }, [nodes, edges, title, currentId]);
 
   // Callback saat garis dihubungkan antar bentuk
   const onConnect = useCallback(
@@ -418,7 +337,6 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     [setEdges, takeSnapshot]
   );
 
-  // Handler Hapus saat tombol Delete / Backspace ditekan
   const onNodesDelete = useCallback(() => {
     takeSnapshot();
     setSelectedNode(null);
@@ -439,7 +357,6 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
         return;
       }
 
-      // 1. Delete / Backspace
       if (event.key === 'Delete' || event.key === 'Backspace') {
         takeSnapshot();
         setNodes((nds) => nds.filter((node) => !node.selected));
@@ -449,7 +366,6 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
         setSaveStatus('idle');
       }
 
-      // 2. Undo (Ctrl+Z) & Redo (Ctrl+Y / Ctrl+Shift+Z)
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
         event.preventDefault();
         if (event.shiftKey) {
@@ -467,75 +383,27 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [setNodes, setEdges, handleUndo, handleRedo, takeSnapshot]);
 
-  // Simpan Diagram (Supabase & LocalStorage)
-  const handleSave = async () => {
-    setSaveStatus('saving');
-    const storageKey = `galur_diagram_${currentId}`;
-    const payload = {
-      id: currentId,
-      title,
-      nodes,
-      edges,
-      updated_at: new Date().toISOString(),
-    };
-
-    // 1. Simpan ke LocalStorage
-    localStorage.setItem(storageKey, JSON.stringify(payload));
-
-    // Update URL tanpa reload halaman
-    if (typeof window !== 'undefined') {
-      window.history.replaceState(null, '', `/editor?id=${currentId}`);
-    }
-
-    // 2. Simpan ke Supabase jika terkonfigurasi
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data: userData } = await supabase.auth.getUser();
-        if (userData?.user) {
-          await supabase.from('diagrams').upsert({
-            id: currentId.startsWith('diag_') ? undefined : currentId,
-            user_id: userData.user.id,
-            title,
-            data: { nodes, edges },
-          });
-          setStorageType('cloud');
-        }
-      } catch (err) {
-        console.warn('Gagal menyimpan ke Supabase cloud, data tetap tersimpan di lokal browser:', err);
-      }
-    }
-
-    setTimeout(() => {
-      setSaveStatus('saved');
-    }, 350);
-  };
-
-  // Handler Buka Diagram dari Riwayat
+  // Buka Diagram dari Riwayat
   const handleLoadFromHistory = (id: string) => {
-    const raw = localStorage.getItem(`galur_diagram_${id}`);
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw);
-        takeSnapshot();
-        setCurrentId(id);
-        setTitle(parsed.title || 'Diagram Tanpa Judul');
-        setNodes(parsed.nodes || []);
-        setEdges(parsed.edges || []);
-        setSelectedNode(null);
-        setSelectedEdge(null);
-        setSaveStatus('saved');
+    const loaded = getDiagramById(id);
+    if (loaded) {
+      takeSnapshot();
+      setCurrentId(loaded.id);
+      setTitle(loaded.title);
+      setNodes(loaded.nodes || []);
+      setEdges(loaded.edges || []);
+      setSelectedNode(null);
+      setSelectedEdge(null);
+      setSaveStatus('saved');
 
-        if (typeof window !== 'undefined') {
-          window.history.replaceState(null, '', `/editor?id=${id}`);
-        }
-        setTimeout(() => fitView({ padding: 0.2 }), 100);
-      } catch (e) {
-        console.error('Gagal memuat diagram:', e);
+      if (typeof window !== 'undefined') {
+        window.history.replaceState(null, '', `/editor?id=${loaded.id}`);
       }
+      setTimeout(() => fitView({ padding: 0.2 }), 100);
     }
   };
 
-  // Handler Buat Diagram Baru
+  // Buat Diagram Baru
   const handleCreateNew = (type: 'blank' | 'flowchart' | 'mindmap') => {
     setIsNewMenuOpen(false);
     takeSnapshot();
@@ -551,12 +419,14 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       setEdges([]);
       setTitle('Kanvas Kosong Baru');
     } else if (type === 'flowchart') {
-      setNodes(flowchartTemplate.nodes);
-      setEdges(flowchartTemplate.edges);
+      const demo = getDiagramById('flowchart-demo-1');
+      setNodes(demo?.nodes || []);
+      setEdges(demo?.edges || []);
       setTitle('Diagram Alir Baru');
     } else if (type === 'mindmap') {
-      setNodes(mindmapTemplate.nodes);
-      setEdges(mindmapTemplate.edges);
+      const demo = getDiagramById('mindmap-demo-2');
+      setNodes(demo?.nodes || []);
+      setEdges(demo?.edges || []);
       setTitle('Pohon Mind Map Baru');
     }
 
@@ -566,16 +436,41 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     setTimeout(() => fitView({ padding: 0.2 }), 100);
   };
 
-  // Bersihkan Kanvas Kosong
-  const handleClearAll = () => {
-    if (confirm('Bersihkan seluruh kanvas? Semua bentuk dan garis akan dihapus.')) {
-      takeSnapshot();
-      setNodes([]);
-      setEdges([]);
-      setSelectedNode(null);
-      setSelectedEdge(null);
-      setSaveStatus('idle');
+  // Simpan Manual
+  const handleManualSave = async () => {
+    setSaveStatus('saving');
+    saveDiagramToStorage({
+      id: currentId,
+      title,
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      nodeCount: nodes.length,
+      edgeCount: edges.length,
+      type: 'custom',
+      nodes,
+      edges,
+    });
+
+    if (isSupabaseConfigured && supabase) {
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        if (userData?.user) {
+          await supabase.from('diagrams').upsert({
+            id: currentId.startsWith('diag_') ? undefined : currentId,
+            user_id: userData.user.id,
+            title,
+            data: { nodes, edges },
+          });
+          setStorageType('cloud');
+        }
+      } catch (err) {
+        console.warn('Gagal menyimpan ke Supabase cloud:', err);
+      }
     }
+
+    const updatedMeta = getAllDiagramsMeta();
+    setHistoryCount(updatedMeta.length);
+    setTimeout(() => setSaveStatus('saved'), 300);
   };
 
   return (
@@ -583,7 +478,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       {/* Top Navigation Bar */}
       <header className="h-14 bg-white border-b border-slate-200 px-4 flex items-center justify-between z-30 no-print">
         {/* Left: Brand, Back, & Title */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <Link
             href="/"
             className="flex items-center gap-2 text-slate-700 hover:text-blue-600 transition-colors"
@@ -602,7 +497,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
             </div>
           </Link>
 
-          <div className="h-5 w-[1px] bg-slate-200 mx-1" />
+          <div className="h-5 w-[1px] bg-slate-200 mx-0.5" />
 
           {/* Menu Buat Diagram Baru */}
           <div className="relative">
@@ -617,7 +512,6 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
               <ChevronDown className="w-3 h-3 opacity-70" />
             </button>
 
-            {/* Dropdown Menu Buat Baru */}
             {isNewMenuOpen && (
               <div className="absolute left-0 top-full mt-1.5 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 animate-in fade-in zoom-in-95 duration-100">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2.5 py-1">
@@ -633,7 +527,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
                   </div>
                   <div>
                     <div className="font-semibold">Kanvas Kosong</div>
-                    <div className="text-[10px] text-slate-400">Mulai dari lembar putih bersih</div>
+                    <div className="text-[10px] text-slate-400">Lembar putih bersih</div>
                   </div>
                 </button>
 
@@ -646,7 +540,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
                   </div>
                   <div>
                     <div className="font-semibold text-blue-900">Template Flowchart</div>
-                    <div className="text-[10px] text-slate-400">Alur keputusan standar Visio</div>
+                    <div className="text-[10px] text-slate-400">Alur keputusan Visio</div>
                   </div>
                 </button>
 
@@ -659,24 +553,14 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
                   </div>
                   <div>
                     <div className="font-semibold text-emerald-900">Template Mind Map</div>
-                    <div className="text-[10px] text-slate-400">Pohon ide & brainstorming</div>
+                    <div className="text-[10px] text-slate-400">Pohon ide brainstorming</div>
                   </div>
-                </button>
-
-                <div className="h-[1px] bg-slate-100 my-1.5" />
-
-                <button
-                  onClick={handleClearAll}
-                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-left hover:bg-red-50 text-xs font-medium text-red-600 transition-colors"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>Bersihkan Semua Objek</span>
                 </button>
               </div>
             )}
           </div>
 
-          {/* Tombol Riwayat & Arsip Diagram */}
+          {/* Tombol Riwayat Diagram dengan Jumlah Berkas */}
           <button
             type="button"
             onClick={() => setIsHistoryModalOpen(true)}
@@ -684,10 +568,13 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
             title="Buka Riwayat Diagram yang Pernah Dibuat"
           >
             <FolderOpen className="w-3.5 h-3.5 text-blue-600" />
-            <span className="hidden sm:inline">Riwayat Diagram</span>
+            <span>Riwayat Diagram</span>
+            <span className="px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold">
+              {historyCount}
+            </span>
           </button>
 
-          <div className="h-5 w-[1px] bg-slate-200 mx-1 hidden sm:block" />
+          <div className="h-5 w-[1px] bg-slate-200 mx-0.5 hidden sm:block" />
 
           {/* Tombol Undo & Redo */}
           <div className="flex items-center gap-0.5 bg-slate-100 p-0.5 rounded-lg border border-slate-200">
@@ -704,14 +591,14 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
               type="button"
               onClick={handleRedo}
               disabled={future.length === 0}
-              title="Ulangi Perubahan (Ctrl+Y / Ctrl+Shift+Z)"
+              title="Ulangi Perubahan (Ctrl+Y)"
               className="p-1 rounded-md text-slate-600 hover:text-blue-600 hover:bg-white disabled:opacity-30 disabled:pointer-events-none transition-all cursor-pointer"
             >
               <Redo2 className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <div className="h-5 w-[1px] bg-slate-200 mx-1 hidden sm:block" />
+          <div className="h-5 w-[1px] bg-slate-200 mx-0.5 hidden sm:block" />
 
           {/* Title Editor */}
           <input
@@ -722,26 +609,20 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
               setSaveStatus('idle');
             }}
             placeholder="Judul Diagram..."
-            className="text-xs sm:text-sm font-semibold text-slate-700 px-2.5 py-1 rounded-lg hover:bg-slate-100 focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-blue-500 border border-transparent hover:border-slate-200 transition-all max-w-[150px] sm:max-w-[200px]"
+            className="text-xs sm:text-sm font-semibold text-slate-700 px-2 py-1 rounded-lg hover:bg-slate-100 focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-blue-500 border border-transparent hover:border-slate-200 transition-all max-w-[140px] sm:max-w-[190px]"
           />
         </div>
 
         {/* Center: Save status */}
         <div className="hidden lg:flex items-center gap-2 text-xs text-slate-500">
-          {storageType === 'cloud' ? (
-            <span className="flex items-center gap-1 text-emerald-600 text-xs font-medium">
-              <Cloud className="w-3.5 h-3.5" /> Cloud
-            </span>
-          ) : (
-            <span className="flex items-center gap-1 text-slate-500 text-xs">
-              <HardDrive className="w-3.5 h-3.5" /> Lokal
-            </span>
-          )}
+          <span className="flex items-center gap-1 text-slate-600 text-xs">
+            <HardDrive className="w-3.5 h-3.5 text-blue-500" /> Auto-Save Aktif
+          </span>
           <span>•</span>
           {saveStatus === 'saving' && <span className="text-amber-500 font-medium">Menyimpan...</span>}
           {saveStatus === 'saved' && (
             <span className="text-emerald-600 flex items-center gap-0.5 font-medium">
-              <Check className="w-3.5 h-3.5" /> Tersimpan
+              <Check className="w-3.5 h-3.5" /> Tersimpan ke Riwayat
             </span>
           )}
           {saveStatus === 'idle' && <span className="text-slate-400">Ada perubahan</span>}
@@ -749,17 +630,15 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
-          {/* Tombol Simpan */}
           <button
             type="button"
-            onClick={handleSave}
+            onClick={handleManualSave}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
           >
             <Save className="w-3.5 h-3.5 text-blue-600" />
             <span>Simpan</span>
           </button>
 
-          {/* Tombol Ekspor & Cetak */}
           <button
             type="button"
             onClick={() => setIsExportModalOpen(true)}
@@ -773,14 +652,12 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
 
       {/* Editor Body */}
       <div className="flex-1 flex overflow-hidden relative">
-        {/* Sidebar Stencil */}
         <Sidebar
           onAddNode={handleAddNode}
           edgeType={edgeType}
           setEdgeType={setEdgeType}
         />
 
-        {/* Canvas Area */}
         <div
           ref={reactFlowWrapper}
           className="flex-1 h-full w-full relative print-area bg-slate-50"
@@ -817,7 +694,6 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
           </ReactFlow>
         </div>
 
-        {/* Property Inspector Panel (Bentuk & Garis) */}
         <PropertyPanel
           selectedNode={selectedNode}
           selectedEdge={selectedEdge}
@@ -828,14 +704,12 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
         />
       </div>
 
-      {/* Modal Ekspor & Cetak PDF / JPG */}
       <ExportModal
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
         diagramTitle={title}
       />
 
-      {/* Modal Riwayat & Arsip Diagram */}
       <HistoryModal
         isOpen={isHistoryModalOpen}
         onClose={() => setIsHistoryModalOpen(false)}

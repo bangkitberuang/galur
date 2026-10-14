@@ -18,6 +18,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { supabase, isSupabaseConfigured, DiagramRecord } from '@/lib/supabase';
+import { getAllDiagramsMeta, deleteDiagramFromStorage } from '@/lib/diagramStorage';
 
 export default function DashboardPage() {
   const [diagrams, setDiagrams] = useState<DiagramRecord[]>([]);
@@ -66,34 +67,15 @@ export default function DashboardPage() {
       }
     }
 
-    // Fallback muat dari LocalStorage
-    const localDiagrams: DiagramRecord[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith('galur_diagram_')) {
-        try {
-          const item = JSON.parse(localStorage.getItem(key) || '{}');
-          localDiagrams.push({
-            id: key.replace('galur_diagram_', ''),
-            title: item.title || 'Diagram Tanpa Judul',
-            type: 'custom',
-            data: item,
-            updated_at: item.updated_at || new Date().toISOString(),
-          });
-        } catch (e) {}
-      }
-    }
-
-    if (localDiagrams.length === 0) {
-      // Buat sample awal jika masih kosong
-      localDiagrams.push({
-        id: 'default',
-        title: 'Alur Sistem & Mind Map Awal',
-        type: 'flowchart',
-        data: { nodes: [], edges: [] },
-        updated_at: new Date().toISOString(),
-      });
-    }
+    // Muat dari penyimpanan terpusat diagramStorage
+    const metaList = getAllDiagramsMeta();
+    const localDiagrams: DiagramRecord[] = metaList.map((m) => ({
+      id: m.id,
+      title: m.title,
+      type: m.type,
+      data: { nodes: [], edges: [] },
+      updated_at: m.updatedAt,
+    }));
 
     setDiagrams(localDiagrams);
     setLoading(false);
@@ -128,7 +110,7 @@ export default function DashboardPage() {
     if (user && isSupabaseConfigured && supabase) {
       await supabase.from('diagrams').delete().eq('id', id);
     }
-    localStorage.removeItem(`galur_diagram_${id}`);
+    deleteDiagramFromStorage(id);
     setDiagrams((prev) => prev.filter((d) => d.id !== id));
   };
 
