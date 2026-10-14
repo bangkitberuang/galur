@@ -77,6 +77,13 @@ import { getTemplateByCategory, CategoryTemplate, SPECIALIST_CATEGORIES } from '
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { APP_VERSION, APP_LOGO_URL } from '@/lib/version';
 
+const INITIAL_COLLAB_USER: CollabUser = {
+  id: 'usr_init',
+  name: 'Kolaborator',
+  color: '#0284c7',
+  lastSeen: 0,
+};
+
 interface DiagramEditorInnerProps {
   diagramId?: string;
   initialTitle?: string;
@@ -107,8 +114,14 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [activeRoomId, setActiveRoomId] = useState<string>('galur-main-room');
   const [collabUsers, setCollabUsers] = useState<CollabUser[]>([]);
-  const [currentUser, setCurrentUser] = useState<CollabUser>(() => getLocalCollabUser());
+  const [currentUser, setCurrentUser] = useState<CollabUser>(INITIAL_COLLAB_USER);
+  const [isMounted, setIsMounted] = useState(false);
   const isRemoteUpdating = useRef(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    setCurrentUser(getLocalCollabUser());
+  }, []);
 
   // Multi-Page Diagram State (Halaman 1, 2, 3...)
   const [pages, setPages] = useState<DiagramPage[]>([
@@ -1299,13 +1312,14 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
             }`}
           >
             <span className={`w-2 h-2 rounded-full ${collabUsers.length > 0 ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
-            <div className="flex items-center -space-x-1.5">
+            <div className="flex items-center -space-x-1.5" suppressHydrationWarning>
               <div
+                suppressHydrationWarning
                 className="w-5 h-5 rounded-full text-white font-bold text-[9px] flex items-center justify-center ring-1 ring-white"
-                style={{ backgroundColor: currentUser.color }}
-                title={`Anda: ${currentUser.name}`}
+                style={{ backgroundColor: isMounted ? currentUser.color : '#0284c7' }}
+                title={`Anda: ${isMounted ? currentUser.name : 'Kolaborator'}`}
               >
-                {currentUser.name.charAt(0).toUpperCase()}
+                {(isMounted ? currentUser.name : 'K').charAt(0).toUpperCase()}
               </div>
               {collabUsers.slice(0, 3).map((u) => (
                 <div
