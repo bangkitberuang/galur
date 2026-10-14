@@ -21,13 +21,13 @@ import { APP_VERSION, APP_VERSION_CODENAME, APP_LOGO_URL } from '@/lib/version';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#edf5f0] via-[#fcfdfb] to-[#f4f7f3] text-slate-800 flex flex-col selection:bg-emerald-700 selection:text-white relative overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-[#dfe9e2] via-[#eff4f0] to-[#e6ece6] text-slate-800 flex flex-col selection:bg-emerald-700 selection:text-white relative overflow-x-hidden">
       {/* ======================================================== */}
       {/* LATAR BELAKANG GEDUNG SATE & GRADASI HIJAU TATAR SUNDA    */}
       {/* ======================================================== */}
       <div className="absolute top-0 inset-x-0 h-[860px] pointer-events-none -z-10 overflow-hidden select-none">
-        {/* Gambar Panorama Gedung Sate Jawa Barat (Tipis / Lembut) */}
-        <div className="absolute inset-0 opacity-[0.25] sm:opacity-[0.30] mix-blend-multiply">
+        {/* Gambar Panorama Gedung Sate Jawa Barat (+5% kegelapan / opacity) */}
+        <div className="absolute inset-0 opacity-[0.30] sm:opacity-[0.35] mix-blend-multiply">
           <Image
             src="/gedung-sate-hero.jpg"
             alt="Panorama Gedung Sate Jawa Barat"
@@ -37,10 +37,10 @@ export default function LandingPage() {
           />
         </div>
 
-        {/* Lapisan Gradasi Hijau Tatar Sunda (Soft Green Gradient Overlay) */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#edf5f0]/85 via-emerald-100/25 to-[#fcfdfb]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#edf5f0]/85 via-transparent to-[#edf5f0]/85" />
-        <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#fcfdfb] to-transparent" />
+        {/* Lapisan Gradasi Hijau Tatar Sunda (5% lebih gelap & kontras elegan) */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#dfe9e2]/85 via-emerald-100/30 to-[#eff4f0]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#dfe9e2]/85 via-transparent to-[#dfe9e2]/85" />
+        <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#eff4f0] to-transparent" />
 
         {/* Glow Hangat Emas / Amber & Hijau Zamrud */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-emerald-300/30 via-emerald-100/20 to-transparent rounded-full blur-3xl" />
@@ -48,7 +48,7 @@ export default function LandingPage() {
         <div className="absolute top-48 left-1/5 w-[420px] h-[420px] bg-emerald-200/25 rounded-full blur-3xl" />
 
         {/* Grid Titik Halus Arsitektural */}
-        <div className="absolute inset-0 bg-[radial-gradient(#0b4632_0.8px,transparent_0.8px)] [background-size:24px_24px] opacity-10" />
+        <div className="absolute inset-0 bg-[radial-gradient(#0b4632_0.8px,transparent_0.8px)] [background-size:24px_24px] opacity-15" />
       </div>
 
       {/* Top Navbar */}
