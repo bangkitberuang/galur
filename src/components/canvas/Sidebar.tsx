@@ -211,7 +211,7 @@ export default function Sidebar({ onAddNode, edgeType, setEdgeType }: SidebarPro
       <div className="p-3 border-t border-slate-100 bg-slate-50/70">
         <div className="text-[11px] font-semibold text-slate-600 mb-2 flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <Waypoints className="w-3.5 h-3.5 text-blue-600" />
+            <Waypoints className="w-3.5 h-3.5 text-emerald-700" />
             <span>Gaya Garis Konektor</span>
           </div>
         </div>
@@ -219,10 +219,10 @@ export default function Sidebar({ onAddNode, edgeType, setEdgeType }: SidebarPro
           <button
             type="button"
             onClick={() => setEdgeType('step')}
-            className={`py-1.5 px-2 rounded-lg border text-[11px] font-medium flex items-center justify-center gap-1 transition-all ${
+            className={`py-1.5 px-2 rounded-lg border text-[11px] flex items-center justify-center gap-1 transition-all ${
               edgeType === 'step'
-                ? 'bg-blue-600 border-blue-600 text-white shadow-2xs font-semibold'
-                : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                ? 'bg-[#0b4632] border-[#0b4632] text-amber-300 shadow-2xs font-bold'
+                : 'bg-white border-slate-200 text-slate-600 hover:border-emerald-300'
             }`}
             title="Garis Siku Patah (Visio Standard)"
           >
@@ -232,10 +232,10 @@ export default function Sidebar({ onAddNode, edgeType, setEdgeType }: SidebarPro
           <button
             type="button"
             onClick={() => setEdgeType('default')}
-            className={`py-1.5 px-2 rounded-lg border text-[11px] font-medium flex items-center justify-center gap-1 transition-all ${
+            className={`py-1.5 px-2 rounded-lg border text-[11px] flex items-center justify-center gap-1 transition-all ${
               edgeType === 'default'
-                ? 'bg-blue-600 border-blue-600 text-white shadow-2xs font-semibold'
-                : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                ? 'bg-[#0b4632] border-[#0b4632] text-amber-300 shadow-2xs font-bold'
+                : 'bg-white border-slate-200 text-slate-600 hover:border-emerald-300'
             }`}
             title="Garis Melengkung Halus (Bezier)"
           >
@@ -246,10 +246,10 @@ export default function Sidebar({ onAddNode, edgeType, setEdgeType }: SidebarPro
           <button
             type="button"
             onClick={() => setEdgeType('straight')}
-            className={`py-1.5 px-2 rounded-lg border text-[11px] font-medium flex items-center justify-center gap-1 transition-all ${
+            className={`py-1.5 px-2 rounded-lg border text-[11px] flex items-center justify-center gap-1 transition-all ${
               edgeType === 'straight'
-                ? 'bg-blue-600 border-blue-600 text-white shadow-2xs font-semibold'
-                : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                ? 'bg-[#0b4632] border-[#0b4632] text-amber-300 shadow-2xs font-bold'
+                : 'bg-white border-slate-200 text-slate-600 hover:border-emerald-300'
             }`}
             title="Garis Lurus"
           >

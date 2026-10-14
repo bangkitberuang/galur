@@ -13,10 +13,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'GALUR - Diagram & Flowchart Builder',
+  title: 'GALUR - Garis Alur, Ngajentrekeun Struktur | Diagram & Flowchart Builder',
   description: 'Garis Alur, Ngajentrekeun Struktur. Diagram alur teknis ala Visio dan Mind Map modern yang fleksibel.',
   icons: {
-    icon: '/favicon.ico',
+    icon: '/icon.png',
+    shortcut: '/icon.png',
+    apple: '/logo.png',
   },
 };
 

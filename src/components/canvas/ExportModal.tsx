@@ -137,11 +137,11 @@ export default function ExportModal({ isOpen, onClose, diagramTitle }: ExportMod
                 onClick={() => setFormat('jpg')}
                 className={`py-3 px-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all text-xs font-semibold ${
                   format === 'jpg'
-                    ? 'border-blue-600 bg-blue-50/70 text-blue-700 shadow-xs'
+                    ? 'border-emerald-700 bg-emerald-50 text-emerald-800 shadow-xs ring-1 ring-emerald-700'
                     : 'border-slate-200 hover:border-slate-300 text-slate-600'
                 }`}
               >
-                <Image className="w-5 h-5" />
+                <Image className="w-5 h-5 text-emerald-700" />
                 <span>Gambar JPG</span>
               </button>
 
@@ -150,11 +150,11 @@ export default function ExportModal({ isOpen, onClose, diagramTitle }: ExportMod
                 onClick={() => setFormat('pdf')}
                 className={`py-3 px-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all text-xs font-semibold ${
                   format === 'pdf'
-                    ? 'border-blue-600 bg-blue-50/70 text-blue-700 shadow-xs'
+                    ? 'border-emerald-700 bg-emerald-50 text-emerald-800 shadow-xs ring-1 ring-emerald-700'
                     : 'border-slate-200 hover:border-slate-300 text-slate-600'
                 }`}
               >
-                <FileText className="w-5 h-5" />
+                <FileText className="w-5 h-5 text-emerald-700" />
                 <span>Dokumen PDF</span>
               </button>
 
@@ -163,11 +163,11 @@ export default function ExportModal({ isOpen, onClose, diagramTitle }: ExportMod
                 onClick={() => setFormat('png')}
                 className={`py-3 px-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all text-xs font-semibold ${
                   format === 'png'
-                    ? 'border-blue-600 bg-blue-50/70 text-blue-700 shadow-xs'
+                    ? 'border-emerald-700 bg-emerald-50 text-emerald-800 shadow-xs ring-1 ring-emerald-700'
                     : 'border-slate-200 hover:border-slate-300 text-slate-600'
                 }`}
               >
-                <Download className="w-5 h-5" />
+                <Download className="w-5 h-5 text-emerald-700" />
                 <span>Gambar PNG</span>
               </button>
             </div>
@@ -185,7 +185,7 @@ export default function ExportModal({ isOpen, onClose, diagramTitle }: ExportMod
                   onClick={() => setPdfOrientation('landscape')}
                   className={`py-2 px-3 rounded-lg border text-xs font-medium text-center transition-all ${
                     pdfOrientation === 'landscape'
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      ? 'border-emerald-700 bg-emerald-50 text-emerald-800 font-bold'
                       : 'border-slate-200 text-slate-600'
                   }`}
                 >
@@ -196,7 +196,7 @@ export default function ExportModal({ isOpen, onClose, diagramTitle }: ExportMod
                   onClick={() => setPdfOrientation('portrait')}
                   className={`py-2 px-3 rounded-lg border text-xs font-medium text-center transition-all ${
                     pdfOrientation === 'portrait'
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      ? 'border-emerald-700 bg-emerald-50 text-emerald-800 font-bold'
                       : 'border-slate-200 text-slate-600'
                   }`}
                 >
@@ -218,7 +218,7 @@ export default function ExportModal({ isOpen, onClose, diagramTitle }: ExportMod
                   onClick={() => setQuality(2)}
                   className={`py-2 px-3 rounded-lg border text-xs font-medium text-center transition-all ${
                     quality === 2
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      ? 'border-emerald-700 bg-emerald-50 text-emerald-800 font-bold'
                       : 'border-slate-200 text-slate-600'
                   }`}
                 >
@@ -229,7 +229,7 @@ export default function ExportModal({ isOpen, onClose, diagramTitle }: ExportMod
                   onClick={() => setQuality(3)}
                   className={`py-2 px-3 rounded-lg border text-xs font-medium text-center transition-all ${
                     quality === 3
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      ? 'border-emerald-700 bg-emerald-50 text-emerald-800 font-bold'
                       : 'border-slate-200 text-slate-600'
                   }`}
                 >
@@ -245,7 +245,7 @@ export default function ExportModal({ isOpen, onClose, diagramTitle }: ExportMod
           <button
             type="button"
             onClick={handlePrint}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-300 hover:border-emerald-500 hover:text-emerald-800 hover:bg-emerald-50/40 text-slate-700 text-xs font-semibold transition-colors"
           >
             <Printer className="w-4 h-4" />
             <span>Print Kertas Langsung</span>
@@ -255,21 +255,21 @@ export default function ExportModal({ isOpen, onClose, diagramTitle }: ExportMod
             type="button"
             onClick={handleExport}
             disabled={isExporting}
-            className="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all disabled:opacity-50"
+            className="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#0b4632] hover:bg-[#073022] text-amber-300 text-xs font-bold shadow-md shadow-emerald-950/20 transition-all disabled:opacity-50"
           >
             {isExporting ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin text-amber-300" />
                 <span>Memproses...</span>
               </>
             ) : exportSuccess ? (
               <>
-                <Check className="w-4 h-4" />
+                <Check className="w-4 h-4 text-emerald-400" />
                 <span>Berhasil Diunduh!</span>
               </>
             ) : (
               <>
-                <Download className="w-4 h-4" />
+                <Download className="w-4 h-4 text-amber-300" />
                 <span>Unduh {format.toUpperCase()}</span>
               </>
             )}

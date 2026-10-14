@@ -56,11 +56,12 @@ export default function PropertyPanel({
     const edgeStyleType = selectedEdge.type || 'smoothstep';
 
     const edgeColors = [
+      { color: '#0b4632', name: 'Galur Hijau' },
+      { color: '#059669', name: 'Emerald' },
+      { color: '#f59e0b', name: 'Galur Gold' },
       { color: '#3b82f6', name: 'Biru' },
-      { color: '#10b981', name: 'Hijau' },
       { color: '#ef4444', name: 'Merah' },
       { color: '#8b5cf6', name: 'Ungu' },
-      { color: '#f59e0b', name: 'Kuning' },
       { color: '#475569', name: 'Abu-abu' },
       { color: '#0f172a', name: 'Hitam' },
     ];
@@ -70,7 +71,7 @@ export default function PropertyPanel({
         {/* Header */}
         <div className="p-4 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Waypoints className="w-4 h-4 text-blue-600" />
+            <Waypoints className="w-4 h-4 text-emerald-700" />
             <div>
               <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
                 Properti Garis
@@ -316,11 +317,12 @@ export default function PropertyPanel({
   const currentText = data.textColor || '#0f172a';
 
   const colorPresets = [
+    { bg: '#e8f5ed', border: '#0b4632', text: '#0b4632', name: 'Galur Hijau' },
+    { bg: '#fffbeb', border: '#f59e0b', text: '#78350f', name: 'Galur Gold' },
     { bg: '#ffffff', border: '#cbd5e1', text: '#0f172a', name: 'Putih' },
     { bg: '#eff6ff', border: '#3b82f6', text: '#1e3a8a', name: 'Biru' },
     { bg: '#ecfdf5', border: '#10b981', text: '#065f46', name: 'Hijau' },
     { bg: '#faf5ff', border: '#a855f7', text: '#581c87', name: 'Ungu' },
-    { bg: '#fef3c7', border: '#f59e0b', text: '#78350f', name: 'Kuning' },
     { bg: '#fee2e2', border: '#ef4444', text: '#7f1d1d', name: 'Merah' },
     { bg: '#1e293b', border: '#0f172a', text: '#ffffff', name: 'Gelap' },
   ];

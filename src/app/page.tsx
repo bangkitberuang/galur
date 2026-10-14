@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { 
   GitFork, 
   Network, 
@@ -19,17 +20,23 @@ import {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col selection:bg-blue-500 selection:text-white">
+    <div className="min-h-screen bg-[#fcfdfb] text-slate-800 flex flex-col selection:bg-emerald-700 selection:text-white">
       {/* Top Navbar */}
       <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-6 md:px-12 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-700 to-indigo-500 text-white flex items-center justify-center font-black text-xl shadow-md shadow-blue-500/20">
-            G
+          <div className="w-11 h-11 rounded-2xl bg-[#0b4632] flex items-center justify-center shadow-md overflow-hidden border border-emerald-900/30">
+            <Image
+              src="/logo.png"
+              alt="GALUR Logo"
+              width={44}
+              height={44}
+              className="w-full h-full object-cover"
+            />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-black text-xl tracking-tight text-slate-900">GALUR</span>
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200">
+              <span className="font-black text-xl tracking-tight text-[#0b4632]">GALUR</span>
+              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
                 v1.0
               </span>
             </div>
@@ -42,13 +49,13 @@ export default function LandingPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard"
-            className="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-2 transition-colors"
+            className="text-xs font-semibold text-slate-600 hover:text-emerald-800 px-3 py-2 transition-colors"
           >
             Dashboard
           </Link>
           <Link
             href="/editor"
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all hover:scale-102"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0b4632] hover:bg-[#073022] text-amber-300 text-xs font-bold shadow-md shadow-emerald-950/20 transition-all hover:scale-102"
           >
             <span>Buka Studio</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -57,16 +64,32 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-20 px-6 md:px-12 max-w-6xl mx-auto text-center space-y-6">
-        {/* Badge Tagline */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold shadow-2xs">
-          <Sparkles className="w-4 h-4 text-blue-600" />
-          <span>Garis Alur, Ngajentrekeun Struktur</span>
+      <section className="relative py-16 px-6 md:px-12 max-w-6xl mx-auto text-center space-y-6">
+        {/* Mascot & Badge Tagline */}
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-24 h-24 rounded-3xl bg-[#0b4632] p-1.5 shadow-xl border-2 border-emerald-800/40 relative hover:scale-105 transition-transform duration-200">
+            <Image
+              src="/logo.png"
+              alt="Mascot Beruang Galur"
+              width={96}
+              height={96}
+              className="w-full h-full object-cover rounded-2xl"
+              priority
+            />
+          </div>
+
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-[#0b4632] text-xs font-bold shadow-2xs">
+            <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500" />
+            <span>Garis Alur, Ngajentrekeun Struktur</span>
+          </div>
         </div>
 
         {/* Main Headline */}
         <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-slate-900 max-w-4xl mx-auto leading-tight">
-          Visualisasi Alur & Pemikiran dengan <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Presisi & Estetika</span>
+          Visualisasi Alur & Pemikiran dengan{' '}
+          <span className="bg-gradient-to-r from-[#0b4632] via-emerald-700 to-amber-600 bg-clip-text text-transparent">
+            Presisi & Estetika
+          </span>
         </h1>
 
         <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
@@ -77,15 +100,15 @@ export default function LandingPage() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
           <Link
             href="/editor"
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-xl shadow-blue-500/25 hover:scale-102 transition-all"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl bg-[#0b4632] hover:bg-[#073022] text-amber-300 font-bold text-sm shadow-xl shadow-emerald-950/25 hover:scale-102 transition-all"
           >
             <span>Mulai Buat Diagram</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 text-amber-300" />
           </Link>
 
           <Link
             href="/dashboard"
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 text-slate-700 font-semibold text-sm shadow-xs transition-all hover:bg-slate-50"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-500 hover:text-emerald-800 text-slate-700 font-semibold text-sm shadow-xs transition-all hover:bg-emerald-50/30"
           >
             <span>Masuk ke Dashboard</span>
           </Link>
@@ -215,15 +238,23 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="mt-auto bg-slate-900 text-slate-400 py-10 px-6 md:px-12 border-t border-slate-800 text-center space-y-3">
-        <div className="flex items-center justify-center gap-2 text-white font-extrabold text-base">
-          <div className="w-6 h-6 rounded-md bg-blue-600 flex items-center justify-center text-xs">G</div>
-          <span>GALUR</span>
+      <footer className="mt-auto bg-[#072419] text-emerald-100/70 py-10 px-6 md:px-12 border-t border-emerald-900/50 text-center space-y-3">
+        <div className="flex items-center justify-center gap-2.5 text-white font-extrabold text-base">
+          <div className="w-8 h-8 rounded-xl bg-[#0b4632] flex items-center justify-center overflow-hidden border border-emerald-800/40">
+            <Image
+              src="/logo.png"
+              alt="GALUR Logo"
+              width={32}
+              height={32}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <span className="text-white tracking-wide font-black">GALUR</span>
         </div>
-        <p className="text-xs text-slate-400 italic">
+        <p className="text-xs text-amber-300 font-semibold italic">
           &ldquo;Garis Alur, Ngajentrekeun Struktur&rdquo;
         </p>
-        <p className="text-[11px] text-slate-500">
+        <p className="text-[11px] text-emerald-200/60 max-w-md mx-auto">
           Dirancang untuk kemudahan pembuatan diagram teknikal dan pemikiran terstruktur. Siap dideploy ke Vercel.
         </p>
       </footer>

@@ -221,7 +221,7 @@ export default function CanvasToolbar({
             type="button"
             onClick={() => handleArrowheadChange('one-way')}
             title="Panah 1 Arah (→)"
-            className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-blue-600 transition-colors"
+            className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-emerald-700 transition-colors"
           >
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
@@ -229,7 +229,7 @@ export default function CanvasToolbar({
             type="button"
             onClick={() => handleArrowheadChange('two-way')}
             title="Panah 2 Arah (↔)"
-            className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-blue-600 transition-colors"
+            className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-emerald-700 transition-colors"
           >
             <ArrowLeftRight className="w-3.5 h-3.5" />
           </button>
@@ -237,7 +237,7 @@ export default function CanvasToolbar({
             type="button"
             onClick={() => handleArrowheadChange('none')}
             title="Garis Polos Tanpa Panah (—)"
-            className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-blue-600 transition-colors"
+            className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-emerald-700 transition-colors"
           >
             <Minus className="w-3.5 h-3.5" />
           </button>
@@ -256,7 +256,7 @@ export default function CanvasToolbar({
             }}
             title="Gaya Garis Siku-siku Patah (Visio Standard)"
             className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all ${
-              edgeType === 'step' ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-600 hover:text-blue-600'
+              edgeType === 'step' ? 'bg-white text-emerald-800 shadow-2xs' : 'text-slate-600 hover:text-emerald-700'
             }`}
           >
             Siku
@@ -272,7 +272,7 @@ export default function CanvasToolbar({
             }}
             title="Gaya Garis Melengkung (Bezier)"
             className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all ${
-              edgeType === 'default' ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-600 hover:text-blue-600'
+              edgeType === 'default' ? 'bg-white text-emerald-800 shadow-2xs' : 'text-slate-600 hover:text-emerald-700'
             }`}
           >
             Lengkung
@@ -288,7 +288,7 @@ export default function CanvasToolbar({
             }}
             title="Gaya Garis Lurus"
             className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all ${
-              edgeType === 'straight' ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-600 hover:text-blue-600'
+              edgeType === 'straight' ? 'bg-white text-emerald-800 shadow-2xs' : 'text-slate-600 hover:text-emerald-700'
             }`}
           >
             Lurus
@@ -307,7 +307,7 @@ export default function CanvasToolbar({
             onClick={handleBringToFront}
             disabled={!hasSelectedNodes}
             title="Bawa ke Paling Depan (Bring to Front)"
-            className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-blue-600 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-emerald-700 disabled:opacity-30 disabled:pointer-events-none transition-colors"
           >
             <ArrowUpToLine className="w-3.5 h-3.5" />
           </button>
@@ -316,7 +316,7 @@ export default function CanvasToolbar({
             onClick={handleBringForward}
             disabled={!hasSelectedNodes}
             title="Majukan Selangkah (Bring Forward)"
-            className="px-1.5 py-0.5 rounded-md text-[10px] font-bold text-slate-700 hover:bg-white hover:text-blue-600 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            className="px-1.5 py-0.5 rounded-md text-[10px] font-bold text-slate-700 hover:bg-white hover:text-emerald-700 disabled:opacity-30 disabled:pointer-events-none transition-colors"
           >
             +1
           </button>
@@ -325,7 +325,7 @@ export default function CanvasToolbar({
             onClick={handleSendBackward}
             disabled={!hasSelectedNodes}
             title="Mundurkan Selangkah (Send Backward)"
-            className="px-1.5 py-0.5 rounded-md text-[10px] font-bold text-slate-700 hover:bg-white hover:text-blue-600 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            className="px-1.5 py-0.5 rounded-md text-[10px] font-bold text-slate-700 hover:bg-white hover:text-emerald-700 disabled:opacity-30 disabled:pointer-events-none transition-colors"
           >
             -1
           </button>
@@ -334,7 +334,7 @@ export default function CanvasToolbar({
             onClick={handleSendToBack}
             disabled={!hasSelectedNodes}
             title="Kirim ke Paling Belakang (Send to Back)"
-            className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-blue-600 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-emerald-700 disabled:opacity-30 disabled:pointer-events-none transition-colors"
           >
             <ArrowDownToLine className="w-3.5 h-3.5" />
           </button>
@@ -354,7 +354,7 @@ export default function CanvasToolbar({
             onClick={() => handleAlign('left')}
             disabled={!hasSelectedNodes}
             title="Rata Kiri (Align Left)"
-            className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-blue-600 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-emerald-700 disabled:opacity-30 disabled:pointer-events-none transition-colors"
           >
             <AlignLeft className="w-3.5 h-3.5" />
           </button>
@@ -363,7 +363,7 @@ export default function CanvasToolbar({
             onClick={() => handleAlign('center')}
             disabled={!hasSelectedNodes}
             title="Rata Tengah Horizontal (Align Center)"
-            className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-blue-600 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-emerald-700 disabled:opacity-30 disabled:pointer-events-none transition-colors"
           >
             <AlignCenter className="w-3.5 h-3.5" />
           </button>
@@ -372,7 +372,7 @@ export default function CanvasToolbar({
             onClick={() => handleAlign('right')}
             disabled={!hasSelectedNodes}
             title="Rata Kanan (Align Right)"
-            className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-blue-600 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-emerald-700 disabled:opacity-30 disabled:pointer-events-none transition-colors"
           >
             <AlignRight className="w-3.5 h-3.5" />
           </button>
@@ -384,7 +384,7 @@ export default function CanvasToolbar({
             onClick={() => handleAlign('top')}
             disabled={!hasSelectedNodes}
             title="Rata Atas (Align Top)"
-            className="px-1.5 py-0.5 rounded-md text-[10px] font-bold text-slate-700 hover:bg-white hover:text-blue-600 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            className="px-1.5 py-0.5 rounded-md text-[10px] font-bold text-slate-700 hover:bg-white hover:text-emerald-700 disabled:opacity-30 disabled:pointer-events-none transition-colors"
           >
             Atas
           </button>
@@ -393,7 +393,7 @@ export default function CanvasToolbar({
             onClick={() => handleAlign('middle')}
             disabled={!hasSelectedNodes}
             title="Rata Tengah Vertikal (Align Middle)"
-            className="px-1.5 py-0.5 rounded-md text-[10px] font-bold text-slate-700 hover:bg-white hover:text-blue-600 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            className="px-1.5 py-0.5 rounded-md text-[10px] font-bold text-slate-700 hover:bg-white hover:text-emerald-700 disabled:opacity-30 disabled:pointer-events-none transition-colors"
           >
             Tengah
           </button>
@@ -402,7 +402,7 @@ export default function CanvasToolbar({
             onClick={() => handleAlign('bottom')}
             disabled={!hasSelectedNodes}
             title="Rata Bawah (Align Bottom)"
-            className="px-1.5 py-0.5 rounded-md text-[10px] font-bold text-slate-700 hover:bg-white hover:text-blue-600 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            className="px-1.5 py-0.5 rounded-md text-[10px] font-bold text-slate-700 hover:bg-white hover:text-emerald-700 disabled:opacity-30 disabled:pointer-events-none transition-colors"
           >
             Bawah
           </button>
@@ -415,7 +415,7 @@ export default function CanvasToolbar({
             onClick={() => handleDistribute('horizontal')}
             disabled={selectedNodes.length < 3}
             title="Bagi Rata Jarak Horizontal (Pilih 3+ Objek)"
-            className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-blue-600 disabled:opacity-30 disabled:pointer-events-none transition-colors flex items-center gap-1"
+            className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-emerald-700 disabled:opacity-30 disabled:pointer-events-none transition-colors flex items-center gap-1"
           >
             <MoveHorizontal className="w-3.5 h-3.5" />
           </button>
@@ -424,7 +424,7 @@ export default function CanvasToolbar({
             onClick={() => handleDistribute('vertical')}
             disabled={selectedNodes.length < 3}
             title="Bagi Rata Jarak Vertikal (Pilih 3+ Objek)"
-            className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-blue-600 disabled:opacity-30 disabled:pointer-events-none transition-colors flex items-center gap-1"
+            className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-emerald-700 disabled:opacity-30 disabled:pointer-events-none transition-colors flex items-center gap-1"
           >
             <MoveVertical className="w-3.5 h-3.5" />
           </button>
