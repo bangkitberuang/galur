@@ -41,6 +41,7 @@ import Sidebar from './Sidebar';
 import PropertyPanel from './PropertyPanel';
 import ExportModal from './ExportModal';
 import HistoryModal from './HistoryModal';
+import CanvasToolbar from './CanvasToolbar';
 import { 
   saveDiagramToStorage, 
   getDiagramById, 
@@ -649,6 +650,20 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
           </button>
         </div>
       </header>
+
+      {/* Secondary Canvas Toolbar (Operasi Objek dari Gambar 2: Panah, Align, Z-Index) */}
+      <CanvasToolbar
+        nodes={nodes}
+        edges={edges}
+        setNodes={setNodes}
+        setEdges={setEdges}
+        selectedNode={selectedNode}
+        selectedEdge={selectedEdge}
+        edgeType={edgeType}
+        setEdgeType={setEdgeType}
+        takeSnapshot={takeSnapshot}
+        onAddNode={handleAddNode}
+      />
 
       {/* Editor Body */}
       <div className="flex-1 flex overflow-hidden relative">
