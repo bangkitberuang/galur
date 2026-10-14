@@ -478,7 +478,7 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
               <span>Keaslian Geografis & Fauna Identitas Resmi Provinsi Jawa Barat</span>
             </div>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Sebagai aplikasi yang lahir dari ekosistem <strong>Bangkit Beruang untuk Jawa Barat</strong>, Macan Tutul Jawa merupakan representasi fauna yang paling tepat secara geografis, historis, ekologis, dan legal formal (ditetapkan secara resmi sebagai <strong>Fauna Identitas Provinsi Jawa Barat</strong> melalui SK Gubernur No. 27 Tahun 1991).
+              Sebagai aplikasi yang lahir dari ekosistem <strong>BANGKIT BERUANG</strong>, Macan Tutul Jawa merupakan representasi fauna yang paling tepat secara geografis, historis, ekologis, dan legal formal (ditetapkan secara resmi sebagai <strong>Fauna Identitas Provinsi Jawa Barat</strong> melalui SK Gubernur No. 27 Tahun 1991).
             </p>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
               Pemilihan Macan Tutul Jawa sebagai maskot GALUR menegaskan <strong className="text-emerald-800 font-bold">empat nilai simbolis keteladanan</strong>:
@@ -653,7 +653,7 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
               </p>
 
               <p>
-                Maskot Macan Tutul Jawa (<em>Panthera pardus melas</em>) menjadi bagian dari identitas GALUR sekaligus simbol ketajaman berpikir, ketangkasan, dan komitmen pelestarian fauna endemik Tatar Sunda. Sebagai produk yang dikembangkan dalam ekosistem <strong>BANGKIT BERUANG</strong> untuk Jawa Barat, GALUR membawa semangat untuk terus berinovasi, menciptakan solusi visual yang presisi, dan menjadikan teknologi sebagai parabot yang mempermudah kehidupan.
+                Maskot Macan Tutul Jawa (<em>Panthera pardus melas</em>) menjadi bagian dari identitas GALUR sekaligus simbol ketajaman berpikir, ketangkasan, dan komitmen pelestarian fauna endemik Tatar Sunda. Sebagai produk yang dikembangkan dalam ekosistem <strong>BANGKIT BERUANG</strong>, GALUR membawa semangat untuk terus berinovasi, menciptakan solusi visual yang presisi, dan menjadikan teknologi sebagai parabot yang mempermudah kehidupan.
               </p>
 
               <div className="pt-2 font-sans not-italic border-t border-slate-200 text-xs sm:text-sm text-emerald-900 font-bold flex items-center gap-2">
@@ -663,7 +663,7 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
 
               <div className="mt-3 p-4 rounded-xl bg-amber-50/80 border border-amber-200 font-sans not-italic text-xs sm:text-sm text-amber-950 leading-relaxed">
                 <p>
-                  &ldquo;Kekuatan identitas GALUR terletak pada perpaduan tiga hal: <strong>nama yang berakar pada khazanah bahasa Sunda</strong>, <strong>fungsi presisi sebagai alat visualisasi sistem terstruktur</strong>, dan <strong>maskot Macan Tutul Jawa yang memberi karakter wibawa ketajaman analisis sekaligus pesan kepedulian alam</strong>. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar <strong className="text-emerald-900 font-extrabold">BANGKIT BERUANG</strong> tentang berkarya melalui teknologi yang bermanfaat untuk Jawa Barat.&rdquo;
+                  &ldquo;Kekuatan identitas GALUR terletak pada perpaduan tiga hal: <strong>nama yang berakar pada khazanah bahasa Sunda</strong>, <strong>fungsi presisi sebagai alat visualisasi sistem terstruktur</strong>, dan <strong>maskot Macan Tutul Jawa yang memberi karakter wibawa ketajaman analisis sekaligus pesan kepedulian alam</strong>. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar <strong className="text-emerald-900 font-extrabold">BANGKIT BERUANG</strong> tentang berkarya melalui teknologi yang bermanfaat luas.&rdquo;
                 </p>
               </div>
 

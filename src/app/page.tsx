@@ -211,7 +211,7 @@ export default function LandingPage() {
               <span>Kekuatan Identitas GALUR</span>
             </div>
             <p className="text-xs sm:text-sm text-emerald-100 leading-relaxed font-medium">
-              &ldquo;Kekuatan identitas GALUR terletak pada perpaduan tiga hal: <strong className="text-amber-300 font-bold">nama yang berakar pada nuansa bahasa Sunda</strong>, <strong className="text-white font-bold">fungsi yang jelas sebagai alat visualisasi</strong>, dan <strong className="text-amber-300 font-bold">maskot Macan Tutul Jawa yang memberi karakter ketajaman analisis sekaligus pesan kepedulian</strong>. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar <strong className="text-white underline decoration-amber-400 font-black">BANGKIT BERUANG</strong> tentang berkarya melalui teknologi yang bermanfaat untuk Jawa Barat.&rdquo;
+              &ldquo;Kekuatan identitas GALUR terletak pada perpaduan tiga hal: <strong className="text-amber-300 font-bold">nama yang berakar pada nuansa bahasa Sunda</strong>, <strong className="text-white font-bold">fungsi yang jelas sebagai alat visualisasi</strong>, dan <strong className="text-amber-300 font-bold">maskot Macan Tutul Jawa yang memberi karakter ketajaman analisis sekaligus pesan kepedulian</strong>. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar <strong className="text-white underline decoration-amber-400 font-black">BANGKIT BERUANG</strong> tentang berkarya melalui teknologi yang bermanfaat luas.&rdquo;
             </p>
           </div>
         </div>
@@ -334,7 +334,7 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          {/* Sisi Kanan: Official Ecosystem Badge & Attribution */}
+          {/* Sisi Kanan: Official Ecosystem Badge */}
           <div className="flex items-center gap-3 shrink-0">
             <div className="ecosystem-badge inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-800/80 bg-emerald-950/70 hover:border-emerald-600 hover:bg-emerald-900/60 transition-all cursor-default text-xs">
               <div className="w-3.5 h-3.5 shrink-0 flex items-center justify-center">
@@ -353,10 +353,6 @@ export default function LandingPage() {
                 Beruang Ecosystem
               </span>
             </div>
-
-            <p className="text-[11px] text-emerald-200/60 hidden sm:inline leading-none">
-              Bangkit Beruang untuk <strong className="text-white font-bold">Jawa Barat</strong>
-            </p>
           </div>
         </div>
       </footer>

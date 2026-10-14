@@ -113,17 +113,6 @@ export default function EcosystemFooter({
               Beruang Ecosystem
             </span>
           </div>
-
-          <p
-            className={`text-[11px] hidden sm:inline leading-none ${
-              isDark ? 'text-emerald-200/60' : 'text-slate-400'
-            }`}
-          >
-            Bangkit Beruang untuk{' '}
-            <strong className={isDark ? 'text-white font-bold' : 'text-emerald-800 font-semibold'}>
-              Jawa Barat
-            </strong>
-          </p>
         </div>
       </div>
     </footer>
