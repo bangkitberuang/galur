@@ -57,7 +57,7 @@ export default function EcosystemFooter({
         {/* Sisi Tengah: Tautan Cepat */}
         {showLinks && (
           <div
-            className={`flex items-center flex-wrap justify-center gap-x-4 gap-y-1 text-xs font-semibold ${
+            className={`flex items-center sm:whitespace-nowrap flex-wrap justify-center gap-x-4 gap-y-1 text-xs font-semibold ${
               isDark ? 'text-emerald-200/80' : 'text-slate-600'
             }`}
           >

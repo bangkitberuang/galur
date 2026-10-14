@@ -295,7 +295,7 @@ export default function LandingPage() {
       {/* Footer Memanjang & Ramping (Sleek Horizontal Bar) */}
       <footer className="mt-auto bg-[#072419] text-emerald-100/70 py-3.5 sm:py-4 px-4 sm:px-8 md:px-12 border-t border-emerald-900/60 select-none">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 md:gap-6">
-          {/* Sisi Kiri: Identitas Brand, Versi & Slogan */}
+          {/* Sisi Kiri: Identitas Brand & Versi */}
           <div className="flex items-center gap-2.5 shrink-0">
             <div className="w-8 h-8 shrink-0 flex items-center justify-center">
               <Image
@@ -310,13 +310,10 @@ export default function LandingPage() {
             <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-amber-300 border border-emerald-400/30 leading-none">
               {APP_VERSION}
             </span>
-            <span className="hidden xl:inline text-[11px] text-emerald-200/60 italic border-l border-emerald-800/80 pl-2.5">
-              &ldquo;Merangkai gagasan, memperjelas alur, membangun pemahaman&rdquo;
-            </span>
           </div>
 
           {/* Sisi Tengah: Navigasi Tautan Cepat */}
-          <div className="flex items-center flex-wrap justify-center gap-x-4 gap-y-1 text-xs font-semibold text-emerald-200/80">
+          <div className="flex items-center whitespace-nowrap justify-center gap-x-4 text-xs font-semibold text-emerald-200/80">
             <Link href="/dashboard" className="hover:text-amber-300 transition-colors">
               Dashboard Studio
             </Link>
