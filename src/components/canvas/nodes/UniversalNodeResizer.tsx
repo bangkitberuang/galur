@@ -10,6 +10,7 @@ export interface UniversalNodeResizerProps {
   minHeight?: number;
   keepAspectRatio?: boolean;
   color?: string;
+  onResizeStart?: (event: any, params: any) => void;
   onResizeEnd?: (event: any, params: { width: number; height: number; x: number; y: number }) => void;
 }
 
@@ -25,9 +26,16 @@ export const UniversalNodeResizer = ({
   minHeight = 30,
   keepAspectRatio = false,
   color = '#0284c7', // Biru cerah presisi sesuai referensi gambar user
+  onResizeStart,
   onResizeEnd,
 }: UniversalNodeResizerProps) => {
   const { setNodes } = useReactFlow();
+
+  const handleResizeStart = (event: any, params: any) => {
+    if (onResizeStart) {
+      onResizeStart(event, params);
+    }
+  };
 
   const handleResizeEnd = (event: any, params: any) => {
     if (onResizeEnd) {
@@ -56,6 +64,7 @@ export const UniversalNodeResizer = ({
       minWidth={minWidth}
       minHeight={minHeight}
       keepAspectRatio={keepAspectRatio}
+      onResizeStart={handleResizeStart}
       onResizeEnd={handleResizeEnd}
       color={color}
       lineStyle={{

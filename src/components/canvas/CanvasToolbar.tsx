@@ -59,54 +59,89 @@ export default function CanvasToolbar({
   interactionMode = 'select',
   onInteractionModeChange,
 }: CanvasToolbarProps) {
-  const selectedNodes = nodes.filter((n) => n.selected);
-  const hasSelectedNodes = selectedNodes.length > 0;
-  const hasMultiNodes = selectedNodes.length >= 2;
+  const activeSelectedNodes = nodes.filter(
+    (n) => n.selected || (selectedNode && n.id === selectedNode.id)
+  );
+  const hasSelectedNodes = activeSelectedNodes.length > 0;
+  const hasMultiNodes = activeSelectedNodes.length >= 2;
 
   // 1. PENGATURAN Z-INDEX / TUMPUKAN LAYER (LAYERING)
   const handleBringToFront = () => {
     if (!hasSelectedNodes) return;
     takeSnapshot();
     const maxZ = Math.max(...nodes.map((n) => n.zIndex || 0), 0);
-    setNodes((nds) =>
-      nds.map((n) => (n.selected ? { ...n, zIndex: maxZ + 10 } : n))
-    );
+    const selectedIds = new Set(activeSelectedNodes.map((n) => n.id));
+    setNodes((nds) => {
+      const nonSelected = nds.filter((n) => !selectedIds.has(n.id));
+      const targetSelected = nds
+        .filter((n) => selectedIds.has(n.id))
+        .map((n) => ({ ...n, zIndex: maxZ + 10 }));
+      return [...nonSelected, ...targetSelected];
+    });
   };
 
   const handleSendToBack = () => {
     if (!hasSelectedNodes) return;
     takeSnapshot();
     const minZ = Math.min(...nodes.map((n) => n.zIndex || 0), 0);
-    setNodes((nds) =>
-      nds.map((n) => (n.selected ? { ...n, zIndex: minZ - 10 } : n))
-    );
+    const selectedIds = new Set(activeSelectedNodes.map((n) => n.id));
+    setNodes((nds) => {
+      const nonSelected = nds.filter((n) => !selectedIds.has(n.id));
+      const targetSelected = nds
+        .filter((n) => selectedIds.has(n.id))
+        .map((n) => ({ ...n, zIndex: Math.min(minZ - 10, -1) }));
+      return [...targetSelected, ...nonSelected];
+    });
   };
 
   const handleBringForward = () => {
     if (!hasSelectedNodes) return;
     takeSnapshot();
-    setNodes((nds) =>
-      nds.map((n) => (n.selected ? { ...n, zIndex: (n.zIndex || 0) + 1 } : n))
-    );
+    const selectedIds = new Set(activeSelectedNodes.map((n) => n.id));
+    setNodes((nds) => {
+      const newNodes = [...nds];
+      for (let i = newNodes.length - 2; i >= 0; i--) {
+        if (selectedIds.has(newNodes[i].id) && !selectedIds.has(newNodes[i + 1].id)) {
+          const temp = newNodes[i];
+          newNodes[i] = newNodes[i + 1];
+          newNodes[i + 1] = temp;
+        }
+      }
+      return newNodes.map((n) =>
+        selectedIds.has(n.id) ? { ...n, zIndex: (n.zIndex || 0) + 1 } : n
+      );
+    });
   };
 
   const handleSendBackward = () => {
     if (!hasSelectedNodes) return;
     takeSnapshot();
-    setNodes((nds) =>
-      nds.map((n) => (n.selected ? { ...n, zIndex: (n.zIndex || 0) - 1 } : n))
-    );
+    const selectedIds = new Set(activeSelectedNodes.map((n) => n.id));
+    setNodes((nds) => {
+      const newNodes = [...nds];
+      for (let i = 1; i < newNodes.length; i++) {
+        if (selectedIds.has(newNodes[i].id) && !selectedIds.has(newNodes[i - 1].id)) {
+          const temp = newNodes[i];
+          newNodes[i] = newNodes[i - 1];
+          newNodes[i - 1] = temp;
+        }
+      }
+      return newNodes.map((n) =>
+        selectedIds.has(n.id) ? { ...n, zIndex: (n.zIndex || 0) - 1 } : n
+      );
+    });
   };
 
   // 2. ALAT PERATAAN POSISI (ALIGNMENT TOOLS)
   const handleAlign = (alignment: 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom') => {
     if (!hasSelectedNodes) return;
     takeSnapshot();
+    const selectedIds = new Set(activeSelectedNodes.map((n) => n.id));
 
     if (hasMultiNodes) {
       // Ratakan relatif terhadap batas luar objek-objek terpilih
-      const xs = selectedNodes.map((n) => n.position.x);
-      const ys = selectedNodes.map((n) => n.position.y);
+      const xs = activeSelectedNodes.map((n) => n.position.x);
+      const ys = activeSelectedNodes.map((n) => n.position.y);
       const minX = Math.min(...xs);
       const maxX = Math.max(...xs);
       const minY = Math.min(...ys);
@@ -116,7 +151,7 @@ export default function CanvasToolbar({
 
       setNodes((nds) =>
         nds.map((n) => {
-          if (!n.selected) return n;
+          if (!selectedIds.has(n.id)) return n;
           let newX = n.position.x;
           let newY = n.position.y;
 
@@ -130,23 +165,24 @@ export default function CanvasToolbar({
           return { ...n, position: { x: newX, y: newY } };
         })
       );
-    } else if (selectedNode) {
+    } else if (selectedNode || activeSelectedNodes.length === 1) {
       // Jika hanya 1 objek terpilih, geser ke grid terdekat
-      const snapX = Math.round(selectedNode.position.x / 30) * 30;
-      const snapY = Math.round(selectedNode.position.y / 30) * 30;
+      const target = selectedNode || activeSelectedNodes[0];
+      const snapX = Math.round(target.position.x / 30) * 30;
+      const snapY = Math.round(target.position.y / 30) * 30;
       setNodes((nds) =>
-        nds.map((n) => (n.id === selectedNode.id ? { ...n, position: { x: snapX, y: snapY } } : n))
+        nds.map((n) => (n.id === target.id ? { ...n, position: { x: snapX, y: snapY } } : n))
       );
     }
   };
 
   // 3. BAGI RATA JARAK (DISTRIBUTE EVENLY)
   const handleDistribute = (direction: 'horizontal' | 'vertical') => {
-    if (selectedNodes.length < 3) return;
+    if (activeSelectedNodes.length < 3) return;
     takeSnapshot();
 
     if (direction === 'horizontal') {
-      const sorted = [...selectedNodes].sort((a, b) => a.position.x - b.position.x);
+      const sorted = [...activeSelectedNodes].sort((a, b) => a.position.x - b.position.x);
       const firstX = sorted[0].position.x;
       const lastX = sorted[sorted.length - 1].position.x;
       const step = (lastX - firstX) / (sorted.length - 1);
@@ -165,7 +201,7 @@ export default function CanvasToolbar({
         })
       );
     } else {
-      const sorted = [...selectedNodes].sort((a, b) => a.position.y - b.position.y);
+      const sorted = [...activeSelectedNodes].sort((a, b) => a.position.y - b.position.y);
       const firstY = sorted[0].position.y;
       const lastY = sorted[sorted.length - 1].position.y;
       const step = (lastY - firstY) / (sorted.length - 1);
@@ -230,7 +266,7 @@ export default function CanvasToolbar({
     : edgeType;
 
   return (
-    <div className="h-10 bg-white border-b border-slate-200 px-3 flex items-center justify-between text-xs text-slate-700 z-20 no-print select-none shadow-2xs">
+    <div className="h-10 bg-white border-b border-slate-200 px-3 flex items-center justify-between text-xs text-slate-700 z-20 no-print select-none shadow-2xs overflow-x-auto no-scrollbar">
       {/* SEKSI KIRI: ALAT SELEKSI & GAYA GARIS */}
       <div className="flex items-center gap-1.5">
         {/* Mode Interaksi (Pilih / Blok Objek vs Geser Kanvas) */}
@@ -473,7 +509,7 @@ export default function CanvasToolbar({
           <button
             type="button"
             onClick={() => handleDistribute('horizontal')}
-            disabled={selectedNodes.length < 3}
+            disabled={activeSelectedNodes.length < 3}
             title="Bagi Rata Jarak Horizontal (Pilih 3+ Objek)"
             className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-emerald-700 disabled:opacity-30 disabled:pointer-events-none transition-colors flex items-center gap-1"
           >
@@ -482,7 +518,7 @@ export default function CanvasToolbar({
           <button
             type="button"
             onClick={() => handleDistribute('vertical')}
-            disabled={selectedNodes.length < 3}
+            disabled={activeSelectedNodes.length < 3}
             title="Bagi Rata Jarak Vertikal (Pilih 3+ Objek)"
             className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-emerald-700 disabled:opacity-30 disabled:pointer-events-none transition-colors flex items-center gap-1"
           >

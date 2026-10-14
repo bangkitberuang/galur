@@ -134,8 +134,15 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   const [future, setFuture] = useState<Array<{ nodes: Node[]; edges: Edge[] }>>([]);
 
   const takeSnapshot = useCallback(() => {
-    setPast((prev) => [...prev.slice(-25), { nodes, edges }]);
-    setFuture([]);
+    try {
+      const clonedNodes = JSON.parse(JSON.stringify(nodes));
+      const clonedEdges = JSON.parse(JSON.stringify(edges));
+      setPast((prev) => [...prev.slice(-30), { nodes: clonedNodes, edges: clonedEdges }]);
+      setFuture([]);
+    } catch {
+      setPast((prev) => [...prev.slice(-30), { nodes: [...nodes], edges: [...edges] }]);
+      setFuture([]);
+    }
   }, [nodes, edges]);
 
   const handleUndo = useCallback(() => {
@@ -143,7 +150,14 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     const previous = past[past.length - 1];
     const newPast = past.slice(0, past.length - 1);
 
-    setFuture((prev) => [{ nodes, edges }, ...prev]);
+    try {
+      const currentNodes = JSON.parse(JSON.stringify(nodes));
+      const currentEdges = JSON.parse(JSON.stringify(edges));
+      setFuture((prev) => [{ nodes: currentNodes, edges: currentEdges }, ...prev]);
+    } catch {
+      setFuture((prev) => [{ nodes: [...nodes], edges: [...edges] }, ...prev]);
+    }
+
     setPast(newPast);
     setNodes(previous.nodes);
     setEdges(previous.edges);
@@ -157,7 +171,14 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     const next = future[0];
     const newFuture = future.slice(1);
 
-    setPast((prev) => [...prev, { nodes, edges }]);
+    try {
+      const currentNodes = JSON.parse(JSON.stringify(nodes));
+      const currentEdges = JSON.parse(JSON.stringify(edges));
+      setPast((prev) => [...prev, { nodes: currentNodes, edges: currentEdges }]);
+    } catch {
+      setPast((prev) => [...prev, { nodes: [...nodes], edges: [...edges] }]);
+    }
+
     setFuture(newFuture);
     setNodes(next.nodes);
     setEdges(next.edges);
@@ -573,6 +594,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   // Update Data Node dari PropertyPanel
   const handleUpdateNode = useCallback(
     (nodeId: string, updatedData: any) => {
+      takeSnapshot();
       setNodes((nds) =>
         nds.map((node) => {
           if (node.id === nodeId) {
@@ -591,12 +613,13 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       );
       setSaveStatus('idle');
     },
-    [setNodes]
+    [setNodes, takeSnapshot]
   );
 
   // Update Data Edge dari PropertyPanel
   const handleUpdateEdge = useCallback(
     (edgeId: string, updates: any) => {
+      takeSnapshot();
       setEdges((eds) =>
         eds.map((edge) => {
           if (edge.id === edgeId) {
@@ -620,7 +643,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       );
       setSaveStatus('idle');
     },
-    [setEdges]
+    [setEdges, takeSnapshot]
   );
 
   // Hapus Node
@@ -1435,7 +1458,20 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
               onPaneClick={onPaneClick}
               onNodesDelete={onNodesDelete}
               onEdgesDelete={onEdgesDelete}
+              onNodeDragStart={() => {
+                takeSnapshot();
+              }}
+              onSelectionDragStart={() => {
+                takeSnapshot();
+              }}
               onNodeDragStop={() => {
+                setSaveStatus('idle');
+                if (!isRemoteUpdating.current) {
+                  collabManager.broadcastNodesChange(nodes);
+                }
+              }}
+              onSelectionDragStop={() => {
+                setSaveStatus('idle');
                 if (!isRemoteUpdating.current) {
                   collabManager.broadcastNodesChange(nodes);
                 }
