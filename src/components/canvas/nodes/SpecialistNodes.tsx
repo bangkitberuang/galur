@@ -245,11 +245,16 @@ export const ERDEntityNode = memo((props: any) => {
 
   return (
     <div
-      className={`bg-white rounded-xl shadow-md border border-slate-300 overflow-hidden min-w-[220px] text-xs font-mono transition-all ${
+      className={`bg-white rounded-xl shadow-md border border-slate-300 overflow-hidden min-w-[200px] text-xs font-mono transition-all ${
         selected ? 'ring-2 ring-emerald-500 shadow-lg' : ''
       }`}
-      style={shapeStyles}
+      style={{
+        ...shapeStyles,
+        width: props.width || data.width ? `${props.width || data.width}px` : undefined,
+        height: props.height || data.height ? `${props.height || data.height}px` : undefined,
+      }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={180} minHeight={100} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
 
@@ -352,11 +357,17 @@ export const OrgNode = memo((props: any) => {
 
   return (
     <div
-      className={`rounded-2xl shadow-md border p-3 min-w-[210px] max-w-[260px] text-left transition-all ${
+      className={`rounded-2xl shadow-md border p-3 min-w-[190px] text-left transition-all ${
         selected ? 'ring-2 ring-emerald-500 shadow-xl' : ''
       }`}
-      style={{ ...shapeStyles, ...textStyles }}
+      style={{
+        ...shapeStyles,
+        ...textStyles,
+        width: props.width || data.width ? `${props.width || data.width}px` : undefined,
+        height: props.height || data.height ? `${props.height || data.height}px` : undefined,
+      }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={180} minHeight={70} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
 
@@ -510,11 +521,18 @@ export const SWOTCardNode = memo((props: any) => {
 
   return (
     <div
-      className={`relative rounded-xl shadow-md border p-5 min-w-[300px] max-w-[330px] min-h-[320px] flex flex-col justify-start transition-all overflow-hidden select-none ${
+      className={`relative rounded-xl shadow-md border p-5 min-w-[240px] min-h-[240px] flex flex-col justify-start transition-all overflow-hidden select-none ${
         selected ? 'ring-3 ring-emerald-700 shadow-xl scale-101' : ''
       }`}
-      style={{ ...shapeStyles, backgroundColor: bg, borderColor: border }}
+      style={{
+        ...shapeStyles,
+        backgroundColor: bg,
+        borderColor: border,
+        width: props.width || data.width ? `${props.width || data.width}px` : undefined,
+        height: props.height || data.height ? `${props.height || data.height}px` : undefined,
+      }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={220} minHeight={200} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
 
@@ -656,13 +674,22 @@ export const CanvasBlockNode = memo((props: any) => {
   const borderColor = data.borderColor || '#cbd5e1';
   const headerColor = data.headerColor || '#0b4632';
 
+  const nodeWidth = props.width || data.width;
+  const nodeHeight = props.height || data.height;
+
   return (
     <div
-      className={`relative min-w-[220px] max-w-[290px] p-3.5 rounded-2xl border-2 shadow-sm transition-all select-none flex flex-col justify-start ${
+      className={`relative min-w-[180px] p-3.5 rounded-2xl border-2 shadow-sm transition-all select-none flex flex-col justify-start ${
         selected ? 'ring-3 ring-emerald-600 shadow-xl scale-101' : ''
       }`}
-      style={{ backgroundColor: color, borderColor: borderColor }}
+      style={{
+        backgroundColor: color,
+        borderColor: borderColor,
+        width: nodeWidth ? `${nodeWidth}px` : undefined,
+        height: nodeHeight ? `${nodeHeight}px` : undefined,
+      }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={160} minHeight={100} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
 
@@ -716,13 +743,22 @@ export const WhyStepNode = memo((props: any) => {
   const color = data.color || (isRootCause ? '#ecfdf5' : '#ffffff');
   const borderColor = data.borderColor || (isRootCause ? '#059669' : '#e2e8f0');
 
+  const nodeWidth = props.width || data.width;
+  const nodeHeight = props.height || data.height;
+
   return (
     <div
-      className={`relative min-w-[240px] max-w-[300px] p-4 rounded-2xl border-2 shadow-md transition-all select-none ${
+      className={`relative min-w-[220px] p-4 rounded-2xl border-2 shadow-md transition-all select-none ${
         selected ? 'ring-3 ring-emerald-600 shadow-xl scale-102' : ''
       }`}
-      style={{ backgroundColor: color, borderColor: borderColor }}
+      style={{
+        backgroundColor: color,
+        borderColor: borderColor,
+        width: nodeWidth ? `${nodeWidth}px` : undefined,
+        height: nodeHeight ? `${nodeHeight}px` : undefined,
+      }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={180} minHeight={120} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
 
@@ -774,13 +810,22 @@ export const PriorityCardNode = memo((props: any) => {
   const borderColor = data.borderColor || '#cbd5e1';
   const badgeColor = data.badgeColor || '#0b4632';
 
+  const nodeWidth = props.width || data.width;
+  const nodeHeight = props.height || data.height;
+
   return (
     <div
-      className={`relative min-w-[240px] max-w-[280px] p-4 rounded-2xl border-2 shadow-md transition-all select-none ${
+      className={`relative min-w-[220px] p-4 rounded-2xl border-2 shadow-md transition-all select-none ${
         selected ? 'ring-3 ring-emerald-600 shadow-xl scale-102' : ''
       }`}
-      style={{ backgroundColor: color, borderColor: borderColor }}
+      style={{
+        backgroundColor: color,
+        borderColor: borderColor,
+        width: nodeWidth ? `${nodeWidth}px` : undefined,
+        height: nodeHeight ? `${nodeHeight}px` : undefined,
+      }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={180} minHeight={120} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
 

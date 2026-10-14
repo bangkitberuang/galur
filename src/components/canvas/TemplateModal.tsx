@@ -32,7 +32,8 @@ import {
   CheckCircle2,
   Scale,
   PieChart,
-  Briefcase
+  Briefcase,
+  Compass
 } from 'lucide-react';
 import { SPECIALIST_CATEGORIES, CategoryTemplate } from '@/lib/specialistTemplates';
 
@@ -91,6 +92,13 @@ export default function TemplateModal({
       case 'okrs': return <CheckCircle2 className="w-4 h-4 text-blue-600" />;
       case 'balanced_scorecard': return <Scale className="w-4 h-4 text-purple-600" />;
       case 'bcg_matrix': return <Sparkles className="w-4 h-4 text-rose-600" />;
+      case 'blue_ocean': return <Compass className="w-4 h-4 text-sky-600" />;
+      case 'value_chain': return <Boxes className="w-4 h-4 text-emerald-600" />;
+      case 'competitive_analysis': return <ShieldAlert className="w-4 h-4 text-violet-600" />;
+      case 'hoshin_kanri': return <Target className="w-4 h-4 text-amber-600" />;
+      case 'benchmarking': return <Gauge className="w-4 h-4 text-blue-600" />;
+      case 'scenario_analysis': return <TrendingUp className="w-4 h-4 text-indigo-600" />;
+      case 'model_canvas': return <LayoutTemplate className="w-4 h-4 text-teal-600" />;
       case 'vpc': return <Lightbulb className="w-4 h-4 text-blue-500" />;
       case 'five_whys': return <HelpCircle className="w-4 h-4 text-teal-600" />;
       case 'eisenhower': return <Grid className="w-4 h-4 text-amber-600" />;
@@ -135,7 +143,7 @@ export default function TemplateModal({
         <div className="px-5 py-2.5 bg-slate-100/70 border-b border-slate-200/80 flex items-center gap-1.5 overflow-x-auto">
           {[
             { id: 'all', label: 'Semua Format', count: SPECIALIST_CATEGORIES.length },
-            { id: 'strategic', label: '🎯 Strategic & AI (8)', count: SPECIALIST_CATEGORIES.filter(c => c.group === 'strategic').length },
+            { id: 'strategic', label: '🎯 Strategic & AI', count: SPECIALIST_CATEGORIES.filter(c => c.group === 'strategic').length },
             { id: 'problem_solving', label: '💡 Problem Solving', count: SPECIALIST_CATEGORIES.filter(c => c.group === 'problem_solving').length },
             { id: 'software', label: '💻 Software & Basis Data', count: SPECIALIST_CATEGORIES.filter(c => c.id === 'uml' || c.id === 'erd' || c.id === 'block').length },
             { id: 'engineering', label: '⚡ Teknik & Jaringan', count: SPECIALIST_CATEGORIES.filter(c => c.id === 'network' || c.id === 'rack' || c.id === 'circuit' || c.id === 'pid').length },
