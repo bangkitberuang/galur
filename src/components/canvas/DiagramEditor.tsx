@@ -43,7 +43,8 @@ import {
   Layers,
   Workflow,
   LayoutGrid,
-  Globe
+  Globe,
+  Sliders
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -95,6 +96,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   const [historyCount, setHistoryCount] = useState<number>(0);
   const [pageConfig, setPageConfig] = useState<CanvasPageConfig>(DEFAULT_PAGE_CONFIG);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isDiagramSettingsOpen, setIsDiagramSettingsOpen] = useState(false);
 
   // Multi-Page Diagram State (Halaman 1, 2, 3...)
   const [pages, setPages] = useState<DiagramPage[]>([
@@ -1190,6 +1192,9 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
         setEdgeType={setEdgeType}
         takeSnapshot={takeSnapshot}
         onAddNode={handleAddNode}
+        isDiagramSettingsOpen={isDiagramSettingsOpen}
+        onToggleDiagramSettings={() => setIsDiagramSettingsOpen((prev) => !prev)}
+        pageSize={pageConfig.pageSize}
       />
 
       {/* Editor Body */}
@@ -1213,6 +1218,22 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
             onDragOver={onDragOver}
             onDrop={onDrop}
           >
+            {/* Tombol Melayang untuk Memanggil Pengaturan Diagram (Auto-Hide Mode) */}
+            {!selectedNode && !selectedEdge && !isDiagramSettingsOpen && (
+              <button
+                type="button"
+                onClick={() => setIsDiagramSettingsOpen(true)}
+                className="absolute top-3.5 right-3.5 z-10 flex items-center gap-2 bg-white/95 hover:bg-white backdrop-blur-xs border border-slate-200 hover:border-blue-400 text-slate-700 hover:text-blue-600 px-3 py-1.5 rounded-full text-xs font-semibold shadow-xs hover:shadow-md transition-all cursor-pointer group"
+                title="Buka Pengaturan Diagram & Lembar Kanvas"
+              >
+                <Sliders className="w-3.5 h-3.5 text-blue-600 group-hover:rotate-45 transition-transform" />
+                <span>Pengaturan Kanvas</span>
+                <span className="text-[10px] font-mono font-bold bg-blue-100 text-blue-800 px-1.5 py-0.2 rounded">
+                  {pageConfig.pageSize}
+                </span>
+              </button>
+            )}
+
             <ReactFlow
               nodes={nodes}
               edges={edges}
@@ -1288,6 +1309,8 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
           onUpdatePageConfig={(updates) => setPageConfig((prev) => ({ ...prev, ...updates }))}
           nodeCount={nodes.length}
           edgeCount={edges.length}
+          isDiagramSettingsOpen={isDiagramSettingsOpen}
+          onCloseDiagramSettings={() => setIsDiagramSettingsOpen(false)}
         />
       </div>
 

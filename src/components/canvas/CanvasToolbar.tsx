@@ -17,7 +17,8 @@ import {
   ChevronDown,
   Plus,
   MoveVertical,
-  MoveHorizontal
+  MoveHorizontal,
+  Sliders
 } from 'lucide-react';
 import { Node, Edge, MarkerType } from '@xyflow/react';
 
@@ -32,6 +33,9 @@ interface CanvasToolbarProps {
   setEdgeType: (type: string) => void;
   takeSnapshot: () => void;
   onAddNode: (type: string, label: string) => void;
+  isDiagramSettingsOpen?: boolean;
+  onToggleDiagramSettings?: () => void;
+  pageSize?: string;
 }
 
 export default function CanvasToolbar({
@@ -45,6 +49,9 @@ export default function CanvasToolbar({
   setEdgeType,
   takeSnapshot,
   onAddNode,
+  isDiagramSettingsOpen = false,
+  onToggleDiagramSettings,
+  pageSize = 'A4',
 }: CanvasToolbarProps) {
   const selectedNodes = nodes.filter((n) => n.selected);
   const hasSelectedNodes = selectedNodes.length > 0;
@@ -441,6 +448,29 @@ export default function CanvasToolbar({
             <MoveVertical className="w-3.5 h-3.5" />
           </button>
         </div>
+
+        {/* Tombol Panggil Pengaturan Kanvas & Diagram */}
+        {onToggleDiagramSettings && (
+          <>
+            <div className="w-[1px] h-4 bg-slate-200 mx-1 hidden sm:block" />
+            <button
+              type="button"
+              onClick={onToggleDiagramSettings}
+              title={isDiagramSettingsOpen ? "Tutup Pengaturan Diagram" : "Buka Pengaturan Diagram (Kanvas, Ukuran Kertas & Grid)"}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all ${
+                isDiagramSettingsOpen
+                  ? 'bg-blue-50 text-blue-700 border-blue-300 shadow-xs'
+                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:text-blue-600 hover:border-slate-300'
+              }`}
+            >
+              <Sliders className="w-3.5 h-3.5 text-blue-600" />
+              <span className="hidden lg:inline">Pengaturan Kanvas</span>
+              <span className="text-[10px] font-mono font-bold bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">
+                {pageSize}
+              </span>
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

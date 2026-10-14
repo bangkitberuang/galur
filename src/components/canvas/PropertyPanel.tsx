@@ -37,7 +37,8 @@ import {
   Smile,
   Upload,
   Search,
-  Image as ImageIcon
+  Image as ImageIcon,
+  X
 } from 'lucide-react';
 import { MarkerType, useReactFlow } from '@xyflow/react';
 import { CanvasPageConfig, DEFAULT_PAGE_CONFIG } from './CanvasPageFrame';
@@ -59,6 +60,8 @@ interface PropertyPanelProps {
   onUpdatePageConfig?: (updates: Partial<CanvasPageConfig>) => void;
   nodeCount?: number;
   edgeCount?: number;
+  isDiagramSettingsOpen?: boolean;
+  onCloseDiagramSettings?: () => void;
 }
 
 export default function PropertyPanel({
@@ -72,6 +75,8 @@ export default function PropertyPanel({
   onUpdatePageConfig,
   nodeCount = 0,
   edgeCount = 0,
+  isDiagramSettingsOpen = false,
+  onCloseDiagramSettings,
 }: PropertyPanelProps) {
   // State Pengaturan Ikon, Emoticon & Logo
   const [iconTab, setIconTab] = React.useState<'icon' | 'emoji' | 'logo'>('icon');
@@ -80,9 +85,14 @@ export default function PropertyPanel({
   const [customEmojiInput, setCustomEmojiInput] = React.useState('');
   const [customLogoUrl, setCustomLogoUrl] = React.useState('');
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const { getNode } = useReactFlow();
 
-  // 0. JIKA TIDAK ADA YANG DIPILIH: TAMPILKAN PENGATURAN DIAGRAM & LEMBAR KANVAS (MIRIP DRAW.IO)
+  // 0. JIKA TIDAK ADA YANG DIPILIH: TAMPILKAN PENGATURAN DIAGRAM HANYA JIKA DIBUKA (AUTO-HIDE BIAR RINGKAS)
   if (!selectedNode && !selectedEdge) {
+    if (!isDiagramSettingsOpen) {
+      return null;
+    }
+
     const activeConfig = pageConfig || DEFAULT_PAGE_CONFIG;
 
     return (
@@ -100,9 +110,21 @@ export default function PropertyPanel({
               </span>
             </div>
           </div>
-          <span className="text-[10px] font-mono font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
-            {activeConfig.pageSize}
-          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] font-mono font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+              {activeConfig.pageSize}
+            </span>
+            {onCloseDiagramSettings && (
+              <button
+                type="button"
+                onClick={onCloseDiagramSettings}
+                title="Sembunyikan Pengaturan (Tutup Panel)"
+                className="p-1 rounded-lg hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-3.5 space-y-4">
@@ -333,7 +355,6 @@ export default function PropertyPanel({
       });
     };
 
-    const { getNode } = useReactFlow();
     const handleAutoRouteHandles = () => {
       const srcNode = getNode(selectedEdge.source);
       const tgtNode = getNode(selectedEdge.target);
