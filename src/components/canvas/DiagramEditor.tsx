@@ -20,15 +20,16 @@ import {
 import { 
   Save, 
   Download, 
-  RotateCcw, 
-  Share2, 
-  ArrowLeft, 
-  Check, 
+  FilePlus,
+  Trash2,
   Cloud, 
   HardDrive, 
+  Check, 
   Sparkles,
-  Layers,
-  HelpCircle
+  ChevronDown,
+  RefreshCw,
+  GitFork,
+  Network
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -38,76 +39,118 @@ import PropertyPanel from './PropertyPanel';
 import ExportModal from './ExportModal';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
-// Template Awal Bawaan GALUR
-const initialNodes: Node[] = [
-  {
-    id: 'node-1',
-    type: 'terminal',
-    position: { x: 280, y: 80 },
-    data: { label: 'Mulai Alur', color: '#ecfdf5', borderColor: '#10b981', textColor: '#065f46' },
-  },
-  {
-    id: 'node-2',
-    type: 'process',
-    position: { x: 260, y: 190 },
-    data: { label: 'Input Data & Ide', sublabel: 'GALUR Studio', color: '#ffffff', borderColor: '#3b82f6', textColor: '#0f172a' },
-  },
-  {
-    id: 'node-3',
-    type: 'decision',
-    position: { x: 275, y: 310 },
-    data: { label: 'Valid?', color: '#eff6ff', borderColor: '#2563eb', textColor: '#1e3a8a' },
-  },
-  {
-    id: 'node-4',
-    type: 'mindmap',
-    position: { x: 520, y: 220 },
-    data: { label: 'Topik Mind Map (Klik +)', isRoot: false, color: '#f0fdf4', borderColor: '#22c55e', textColor: '#14532d' },
-  },
-  {
-    id: 'node-5',
-    type: 'terminal',
-    position: { x: 280, y: 480 },
-    data: { label: 'Selesai & Ekspor', color: '#fef2f2', borderColor: '#ef4444', textColor: '#991b1b' },
-  },
-];
+// Template Awal Bawaan Flowchart
+const flowchartTemplate: { nodes: Node[]; edges: Edge[] } = {
+  nodes: [
+    {
+      id: 'node-1',
+      type: 'terminal',
+      position: { x: 280, y: 80 },
+      data: { label: 'Mulai Alur', color: '#ecfdf5', borderColor: '#10b981', textColor: '#065f46' },
+    },
+    {
+      id: 'node-2',
+      type: 'process',
+      position: { x: 260, y: 190 },
+      data: { label: 'Input Data & Ide', sublabel: 'GALUR Studio', color: '#ffffff', borderColor: '#3b82f6', textColor: '#0f172a' },
+    },
+    {
+      id: 'node-3',
+      type: 'decision',
+      position: { x: 275, y: 310 },
+      data: { label: 'Valid?', color: '#eff6ff', borderColor: '#2563eb', textColor: '#1e3a8a' },
+    },
+    {
+      id: 'node-4',
+      type: 'mindmap',
+      position: { x: 520, y: 220 },
+      data: { label: 'Topik Mind Map (Klik +)', isRoot: false, color: '#f0fdf4', borderColor: '#22c55e', textColor: '#14532d' },
+    },
+    {
+      id: 'node-5',
+      type: 'terminal',
+      position: { x: 280, y: 480 },
+      data: { label: 'Selesai & Ekspor', color: '#fef2f2', borderColor: '#ef4444', textColor: '#991b1b' },
+    },
+  ],
+  edges: [
+    {
+      id: 'edge-1-2',
+      source: 'node-1',
+      target: 'node-2',
+      type: 'smoothstep',
+      markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
+      style: { stroke: '#3b82f6', strokeWidth: 2 },
+    },
+    {
+      id: 'edge-2-3',
+      source: 'node-2',
+      target: 'node-3',
+      type: 'smoothstep',
+      markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
+      style: { stroke: '#3b82f6', strokeWidth: 2 },
+    },
+    {
+      id: 'edge-2-4',
+      source: 'node-2',
+      target: 'node-4',
+      type: 'default',
+      markerEnd: { type: MarkerType.ArrowClosed, color: '#10b981' },
+      style: { stroke: '#10b981', strokeWidth: 2, strokeDasharray: '4 4' },
+      label: 'ide baru',
+    },
+    {
+      id: 'edge-3-5',
+      source: 'node-3',
+      target: 'node-5',
+      type: 'smoothstep',
+      markerEnd: { type: MarkerType.ArrowClosed, color: '#ef4444' },
+      style: { stroke: '#ef4444', strokeWidth: 2 },
+      label: 'Ya',
+    },
+  ],
+};
 
-const initialEdges: Edge[] = [
-  {
-    id: 'edge-1-2',
-    source: 'node-1',
-    target: 'node-2',
-    type: 'smoothstep',
-    markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
-    style: { stroke: '#3b82f6', strokeWidth: 2 },
-  },
-  {
-    id: 'edge-2-3',
-    source: 'node-2',
-    target: 'node-3',
-    type: 'smoothstep',
-    markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
-    style: { stroke: '#3b82f6', strokeWidth: 2 },
-  },
-  {
-    id: 'edge-2-4',
-    source: 'node-2',
-    target: 'node-4',
-    type: 'default',
-    markerEnd: { type: MarkerType.ArrowClosed, color: '#10b981' },
-    style: { stroke: '#10b981', strokeWidth: 2, strokeDasharray: '4 4' },
-    label: 'ide baru',
-  },
-  {
-    id: 'edge-3-5',
-    source: 'node-3',
-    target: 'node-5',
-    type: 'smoothstep',
-    markerEnd: { type: MarkerType.ArrowClosed, color: '#ef4444' },
-    style: { stroke: '#ef4444', strokeWidth: 2 },
-    label: 'Ya',
-  },
-];
+const mindmapTemplate: { nodes: Node[]; edges: Edge[] } = {
+  nodes: [
+    {
+      id: 'root-mindmap',
+      type: 'mindmap',
+      position: { x: 350, y: 250 },
+      data: { label: 'Gagasan Utama', isRoot: true, color: '#1e293b', borderColor: '#0f172a', textColor: '#ffffff' },
+    },
+    {
+      id: 'child-1',
+      type: 'mindmap',
+      position: { x: 600, y: 160 },
+      data: { label: 'Cabang Strategi', color: '#eff6ff', borderColor: '#3b82f6', textColor: '#1e3a8a' },
+    },
+    {
+      id: 'child-2',
+      type: 'mindmap',
+      position: { x: 600, y: 320 },
+      data: { label: 'Cabang Eksekusi', color: '#ecfdf5', borderColor: '#10b981', textColor: '#065f46' },
+    },
+  ],
+  edges: [
+    {
+      id: 'edge-root-1',
+      source: 'root-mindmap',
+      target: 'child-1',
+      type: 'default',
+      markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
+      style: { stroke: '#3b82f6', strokeWidth: 2 },
+    },
+    {
+      id: 'edge-root-2',
+      source: 'root-mindmap',
+      target: 'child-2',
+      type: 'default',
+      markerEnd: { type: MarkerType.ArrowClosed, color: '#10b981' },
+      style: { stroke: '#10b981', strokeWidth: 2 },
+    },
+  ],
+};
 
 interface DiagramEditorInnerProps {
   diagramId?: string;
@@ -119,22 +162,23 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   const { screenToFlowPosition, fitView } = useReactFlow();
 
   const [title, setTitle] = useState(initialTitle);
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState(flowchartTemplate.nodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(flowchartTemplate.edges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [edgeType, setEdgeType] = useState<string>('step'); // 'step' | 'default' | 'straight'
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isNewMenuOpen, setIsNewMenuOpen] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('saved');
   const [storageType, setStorageType] = useState<'cloud' | 'local'>('local');
 
-  // Muat data dari localStorage atau Supabase saat dibuka
+  // Muat data dari localStorage atau Supabase saat pertama kali dibuka
   useEffect(() => {
     const storageKey = `galur_diagram_${diagramId || 'default'}`;
     const saved = localStorage.getItem(storageKey);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed.nodes) setNodes(parsed.nodes);
+        if (parsed.nodes && parsed.nodes.length > 0) setNodes(parsed.nodes);
         if (parsed.edges) setEdges(parsed.edges);
         if (parsed.title) setTitle(parsed.title);
       } catch (e) {
@@ -230,6 +274,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
 
   const onPaneClick = useCallback(() => {
     setSelectedNode(null);
+    setIsNewMenuOpen(false);
   }, []);
 
   // Update Data Node dari PropertyPanel
@@ -267,6 +312,52 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     [setNodes, setEdges]
   );
 
+  // Handler Hapus saat tombol Delete / Backspace ditekan
+  const onNodesDelete = useCallback(() => {
+    setSelectedNode(null);
+    setSaveStatus('idle');
+  }, []);
+
+  const onEdgesDelete = useCallback(() => {
+    setSaveStatus('idle');
+  }, []);
+
+  // Handler Buat Diagram Baru
+  const handleCreateNew = (type: 'blank' | 'flowchart' | 'mindmap') => {
+    setIsNewMenuOpen(false);
+    if (nodes.length > 0 && !confirm('Buat diagram baru? Seluruh perubahan saat ini akan digantikan.')) {
+      return;
+    }
+
+    if (type === 'blank') {
+      setNodes([]);
+      setEdges([]);
+      setTitle('Kanvas Kosong Baru');
+    } else if (type === 'flowchart') {
+      setNodes(flowchartTemplate.nodes);
+      setEdges(flowchartTemplate.edges);
+      setTitle('Diagram Alir Baru');
+    } else if (type === 'mindmap') {
+      setNodes(mindmapTemplate.nodes);
+      setEdges(mindmapTemplate.edges);
+      setTitle('Pohon Mind Map Baru');
+    }
+
+    setSelectedNode(null);
+    setSaveStatus('idle');
+    setTimeout(() => fitView({ padding: 0.2 }), 100);
+  };
+
+  // Bersihkan Kanvas Kosong
+  const handleClearAll = () => {
+    if (confirm('Bersihkan seluruh kanvas? Semua bentuk dan garis akan dihapus.')) {
+      setNodes([]);
+      setEdges([]);
+      setSelectedNode(null);
+      setSaveStatus('idle');
+    }
+  };
+
   // Simpan Diagram (Supabase & LocalStorage Fallback)
   const handleSave = async () => {
     setSaveStatus('saving');
@@ -278,10 +369,8 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       updated_at: new Date().toISOString(),
     };
 
-    // 1. Simpan selalu ke LocalStorage browser pengguna
     localStorage.setItem(storageKey, JSON.stringify(payload));
 
-    // 2. Simpan ke Supabase jika terkonfigurasi
     if (isSupabaseConfigured && supabase) {
       try {
         const { data: userData } = await supabase.auth.getUser();
@@ -301,34 +390,108 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
 
     setTimeout(() => {
       setSaveStatus('saved');
-    }, 400);
+    }, 350);
   };
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-slate-50">
       {/* Top Navigation Bar */}
-      <header className="h-14 bg-white border-b border-slate-200 px-4 flex items-center justify-between z-20 no-print">
-        {/* Left: Brand & Back */}
+      <header className="h-14 bg-white border-b border-slate-200 px-4 flex items-center justify-between z-30 no-print">
+        {/* Left: Brand, Back, & Title */}
         <div className="flex items-center gap-3">
           <Link
             href="/"
             className="flex items-center gap-2 text-slate-700 hover:text-blue-600 transition-colors"
-            title="Kembali ke Beranda"
+            title="Kembali ke Beranda GALUR"
           >
-            <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-black text-sm shadow-sm">
+            <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-sm shadow-sm">
               G
             </div>
-            <div>
-              <div className="flex items-center gap-1.5 font-black text-base tracking-tight text-slate-800">
+            <div className="hidden sm:block">
+              <div className="flex items-center gap-1.5 font-black text-sm tracking-tight text-slate-800">
                 GALUR
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 border border-blue-200">
-                  Builder
+                <span className="text-[10px] font-medium px-1.5 py-0.2 rounded bg-blue-50 text-blue-600 border border-blue-200">
+                  Studio
                 </span>
               </div>
             </div>
           </Link>
 
           <div className="h-5 w-[1px] bg-slate-200 mx-1" />
+
+          {/* Menu Buat Diagram Baru */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsNewMenuOpen(!isNewMenuOpen)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
+              title="Buat Diagram Baru"
+            >
+              <FilePlus className="w-3.5 h-3.5" />
+              <span>Diagram Baru</span>
+              <ChevronDown className="w-3 h-3 opacity-70" />
+            </button>
+
+            {/* Dropdown Menu Buat Baru */}
+            {isNewMenuOpen && (
+              <div className="absolute left-0 top-full mt-1.5 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 animate-in fade-in zoom-in-95 duration-100">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2.5 py-1">
+                  Pilihan Diagram Baru
+                </div>
+
+                <button
+                  onClick={() => handleCreateNew('blank')}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left hover:bg-slate-100 text-xs font-medium text-slate-700 transition-colors"
+                >
+                  <div className="w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+                    <FilePlus className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="font-semibold">Kanvas Kosong</div>
+                    <div className="text-[10px] text-slate-400">Mulai dari lembar putih bersih</div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handleCreateNew('flowchart')}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left hover:bg-blue-50 text-xs font-medium text-slate-700 transition-colors"
+                >
+                  <div className="w-6 h-6 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
+                    <GitFork className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-blue-900">Template Flowchart</div>
+                    <div className="text-[10px] text-slate-400">Alur keputusan standar Visio</div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handleCreateNew('mindmap')}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left hover:bg-emerald-50 text-xs font-medium text-slate-700 transition-colors"
+                >
+                  <div className="w-6 h-6 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600">
+                    <Network className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-emerald-900">Template Mind Map</div>
+                    <div className="text-[10px] text-slate-400">Pohon ide & brainstorming</div>
+                  </div>
+                </button>
+
+                <div className="h-[1px] bg-slate-100 my-1.5" />
+
+                <button
+                  onClick={handleClearAll}
+                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-left hover:bg-red-50 text-xs font-medium text-red-600 transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Bersihkan Semua Objek</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="h-5 w-[1px] bg-slate-200 mx-1 hidden sm:block" />
 
           {/* Title Editor */}
           <input
@@ -339,31 +502,33 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
               setSaveStatus('idle');
             }}
             placeholder="Judul Diagram..."
-            className="text-sm font-semibold text-slate-700 px-2 py-1 rounded-md hover:bg-slate-100 focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-blue-500 border border-transparent hover:border-slate-200 transition-all max-w-[240px]"
+            className="text-xs sm:text-sm font-semibold text-slate-700 px-2.5 py-1 rounded-lg hover:bg-slate-100 focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-blue-500 border border-transparent hover:border-slate-200 transition-all max-w-[180px] sm:max-w-[240px]"
           />
         </div>
 
-        {/* Center: Save status */}
-        <div className="hidden md:flex items-center gap-2 text-xs text-slate-500">
+        {/* Center: Save status & Quick Shortcut Info */}
+        <div className="hidden lg:flex items-center gap-2 text-xs text-slate-500">
+          <span className="text-[11px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md border border-slate-200">
+            💡 Tips: Tekan <strong>Delete</strong> atau <strong>Backspace</strong> untuk menghapus objek
+          </span>
+          <span>•</span>
           {storageType === 'cloud' ? (
-            <span className="flex items-center gap-1 text-emerald-600">
-              <Cloud className="w-3.5 h-3.5" />
-              <span>Cloud Supabase</span>
+            <span className="flex items-center gap-1 text-emerald-600 text-xs font-medium">
+              <Cloud className="w-3.5 h-3.5" /> Cloud
             </span>
           ) : (
-            <span className="flex items-center gap-1 text-slate-500">
-              <HardDrive className="w-3.5 h-3.5" />
-              <span>Lokal Browser</span>
+            <span className="flex items-center gap-1 text-slate-500 text-xs">
+              <HardDrive className="w-3.5 h-3.5" /> Lokal
             </span>
           )}
           <span>•</span>
-          {saveStatus === 'saving' && <span className="text-amber-500">Menyimpan...</span>}
+          {saveStatus === 'saving' && <span className="text-amber-500 font-medium">Menyimpan...</span>}
           {saveStatus === 'saved' && (
-            <span className="text-emerald-600 flex items-center gap-0.5">
+            <span className="text-emerald-600 flex items-center gap-0.5 font-medium">
               <Check className="w-3.5 h-3.5" /> Tersimpan
             </span>
           )}
-          {saveStatus === 'idle' && <span className="text-slate-400">Ada perubahan belum disimpan</span>}
+          {saveStatus === 'idle' && <span className="text-slate-400">Ada perubahan</span>}
         </div>
 
         {/* Right: Actions */}
@@ -372,7 +537,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
           <button
             type="button"
             onClick={handleSave}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors shadow-2xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors shadow-2xs"
           >
             <Save className="w-3.5 h-3.5 text-blue-600" />
             <span>Simpan</span>
@@ -382,7 +547,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
           <button
             type="button"
             onClick={() => setIsExportModalOpen(true)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs shadow-blue-500/20 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs shadow-blue-500/20 transition-all cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Ekspor & Cetak</span>
@@ -415,6 +580,9 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
             onConnect={onConnect}
             onNodeClick={onNodeClick}
             onPaneClick={onPaneClick}
+            onNodesDelete={onNodesDelete}
+            onEdgesDelete={onEdgesDelete}
+            deleteKeyCode={['Backspace', 'Delete']}
             fitView
             snapToGrid
             snapGrid={[15, 15]}
