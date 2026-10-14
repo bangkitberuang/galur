@@ -1530,6 +1530,10 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
         diagramTitle={title}
+        nodes={nodes}
+        edges={edges}
+        pages={pages.map((p) => (p.id === activePageId ? { ...p, nodes, edges } : p))}
+        pageConfig={pageConfig}
       />
 
       <HistoryModal
