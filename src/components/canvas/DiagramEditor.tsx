@@ -34,6 +34,7 @@ import {
 import Link from 'next/link';
 
 import { nodeTypes } from './nodes/CustomNodes';
+import { edgeTypes } from './edges/RemovableEdge';
 import Sidebar from './Sidebar';
 import PropertyPanel from './PropertyPanel';
 import ExportModal from './ExportModal';
@@ -322,6 +323,26 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     setSaveStatus('idle');
   }, []);
 
+  // Global Keyboard Delete Handler (Menjamin tombol Delete & Backspace selalu bekerja menghapus node atau edge yang terpilih)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        const activeTag = (document.activeElement?.tagName || '').toLowerCase();
+        if (activeTag === 'input' || activeTag === 'textarea') {
+          return;
+        }
+
+        setNodes((nds) => nds.filter((node) => !node.selected));
+        setEdges((eds) => eds.filter((edge) => !edge.selected));
+        setSelectedNode(null);
+        setSaveStatus('idle');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setNodes, setEdges]);
+
   // Handler Buat Diagram Baru
   const handleCreateNew = (type: 'blank' | 'flowchart' | 'mindmap') => {
     setIsNewMenuOpen(false);
@@ -575,6 +596,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
             nodes={nodes}
             edges={edges}
             nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
