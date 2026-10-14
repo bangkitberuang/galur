@@ -166,6 +166,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   const [nodes, setNodes, onNodesChange] = useNodesState(flowchartTemplate.nodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(flowchartTemplate.edges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
   const [edgeType, setEdgeType] = useState<string>('step'); // 'step' | 'default' | 'straight'
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isNewMenuOpen, setIsNewMenuOpen] = useState(false);
@@ -271,10 +272,18 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   // Seleksi Node
   const onNodeClick = useCallback((_: any, node: Node) => {
     setSelectedNode(node);
+    setSelectedEdge(null);
+  }, []);
+
+  // Seleksi Edge / Garis
+  const onEdgeClick = useCallback((_: any, edge: Edge) => {
+    setSelectedEdge(edge);
+    setSelectedNode(null);
   }, []);
 
   const onPaneClick = useCallback(() => {
     setSelectedNode(null);
+    setSelectedEdge(null);
     setIsNewMenuOpen(false);
   }, []);
 
@@ -302,6 +311,31 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     [setNodes]
   );
 
+  // Update Data Edge dari PropertyPanel
+  const handleUpdateEdge = useCallback(
+    (edgeId: string, updates: any) => {
+      setEdges((eds) =>
+        eds.map((edge) => {
+          if (edge.id === edgeId) {
+            const newE = {
+              ...edge,
+              ...updates,
+              style: {
+                ...edge.style,
+                ...(updates.style || {}),
+              },
+            };
+            setSelectedEdge(newE);
+            return newE;
+          }
+          return edge;
+        })
+      );
+      setSaveStatus('idle');
+    },
+    [setEdges]
+  );
+
   // Hapus Node
   const handleDeleteNode = useCallback(
     (nodeId: string) => {
@@ -311,6 +345,16 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       setSaveStatus('idle');
     },
     [setNodes, setEdges]
+  );
+
+  // Hapus Edge
+  const handleDeleteEdge = useCallback(
+    (edgeId: string) => {
+      setEdges((eds) => eds.filter((e) => e.id !== edgeId));
+      setSelectedEdge(null);
+      setSaveStatus('idle');
+    },
+    [setEdges]
   );
 
   // Handler Hapus saat tombol Delete / Backspace ditekan
@@ -601,6 +645,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeClick={onNodeClick}
+            onEdgeClick={onEdgeClick}
             onPaneClick={onPaneClick}
             onNodesDelete={onNodesDelete}
             onEdgesDelete={onEdgesDelete}
@@ -621,11 +666,14 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
           </ReactFlow>
         </div>
 
-        {/* Property Inspector Panel */}
+        {/* Property Inspector Panel (Bentuk & Garis) */}
         <PropertyPanel
           selectedNode={selectedNode}
+          selectedEdge={selectedEdge}
           onUpdateNode={handleUpdateNode}
           onDeleteNode={handleDeleteNode}
+          onUpdateEdge={handleUpdateEdge}
+          onDeleteEdge={handleDeleteEdge}
         />
       </div>
 
