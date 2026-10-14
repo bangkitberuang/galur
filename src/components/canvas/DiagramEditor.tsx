@@ -16,6 +16,8 @@ import {
   BackgroundVariant,
   useReactFlow,
   ReactFlowProvider,
+  ConnectionMode,
+  reconnectEdge,
 } from '@xyflow/react';
 import { 
   Save, 
@@ -196,12 +198,40 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
         type: edgeStyleType,
         markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
         style: { stroke: '#3b82f6', strokeWidth: 2 },
+        reconnectable: true,
       };
       setEdges((eds) => addEdge(newEdge, eds));
       setSaveStatus('idle');
     },
     [edgeType, setEdges, takeSnapshot]
   );
+
+  // Callback memindahkan titik tuju atau titik asal garis (Edge Reconnection)
+  const edgeReconnectSuccessful = useRef(true);
+
+  const onReconnectStart = useCallback(() => {
+    edgeReconnectSuccessful.current = false;
+  }, []);
+
+  const onReconnect = useCallback(
+    (oldEdge: Edge, newConnection: Connection) => {
+      edgeReconnectSuccessful.current = true;
+      takeSnapshot();
+      setEdges((els) => {
+        const reconnected = reconnectEdge(oldEdge, newConnection, els);
+        return reconnected.map((e) => (e.id === oldEdge.id ? { ...e, reconnectable: true } : e));
+      });
+      setSaveStatus('idle');
+    },
+    [setEdges, takeSnapshot]
+  );
+
+  const onReconnectEnd = useCallback((_: MouseEvent | TouchEvent, edge: Edge) => {
+    if (!edgeReconnectSuccessful.current) {
+      // Pertahankan garis jika tidak sengaja lepas di kanvas kosong
+    }
+    edgeReconnectSuccessful.current = true;
+  }, []);
 
   // Tambah bentuk manual dari sidebar (klik)
   const handleAddNode = useCallback(
@@ -768,6 +798,12 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            onReconnect={onReconnect}
+            onReconnectStart={onReconnectStart}
+            onReconnectEnd={onReconnectEnd}
+            edgesReconnectable={true}
+            reconnectRadius={25}
+            connectionMode={ConnectionMode.Loose}
             onNodeClick={onNodeClick}
             onEdgeClick={onEdgeClick}
             onPaneClick={onPaneClick}

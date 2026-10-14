@@ -65,20 +65,112 @@ const NodeQuickActions = ({ id, selected }: { id: string; selected?: boolean }) 
   );
 };
 
-// 4 Handles Standard
+// 8 Handles Standard Helper (8 Titik Hubung Mengelilingi Objek: 4 Sisi Utama + 4 Sudut)
 const StandardHandles = () => (
   <>
-    <Handle type="target" position={Position.Top} id="t-in" className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5" />
-    <Handle type="source" position={Position.Top} id="t-out" className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5" />
-    
-    <Handle type="target" position={Position.Bottom} id="b-in" className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5" />
-    <Handle type="source" position={Position.Bottom} id="b-out" className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5" />
-    
-    <Handle type="target" position={Position.Left} id="l-in" className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5" />
-    <Handle type="source" position={Position.Left} id="l-out" className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5" />
-    
-    <Handle type="target" position={Position.Right} id="r-in" className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5" />
-    <Handle type="source" position={Position.Right} id="r-out" className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5" />
+    {/* 1. Atas - Kiri (Top-Left) */}
+    <Handle
+      type="source"
+      position={Position.Top}
+      id="top-left"
+      title="Titik Hubung Atas Kiri"
+      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5"
+      style={{ left: '18%' }}
+    />
+
+    {/* 2. Atas - Tengah (Top-Center) */}
+    <Handle
+      type="source"
+      position={Position.Top}
+      id="t-out"
+      title="Titik Hubung Atas"
+      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5"
+      style={{ left: '50%' }}
+    />
+    <Handle
+      type="target"
+      position={Position.Top}
+      id="t-in"
+      style={{ left: '50%', pointerEvents: 'none', opacity: 0 }}
+    />
+
+    {/* 3. Atas - Kanan (Top-Right) */}
+    <Handle
+      type="source"
+      position={Position.Top}
+      id="top-right"
+      title="Titik Hubung Atas Kanan"
+      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5"
+      style={{ left: '82%' }}
+    />
+
+    {/* 4. Kanan - Tengah (Right-Center) */}
+    <Handle
+      type="source"
+      position={Position.Right}
+      id="r-out"
+      title="Titik Hubung Kanan"
+      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5"
+      style={{ top: '50%' }}
+    />
+    <Handle
+      type="target"
+      position={Position.Right}
+      id="r-in"
+      style={{ top: '50%', pointerEvents: 'none', opacity: 0 }}
+    />
+
+    {/* 5. Bawah - Kanan (Bottom-Right) */}
+    <Handle
+      type="source"
+      position={Position.Bottom}
+      id="bottom-right"
+      title="Titik Hubung Bawah Kanan"
+      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5"
+      style={{ left: '82%' }}
+    />
+
+    {/* 6. Bawah - Tengah (Bottom-Center) */}
+    <Handle
+      type="source"
+      position={Position.Bottom}
+      id="b-out"
+      title="Titik Hubung Bawah"
+      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5"
+      style={{ left: '50%' }}
+    />
+    <Handle
+      type="target"
+      position={Position.Bottom}
+      id="b-in"
+      style={{ left: '50%', pointerEvents: 'none', opacity: 0 }}
+    />
+
+    {/* 7. Bawah - Kiri (Bottom-Left) */}
+    <Handle
+      type="source"
+      position={Position.Bottom}
+      id="bottom-left"
+      title="Titik Hubung Bawah Kiri"
+      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5"
+      style={{ left: '18%' }}
+    />
+
+    {/* 8. Kiri - Tengah (Left-Center) */}
+    <Handle
+      type="source"
+      position={Position.Left}
+      id="l-out"
+      title="Titik Hubung Kiri"
+      className="!bg-[#059669] hover:!bg-[#f59e0b] !w-2.5 !h-2.5"
+      style={{ top: '50%' }}
+    />
+    <Handle
+      type="target"
+      position={Position.Left}
+      id="l-in"
+      style={{ top: '50%', pointerEvents: 'none', opacity: 0 }}
+    />
   </>
 );
 

@@ -20,18 +20,53 @@ body {
 
 /* React Flow customizations selaras logo Galur */
 .react-flow__handle {
-  width: 10px;
-  height: 10px;
-  background: #059669; /* Emerald Green */
+  width: 11px;
+  height: 11px;
+  background: #3b82f6; /* Blue 500 */
   border: 2px solid #ffffff;
   border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
   transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  cursor: crosshair !important;
+  z-index: 20;
 }
 
 .react-flow__handle:hover {
+  transform: scale(1.45);
+  background: #f59e0b !important; /* Honey Gold on hover */
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.8) !important;
+  z-index: 30;
+}
+
+.react-flow__handle-connecting,
+.react-flow__handle-valid {
+  background: #10b981 !important; /* Emerald Green when valid connection target */
+  transform: scale(1.4) !important;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.9) !important;
+}
+
+/* Edge Reconnection Handles (Titik Tuju / Titik Asal Garis) */
+.react-flow__edgeupdater {
+  cursor: grab !important;
+  fill: #3b82f6 !important;
+  stroke: #ffffff !important;
+  stroke-width: 2.5px !important;
+  opacity: 0.9;
+  transition: opacity 0.15s ease, transform 0.15s ease, fill 0.15s ease;
+}
+
+.react-flow__edge:hover .react-flow__edgeupdater,
+.react-flow__edge.selected .react-flow__edgeupdater,
+.react-flow__edgeupdater:hover {
+  opacity: 1 !important;
+  fill: #f59e0b !important;
   transform: scale(1.35);
-  background: #f59e0b; /* Honey Gold on hover */
-  box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+}
+
+.react-flow__edgeupdater:active {
+  cursor: grabbing !important;
+  fill: #ef4444 !important;
+  transform: scale(1.5);
 }
 
 .react-flow__node.selected {
