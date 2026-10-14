@@ -503,3 +503,118 @@ export function exportToVisioVdx(
   const outName = `${(fileName || title).toLowerCase().replace(/\s+/g, '-')}-${Date.now()}.vdx`;
   triggerFileDownload(xml, outName, 'application/vnd.visio;charset=utf-8');
 }
+
+/**
+ * 8. HELPER PRATINJAU: Ambil Snapshot Gambar Kanvas untuk Download & Print Preview
+ */
+export async function captureDiagramSnapshot(
+  transparent = false,
+  pixelRatio = 1.5
+): Promise<string | null> {
+  if (typeof document === 'undefined') return null;
+  const element = document.querySelector('.react-flow__viewport') as HTMLElement;
+  if (!element) return null;
+
+  try {
+    const dataUrl = await toPng(element, {
+      backgroundColor: transparent ? undefined : '#ffffff',
+      pixelRatio,
+      filter: defaultExportFilter as any,
+    });
+    return dataUrl;
+  } catch (err) {
+    console.error('Gagal mengambil cuplikan pratinjau diagram:', err);
+    return null;
+  }
+}
+
+/**
+ * 9. HELPER PRATINJAU: Hitung Dimensi Alami Kotak Diagram (Bounding Box)
+ */
+export function getDiagramDimensions(nodes: Node[]): {
+  width: number;
+  height: number;
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+} {
+  if (!nodes || nodes.length === 0) {
+    return { width: 1200, height: 800, minX: 0, minY: 0, maxX: 1200, maxY: 800 };
+  }
+
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+
+  nodes.forEach((n) => {
+    const x = n.position.x;
+    const y = n.position.y;
+    const w = (n.measured?.width || (n as any).width || 160);
+    const h = (n.measured?.height || (n as any).height || 80);
+    if (x < minX) minX = x;
+    if (y < minY) minY = y;
+    if (x + w > maxX) maxX = x + w;
+    if (y + h > maxY) maxY = y + h;
+  });
+
+  const width = Math.max(Math.round(maxX - minX + 120), 600);
+  const height = Math.max(Math.round(maxY - minY + 120), 400);
+
+  return { width, height, minX, minY, maxX, maxY };
+}
+
+/**
+ * 10. HELPER PRATINJAU: Format Cuplikan Kode JSON untuk Preview
+ */
+export function generatePreviewJsonSnippet(
+  title: string,
+  nodes: Node[],
+  edges: Edge[]
+): string {
+  const previewPayload = {
+    appName: 'GALUR Studio',
+    version: '1.3.0',
+    title,
+    summary: {
+      totalNodes: nodes.length,
+      totalEdges: edges.length,
+      exportedAt: new Date().toISOString(),
+    },
+    sampleNodes: nodes.slice(0, 3).map((n) => ({
+      id: n.id,
+      type: n.type,
+      label: n.data?.label || '',
+      position: n.position,
+    })),
+    sampleEdges: edges.slice(0, 3).map((e) => ({
+      id: e.id,
+      source: e.source,
+      target: e.target,
+      label: e.label || '',
+    })),
+  };
+  return JSON.stringify(previewPayload, null, 2);
+}
+
+/**
+ * 11. HELPER PRATINJAU: Baris Contoh CSV untuk Preview
+ */
+export function generatePreviewCsvRows(
+  nodes: Node[],
+  edges: Edge[]
+): Array<Record<string, string>> {
+  return nodes.slice(0, 8).map((n) => {
+    const d = (n.data || {}) as Record<string, any>;
+    return {
+      id: n.id,
+      type: n.type || 'standard',
+      label: d.label || d.title || n.id,
+      sublabel: d.sublabel || '-',
+      position: `X: ${Math.round(n.position.x)}, Y: ${Math.round(n.position.y)}`,
+      category: d.category || 'umum',
+    };
+  });
+}
+

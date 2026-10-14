@@ -47,7 +47,8 @@ import {
   Globe,
   Sliders,
   Share2,
-  Users
+  Users,
+  Printer
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -57,6 +58,7 @@ import { edgeTypes } from './edges/RemovableEdge';
 import Sidebar from './Sidebar';
 import PropertyPanel from './PropertyPanel';
 import ExportModal from './ExportModal';
+import PrintPreviewModal from './PrintPreviewModal';
 import HistoryModal from './HistoryModal';
 import TemplateModal from './TemplateModal';
 import ShareModal from './ShareModal';
@@ -101,6 +103,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
   const [edgeType, setEdgeType] = useState<string>('step'); // 'step' | 'default' | 'straight'
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [isNewMenuOpen, setIsNewMenuOpen] = useState(false);
@@ -782,6 +785,12 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       } else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'y') {
         event.preventDefault();
         handleRedo();
+      } else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'p') {
+        event.preventDefault();
+        setIsPrintPreviewOpen(true);
+      } else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'e') {
+        event.preventDefault();
+        setIsExportModalOpen(true);
       }
 
       if (!event.ctrlKey && !event.metaKey && !event.altKey) {
@@ -1442,11 +1451,22 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
 
           <button
             type="button"
+            onClick={() => setIsPrintPreviewOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 hover:border-emerald-600 hover:bg-emerald-50/60 text-slate-700 text-xs font-semibold transition-all shadow-2xs cursor-pointer"
+            title="Pratinjau Cetak Lembar Dokumen (Ctrl+P)"
+          >
+            <Printer className="w-3.5 h-3.5 text-emerald-700" />
+            <span className="hidden sm:inline">Cetak</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setIsExportModalOpen(true)}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs shadow-emerald-700/20 transition-all cursor-pointer"
+            title="Pratinjau & Unduh Berkas (Ctrl+E)"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>Ekspor & Cetak</span>
+            <span>Ekspor & Unduh</span>
           </button>
         </div>
       </header>
@@ -1607,6 +1627,17 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
         edges={edges}
         pages={pages.map((p) => (p.id === activePageId ? { ...p, nodes, edges } : p))}
         pageConfig={pageConfig}
+        onOpenPrintPreview={() => setIsPrintPreviewOpen(true)}
+      />
+
+      <PrintPreviewModal
+        isOpen={isPrintPreviewOpen}
+        onClose={() => setIsPrintPreviewOpen(false)}
+        diagramTitle={title}
+        nodes={nodes}
+        edges={edges}
+        pageConfig={pageConfig}
+        onOpenExportModal={() => setIsExportModalOpen(true)}
       />
 
       <HistoryModal

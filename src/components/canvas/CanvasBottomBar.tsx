@@ -515,6 +515,14 @@ export default function CanvasBottomBar({
               <kbd className="px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded font-mono text-[10px] font-bold text-slate-800">Space + Drag</kbd>
             </div>
             <div className="flex items-center justify-between py-1">
+              <span>Pratinjau Cetak (Print)</span>
+              <kbd className="px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded font-mono text-[10px] font-bold text-slate-800">Ctrl + P</kbd>
+            </div>
+            <div className="flex items-center justify-between py-1">
+              <span>Ekspor & Unduh Berkas</span>
+              <kbd className="px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded font-mono text-[10px] font-bold text-slate-800">Ctrl + E</kbd>
+            </div>
+            <div className="flex items-center justify-between py-1">
               <span>Edit Teks Langsung</span>
               <span className="text-[11px] text-slate-400">Klik Ganda pada Bentuk</span>
             </div>
