@@ -57,18 +57,18 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
         <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-8">
           {/* Mascot Logo Card */}
           <div className="shrink-0 flex flex-col items-center gap-3">
-            <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl bg-[#083525] p-2 shadow-2xl border-2 border-amber-400/40 flex items-center justify-center hover:scale-105 transition-transform duration-200">
+            <div className="w-36 h-36 sm:w-44 sm:h-44 shrink-0 flex items-center justify-center transition-transform hover:scale-105 duration-200">
               <Image
                 src="/logo.png"
                 alt="Maskot Beruang Madu Galur"
-                width={128}
-                height={128}
-                className="w-full h-full object-contain rounded-2xl"
+                width={176}
+                height={176}
+                className="w-full h-full object-contain filter drop-shadow-2xl"
                 priority
               />
             </div>
             <div className="text-center">
-              <span className="text-[11px] font-extrabold uppercase tracking-widest text-amber-300 bg-black/30 px-3 py-1 rounded-full border border-amber-300/30">
+              <span className="text-[11px] font-extrabold uppercase tracking-widest text-amber-300 bg-black/40 px-3.5 py-1 rounded-full border border-amber-300/30 shadow-xs">
                 BANGKIT BERUANG
               </span>
             </div>
@@ -349,13 +349,13 @@ GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.`;
           </div>
 
           <div className="flex flex-col md:flex-row items-start gap-6">
-            <div className="shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#0b4632] p-2 border-2 border-amber-400/30 flex items-center justify-center shadow-md">
+            <div className="shrink-0 w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center transition-transform hover:scale-105 duration-200">
               <Image
                 src="/logo.png"
                 alt="Maskot Beruang Madu"
-                width={100}
-                height={100}
-                className="w-full h-full object-contain rounded-xl"
+                width={144}
+                height={144}
+                className="w-full h-full object-contain filter drop-shadow-xl"
               />
             </div>
             <div className="space-y-2 flex-1">

@@ -151,13 +151,13 @@ export default function DashboardPage() {
       <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-20 shadow-2xs">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-12 h-12 rounded-2xl bg-[#0b4632] p-1 flex items-center justify-center shadow-md overflow-hidden border border-emerald-900/30 group-hover:scale-105 transition-transform">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 flex items-center justify-center transition-transform group-hover:scale-105 duration-200">
               <Image
                 src="/logo.png"
                 alt="GALUR Logo"
-                width={48}
-                height={48}
-                className="w-full h-full object-contain rounded-xl"
+                width={56}
+                height={56}
+                className="w-full h-full object-contain filter drop-shadow-sm"
                 priority
               />
             </div>
@@ -216,14 +216,15 @@ export default function DashboardPage() {
       <main className="flex-1 max-w-6xl w-full mx-auto p-6 md:p-8 space-y-8">
         {/* Banner Slogan dengan Maskot Galur */}
         <div className="bg-gradient-to-r from-[#0b4632] via-[#0d5940] to-[#072419] rounded-3xl p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border border-emerald-800/40">
-          <div className="flex items-center gap-5">
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-[#083525] p-1.5 shadow-xl shrink-0 overflow-hidden border border-emerald-700/60 hidden sm:block">
+          <div className="flex items-center gap-6">
+            <div className="w-28 h-28 sm:w-36 sm:h-36 shrink-0 hidden sm:flex items-center justify-center transition-transform hover:scale-105 duration-200">
               <Image
                 src="/logo.png"
                 alt="Maskot Galur"
-                width={112}
-                height={112}
-                className="w-full h-full object-contain rounded-2xl"
+                width={144}
+                height={144}
+                className="w-full h-full object-contain filter drop-shadow-2xl"
+                priority
               />
             </div>
             <div className="space-y-1.5 max-w-xl">

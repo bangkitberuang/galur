@@ -24,13 +24,13 @@ export default function LandingPage() {
       {/* Top Navbar */}
       <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-6 md:px-12 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center gap-3.5">
-          <div className="w-14 h-14 rounded-2xl bg-[#0b4632] p-1.5 flex items-center justify-center shadow-md overflow-hidden border border-emerald-900/40">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 shrink-0 transition-transform hover:scale-105 duration-200">
             <Image
               src="/logo.png"
               alt="GALUR Logo"
-              width={56}
-              height={56}
-              className="w-full h-full object-contain rounded-xl"
+              width={64}
+              height={64}
+              className="w-full h-full object-contain filter drop-shadow-md"
               priority
             />
           </div>
@@ -41,7 +41,7 @@ export default function LandingPage() {
                 v1.0
               </span>
             </div>
-            <p className="text-[10px] text-slate-400 font-medium tracking-wide">
+            <p className="text-xs text-slate-500 font-medium tracking-wide">
               Diagram & Flowchart Builder
             </p>
           </div>
@@ -73,19 +73,19 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="relative py-16 px-6 md:px-12 max-w-6xl mx-auto text-center space-y-6">
         {/* Mascot & Badge Tagline */}
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-3xl bg-[#0b4632] p-2 shadow-2xl border-2 border-amber-400/40 relative hover:scale-105 transition-transform duration-200">
+        <div className="flex flex-col items-center gap-5">
+          <div className="relative w-48 h-48 sm:w-60 sm:h-60 md:w-64 md:h-64 transition-transform hover:scale-105 duration-300">
             <Image
               src="/logo.png"
               alt="Mascot Beruang Galur"
-              width={144}
-              height={144}
-              className="w-full h-full object-contain rounded-2xl"
+              width={256}
+              height={256}
+              className="w-full h-full object-contain filter drop-shadow-2xl"
               priority
             />
           </div>
 
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-[#0b4632] text-xs font-bold shadow-2xs">
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-emerald-50 border border-emerald-200 text-[#0b4632] text-xs sm:text-sm font-bold shadow-xs">
             <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500" />
             <span>Garis Alur, Ngajentrekeun Struktur</span>
           </div>
@@ -165,13 +165,13 @@ export default function LandingPage() {
       {/* Identity Pillars Banner */}
       <section className="py-8 px-6 md:px-12 max-w-5xl mx-auto">
         <div className="rounded-3xl bg-gradient-to-r from-[#0b4632] via-[#0d5940] to-[#072419] p-6 sm:p-8 text-white shadow-xl border border-emerald-800/40 flex flex-col md:flex-row items-center gap-6">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-[#083525] p-2 border-2 border-amber-400/40 shrink-0 shadow-lg flex items-center justify-center">
+          <div className="w-28 h-28 sm:w-36 sm:h-36 shrink-0 flex items-center justify-center transition-transform hover:scale-105 duration-200">
             <Image
               src="/logo.png"
               alt="GALUR Mascot"
-              width={80}
-              height={80}
-              className="w-full h-full object-contain"
+              width={144}
+              height={144}
+              className="w-full h-full object-contain filter drop-shadow-2xl"
             />
           </div>
           <div className="space-y-2 text-center md:text-left">
@@ -271,16 +271,16 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="mt-auto bg-[#072419] text-emerald-100/70 py-10 px-6 md:px-12 border-t border-emerald-900/50 text-center space-y-3">
         <div className="flex items-center justify-center gap-3 text-white font-extrabold text-base">
-          <div className="w-12 h-12 rounded-2xl bg-[#0b4632] p-1 flex items-center justify-center overflow-hidden border border-emerald-800/40 shadow-md">
+          <div className="w-14 h-14 shrink-0 flex items-center justify-center">
             <Image
               src="/logo.png"
               alt="GALUR Logo"
-              width={48}
-              height={48}
-              className="w-full h-full object-contain rounded-xl"
+              width={56}
+              height={56}
+              className="w-full h-full object-contain filter drop-shadow-lg"
             />
           </div>
-          <span className="text-white tracking-wide font-black text-lg">GALUR</span>
+          <span className="text-white tracking-wide font-black text-xl">GALUR</span>
         </div>
         <p className="text-xs text-amber-300 font-semibold italic">
           &ldquo;GALUR — merangkai gagasan, memperjelas alur, membangun pemahaman.&rdquo;

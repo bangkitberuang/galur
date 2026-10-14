@@ -524,13 +524,13 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
             className="flex items-center gap-2.5 text-slate-800 hover:text-emerald-800 transition-colors group"
             title="Kembali ke Beranda GALUR"
           >
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-[#0b4632] p-1 flex items-center justify-center shadow-md overflow-hidden border border-emerald-900/30 group-hover:scale-105 transition-transform">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 flex items-center justify-center transition-transform group-hover:scale-105 duration-200">
               <Image
                 src="/logo.png"
                 alt="GALUR Logo"
-                width={48}
-                height={48}
-                className="w-full h-full object-contain rounded-xl"
+                width={56}
+                height={56}
+                className="w-full h-full object-contain filter drop-shadow-sm"
                 priority
               />
             </div>
