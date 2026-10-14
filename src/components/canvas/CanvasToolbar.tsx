@@ -498,14 +498,14 @@ export default function CanvasToolbar({
               type="button"
               onClick={onToggleDiagramSettings}
               title={isDiagramSettingsOpen ? "Tutup Pengaturan Diagram" : "Buka Pengaturan Diagram (Kanvas, Ukuran Kertas & Grid)"}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
                 isDiagramSettingsOpen
                   ? 'bg-blue-50 text-blue-700 border-blue-300 shadow-xs'
-                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:text-blue-600 hover:border-slate-300'
+                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:text-blue-600 hover:border-slate-300 shadow-2xs'
               }`}
             >
               <Sliders className="w-3.5 h-3.5 text-blue-600" />
-              <span className="hidden lg:inline">Pengaturan Kanvas</span>
+              <span className="hidden sm:inline">Pengaturan Kanvas</span>
               <span className="text-[10px] font-mono font-bold bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">
                 {pageSize}
               </span>

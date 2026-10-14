@@ -1400,22 +1400,6 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
             {/* Live Multi-User Collaboration Cursors Overlay */}
             <CollabCursorsOverlay users={collabUsers} />
 
-            {/* Tombol Melayang untuk Memanggil Pengaturan Diagram (Auto-Hide Mode) */}
-            {!selectedNode && !selectedEdge && !isDiagramSettingsOpen && (
-              <button
-                type="button"
-                onClick={() => setIsDiagramSettingsOpen(true)}
-                className="absolute top-3.5 right-3.5 z-10 flex items-center gap-2 bg-white/95 hover:bg-white backdrop-blur-xs border border-slate-200 hover:border-blue-400 text-slate-700 hover:text-blue-600 px-3 py-1.5 rounded-full text-xs font-semibold shadow-xs hover:shadow-md transition-all cursor-pointer group"
-                title="Buka Pengaturan Diagram & Lembar Kanvas"
-              >
-                <Sliders className="w-3.5 h-3.5 text-blue-600 group-hover:rotate-45 transition-transform" />
-                <span>Pengaturan Kanvas</span>
-                <span className="text-[10px] font-mono font-bold bg-blue-100 text-blue-800 px-1.5 py-0.2 rounded">
-                  {pageConfig.pageSize}
-                </span>
-              </button>
-            )}
-
             <ReactFlow
               nodes={nodes}
               edges={edges}
