@@ -1141,19 +1141,19 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
           />
         </div>
 
-        {/* Center: Save status */}
-        <div className="hidden lg:flex items-center gap-2 text-xs text-slate-500">
-          <span className="flex items-center gap-1 text-slate-600 text-xs">
-            <HardDrive className="w-3.5 h-3.5 text-emerald-600" /> Auto-Save Aktif
-          </span>
-          <span>•</span>
-          {saveStatus === 'saving' && <span className="text-amber-600 font-medium">Menyimpan...</span>}
-          {saveStatus === 'saved' && (
-            <span className="text-emerald-700 flex items-center gap-0.5 font-medium">
-              <Check className="w-3.5 h-3.5" /> Tersimpan ke Riwayat
+        {/* Center: Save status (Single clean indicator) */}
+        <div className="hidden lg:flex items-center text-xs">
+          {saveStatus === 'saving' ? (
+            <span className="flex items-center gap-1.5 text-amber-600 font-medium">
+              <HardDrive className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
+              <span>Menyimpan...</span>
+            </span>
+          ) : (
+            <span className="flex items-center gap-1.5 text-emerald-700 font-medium">
+              <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[2.5]" />
+              <span>Otomatis tersimpan</span>
             </span>
           )}
-          {saveStatus === 'idle' && <span className="text-slate-400">Ada perubahan</span>}
         </div>
 
         {/* Right: Actions */}
