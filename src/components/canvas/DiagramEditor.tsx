@@ -1239,20 +1239,6 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
             )}
           </div>
 
-          {/* Tombol Menu Pengaturan Lembar & Kanvas */}
-          <button
-            type="button"
-            onClick={() => setIsSettingsModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50/60 text-slate-700 hover:text-blue-800 text-xs font-semibold transition-all shadow-2xs cursor-pointer"
-            title="Pengaturan Lembar A4, Auto-Expand, Kisi Grid, dan Tema Kanvas"
-          >
-            <Settings className="w-3.5 h-3.5 text-blue-600" />
-            <span className="hidden sm:inline">Pengaturan Kanvas</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-800 text-[10px] font-mono font-bold">
-              {pageConfig.pageSize}
-            </span>
-          </button>
-
           {/* Tombol Riwayat Diagram dengan Jumlah Berkas */}
           <button
             type="button"
