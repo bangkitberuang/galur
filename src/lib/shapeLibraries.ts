@@ -59,7 +59,8 @@ import {
   ClipboardList,
   Megaphone,
   FolderArchive,
-  Newspaper
+  Newspaper,
+  Tablet
 } from 'lucide-react';
 
 export interface ShapeDefinition {
@@ -419,6 +420,16 @@ export const SHAPE_CATEGORIES: ShapeCategory[] = [
         defaultData: { label: 'Aplikasi Ponsel', color: '#ecfdf5', borderColor: '#059669' },
       },
       {
+        id: 'clip-tablet',
+        type: 'process',
+        label: 'iPad / Tablet',
+        title: 'Perangkat Tablet / iPad',
+        icon: Tablet,
+        category: 'clipart',
+        tags: ['ipad', 'tablet', 'tab', 'device'],
+        defaultData: { label: 'iPad / Tablet', color: '#f0fdf4', borderColor: '#059669', icon: 'tablet' },
+      },
+      {
         id: 'clip-firewall',
         type: 'process',
         label: 'Firewall Keamanan',
@@ -493,6 +504,23 @@ export const SHAPE_CATEGORIES: ShapeCategory[] = [
           color: '#f0fdfa',
           borderColor: '#0d9488',
           iconColor: '#0d9488',
+        },
+      },
+      {
+        id: 'mm-tablet',
+        type: 'process',
+        label: 'iPad / Tablet',
+        title: 'iPad / Tablet (Teleprompter / Audio Control)',
+        icon: Tablet,
+        category: 'multimedia',
+        tags: ['ipad', 'tablet', 'teleprompter', 'monitor', 'remote', 'control', 'apple', 'android', 'tab'],
+        defaultData: {
+          label: 'iPad / Tablet',
+          sublabel: 'Teleprompter / Remote Control',
+          icon: 'tablet',
+          color: '#f0fdf4',
+          borderColor: '#059669',
+          iconColor: '#059669',
         },
       },
       {

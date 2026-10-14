@@ -35,14 +35,14 @@ export default function Sidebar({ onAddNode, edgeType, setEdgeType }: SidebarPro
   const [openCategoryIds, setOpenCategoryIds] = useState<Record<string, boolean>>({
     papan_coret: false,
     umum: true,
-    dasar: true,
-    panah: false,
-    diagram_alir: true,
     multimedia: true,
     tata_kelola_asn: true,
+    dasar: false,
+    panah: false,
+    diagram_alir: false,
     relasi_entitas: false,
     uml: false,
-    problem_solving: true,
+    problem_solving: false,
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [isMoreShapesModalOpen, setIsMoreShapesModalOpen] = useState(false);
@@ -51,7 +51,18 @@ export default function Sidebar({ onAddNode, edgeType, setEdgeType }: SidebarPro
   // Load saved active categories on mount
   useEffect(() => {
     const saved = getSavedActiveCategories();
-    setActiveCategoryIds(saved);
+    const combined = [...saved];
+    for (const id of ['multimedia', 'tata_kelola_asn']) {
+      if (!combined.includes(id)) {
+        combined.push(id);
+      }
+    }
+    setActiveCategoryIds(combined);
+    setOpenCategoryIds((prev) => ({
+      ...prev,
+      multimedia: true,
+      tata_kelola_asn: true,
+    }));
   }, []);
 
   // Global keyboard shortcut: Pressing '/' anywhere focuses the search bar

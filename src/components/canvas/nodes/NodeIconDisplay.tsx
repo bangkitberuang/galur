@@ -74,12 +74,15 @@ import {
   Megaphone,
   Newspaper,
   FolderArchive,
+  Tablet,
 } from 'lucide-react';
 
 export const LUCIDE_ICON_MAP: Record<string, React.ComponentType<any>> = {
   database: Database,
   server: Server,
   cloud: Cloud,
+  tablet: Tablet,
+  ipad: Tablet,
   cpu: Cpu,
   harddrive: HardDrive,
   network: Network,
@@ -182,6 +185,7 @@ export const ICON_CATEGORIES = [
       { id: 'cloud', label: 'Cloud CDN', icon: Cloud },
       { id: 'laptop', label: 'Laptop OBS', icon: Laptop },
       { id: 'smartphone', label: 'Smartphone Cam', icon: Smartphone },
+      { id: 'tablet', label: 'iPad / Tablet', icon: Tablet },
     ],
   },
   {
