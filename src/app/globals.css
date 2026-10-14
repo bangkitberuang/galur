@@ -75,9 +75,17 @@ body {
 }
 
 .react-flow__node.selected {
-  outline: 2px solid #059669;
-  outline-offset: 3px;
-  border-radius: 10px;
+  outline: none !important;
+}
+
+/* Kotak Blok Seleksi Mouse (Marquee Selection Sesuai Gambar 2) */
+.react-flow__selection {
+  background: rgba(2, 132, 199, 0.08) !important;
+  border: 1.5px dashed #0284c7 !important;
+  border-radius: 4px !important;
+  box-shadow: 0 0 12px rgba(2, 132, 199, 0.15) !important;
+  z-index: 1000 !important;
+  pointer-events: none !important;
 }
 
 /* Print CSS - Bersihkan semua elemen kontrol kanvas saat dicetak atau disimpan ke PDF */

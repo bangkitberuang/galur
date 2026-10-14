@@ -18,6 +18,7 @@ import {
   ReactFlowProvider,
   ConnectionMode,
   reconnectEdge,
+  SelectionMode,
 } from '@xyflow/react';
 import { 
   Save, 
@@ -97,6 +98,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   const [pageConfig, setPageConfig] = useState<CanvasPageConfig>(DEFAULT_PAGE_CONFIG);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isDiagramSettingsOpen, setIsDiagramSettingsOpen] = useState(false);
+  const [interactionMode, setInteractionMode] = useState<'select' | 'pan'>('select');
 
   // Multi-Page Diagram State (Halaman 1, 2, 3...)
   const [pages, setPages] = useState<DiagramPage[]>([
@@ -554,11 +556,19 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
         event.preventDefault();
         handleRedo();
       }
+
+      if (!event.ctrlKey && !event.metaKey && !event.altKey) {
+        if (event.key.toLowerCase() === 'v') {
+          setInteractionMode('select');
+        } else if (event.key.toLowerCase() === 'h') {
+          setInteractionMode('pan');
+        }
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [setNodes, setEdges, handleUndo, handleRedo, takeSnapshot]);
+  }, [setNodes, setEdges, handleUndo, handleRedo, takeSnapshot, setInteractionMode]);
 
   // Multi-Page Handlers
   const handleSwitchPage = useCallback(
@@ -1195,6 +1205,8 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
         isDiagramSettingsOpen={isDiagramSettingsOpen}
         onToggleDiagramSettings={() => setIsDiagramSettingsOpen((prev) => !prev)}
         pageSize={pageConfig.pageSize}
+        interactionMode={interactionMode}
+        onInteractionModeChange={setInteractionMode}
       />
 
       {/* Editor Body */}
@@ -1209,6 +1221,8 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
           <div
             ref={reactFlowWrapper}
             className={`flex-1 w-full relative print-area transition-colors ${
+              interactionMode === 'pan' ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
+            } ${
               pageConfig.canvasTheme === 'dark'
                 ? 'bg-slate-950'
                 : pageConfig.canvasTheme === 'emerald'
@@ -1259,6 +1273,11 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
               fitView
               snapToGrid={pageConfig.snapToGrid}
               snapGrid={[15, 15]}
+              selectionOnDrag={interactionMode === 'select'}
+              selectionMode={SelectionMode.Partial}
+              panOnDrag={interactionMode === 'pan' ? true : [1, 2]}
+              panActivationKeyCode="Space"
+              selectionKeyCode={null}
               attributionPosition="bottom-right"
             >
               {/* Lembar Halaman A4 Presisi dengan Fitur Auto-Expand Sesuai Perkembangan Diagram */}

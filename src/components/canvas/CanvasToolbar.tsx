@@ -18,7 +18,9 @@ import {
   Plus,
   MoveVertical,
   MoveHorizontal,
-  Sliders
+  Sliders,
+  MousePointer,
+  Hand
 } from 'lucide-react';
 import { Node, Edge, MarkerType } from '@xyflow/react';
 
@@ -36,6 +38,8 @@ interface CanvasToolbarProps {
   isDiagramSettingsOpen?: boolean;
   onToggleDiagramSettings?: () => void;
   pageSize?: string;
+  interactionMode?: 'select' | 'pan';
+  onInteractionModeChange?: (mode: 'select' | 'pan') => void;
 }
 
 export default function CanvasToolbar({
@@ -52,6 +56,8 @@ export default function CanvasToolbar({
   isDiagramSettingsOpen = false,
   onToggleDiagramSettings,
   pageSize = 'A4',
+  interactionMode = 'select',
+  onInteractionModeChange,
 }: CanvasToolbarProps) {
   const selectedNodes = nodes.filter((n) => n.selected);
   const hasSelectedNodes = selectedNodes.length > 0;
@@ -225,8 +231,43 @@ export default function CanvasToolbar({
 
   return (
     <div className="h-10 bg-white border-b border-slate-200 px-3 flex items-center justify-between text-xs text-slate-700 z-20 no-print select-none shadow-2xs">
-      {/* SEKSI KIRI: GAYA GARIS & UJUNG PANAH (GAMBAR 2) */}
+      {/* SEKSI KIRI: ALAT SELEKSI & GAYA GARIS */}
       <div className="flex items-center gap-1.5">
+        {/* Mode Interaksi (Pilih / Blok Objek vs Geser Kanvas) */}
+        {onInteractionModeChange && (
+          <>
+            <div className="flex items-center gap-0.5 bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+              <button
+                type="button"
+                onClick={() => onInteractionModeChange('select')}
+                title="Mode Pilih & Blok Objek (V) - Klik & geser mouse di area kanvas untuk blok banyak objek"
+                className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold transition-all ${
+                  interactionMode === 'select'
+                    ? 'bg-white text-blue-700 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                }`}
+              >
+                <MousePointer className="w-3.5 h-3.5 text-blue-600" />
+                <span className="hidden sm:inline">Pilih (V)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => onInteractionModeChange('pan')}
+                title="Mode Geser Kanvas (H) - Klik & geser kanvas (atau tahan tombol Spasi)"
+                className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold transition-all ${
+                  interactionMode === 'pan'
+                    ? 'bg-white text-blue-700 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                }`}
+              >
+                <Hand className="w-3.5 h-3.5 text-slate-600" />
+                <span className="hidden sm:inline">Geser (H)</span>
+              </button>
+            </div>
+            <div className="w-[1px] h-4 bg-slate-200 mx-0.5 hidden sm:block" />
+          </>
+        )}
+
         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1 hidden sm:inline">
           Garis:
         </span>

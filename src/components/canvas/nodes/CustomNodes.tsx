@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { getNodeTextStyles, getNodeShapeStyles } from '@/lib/nodeStyles';
 import { NodeIconDisplay } from './NodeIconDisplay';
+import UniversalNodeResizer from './UniversalNodeResizer';
 
 export interface CustomNodeData {
   label: string;
@@ -325,11 +326,10 @@ export const ProcessNode = memo((props: any) => {
 
   return (
     <div
-      className={`relative px-4 py-3 rounded-lg shadow-sm border-2 min-w-[140px] text-center transition-all flex flex-col items-center justify-center ${
-        selected ? 'ring-2 ring-blue-500 shadow-md scale-102' : ''
-      }`}
+      className="relative px-4 py-3 rounded-lg shadow-sm border-2 min-w-[120px] min-h-[44px] text-center transition-all flex flex-col items-center justify-center w-full h-full"
       style={{ ...getNodeShapeStyles(data, '#ffffff', '#3b82f6'), color: text }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={90} minHeight={40} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
       <NodeStatusBadge badge={data?.statusBadge} />
@@ -360,19 +360,23 @@ export const DecisionNode = memo((props: any) => {
   const { id, data, selected } = props;
   const text = data.textColor || '#1e3a8a';
   const hasIcon = (data.icon && data.icon !== 'none') || Boolean(data.emoji) || Boolean(data.iconUrl);
+  const width = data?.width ? Number(data.width) : 112;
+  const height = data?.height ? Number(data.height) : 112;
 
   return (
-    <div className="relative w-28 h-28 flex items-center justify-center">
+    <div 
+      className="relative flex items-center justify-center"
+      style={{ width, height }}
+    >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={60} minHeight={60} keepAspectRatio={true} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
       <NodeStatusBadge badge={data?.statusBadge} />
       <div
-        className={`absolute inset-0 rotate-45 rounded-md border-2 shadow-sm transition-all ${
-          selected ? 'ring-2 ring-blue-500 shadow-md' : ''
-        }`}
+        className="absolute inset-0 rotate-45 rounded-md border-2 shadow-sm transition-all"
         style={getNodeShapeStyles(data, '#eff6ff', '#2563eb')}
       />
-      <div className="relative z-10 px-2 text-center text-xs font-semibold select-none max-w-[85px] break-words flex flex-col items-center justify-center">
+      <div className="relative z-10 px-2 text-center text-xs font-semibold select-none max-w-[85%] break-words flex flex-col items-center justify-center">
         {hasIcon && (
           <NodeIconDisplay
             icon={data.icon}
@@ -402,11 +406,10 @@ export const TerminalNode = memo((props: any) => {
 
   return (
     <div
-      className={`relative px-6 py-2.5 rounded-full shadow-sm border-2 min-w-[120px] text-center transition-all flex items-center justify-center gap-1.5 ${
-        selected ? 'ring-2 ring-emerald-500 shadow-md' : ''
-      }`}
+      className="relative px-6 py-2.5 rounded-full shadow-sm border-2 min-w-[100px] min-h-[36px] text-center transition-all flex items-center justify-center gap-1.5 w-full h-full"
       style={{ ...getNodeShapeStyles(data, '#ecfdf5', '#10b981'), color: text }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={80} minHeight={34} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
       <NodeStatusBadge badge={data?.statusBadge} />
@@ -434,16 +437,17 @@ TerminalNode.displayName = 'TerminalNode';
 export const ParallelogramNode = memo((props: any) => {
   const { id, data, selected } = props;
   const text = data.textColor || '#713f12';
+  const width = data?.width ? Number(data.width) : 140;
+  const height = data?.height ? Number(data.height) : 48;
 
   return (
-    <div className="relative min-w-[140px] h-12 flex items-center justify-center">
+    <div className="relative flex items-center justify-center" style={{ width, height }}>
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={80} minHeight={36} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
       <NodeStatusBadge badge={data?.statusBadge} />
       <div
-        className={`absolute inset-0 -skew-x-12 rounded-md border-2 shadow-sm transition-all ${
-          selected ? 'ring-2 ring-amber-500 shadow-md' : ''
-        }`}
+        className="absolute inset-0 -skew-x-12 rounded-md border-2 shadow-sm transition-all"
         style={getNodeShapeStyles(data, '#fefce8', '#ca8a04')}
       />
       <div className="relative z-10 px-4 text-center text-xs font-semibold select-none flex items-center justify-center gap-1.5">
@@ -475,11 +479,10 @@ export const DocumentNode = memo((props: any) => {
 
   return (
     <div
-      className={`relative px-4 pt-3 pb-4 rounded-t-lg rounded-b-[18px] shadow-sm border-2 min-w-[140px] text-center transition-all border-b-4 flex flex-col items-center justify-center ${
-        selected ? 'ring-2 ring-sky-500 shadow-md' : ''
-      }`}
+      className="relative px-4 pt-3 pb-4 rounded-t-lg rounded-b-[18px] shadow-sm border-2 min-w-[120px] min-h-[50px] text-center transition-all border-b-4 flex flex-col items-center justify-center w-full h-full"
       style={{ ...getNodeShapeStyles(data, '#ffffff', '#0284c7'), color: text }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={80} minHeight={40} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
       <NodeStatusBadge badge={data?.statusBadge} />
@@ -511,11 +514,10 @@ export const PredefinedNode = memo((props: any) => {
 
   return (
     <div
-      className={`relative px-6 py-3 rounded-md shadow-sm border-2 min-w-[150px] text-center transition-all ${
-        selected ? 'ring-2 ring-slate-500 shadow-md' : ''
-      }`}
+      className="relative px-6 py-3 rounded-md shadow-sm border-2 min-w-[130px] min-h-[44px] text-center transition-all w-full h-full"
       style={{ ...getNodeShapeStyles(data, '#ffffff', '#475569'), color: text }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={100} minHeight={40} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
       {/* Garis Ganda Kiri & Kanan */}
@@ -538,11 +540,10 @@ export const HexagonNode = memo((props: any) => {
 
   return (
     <div
-      className={`relative px-5 py-2.5 rounded-lg shadow-sm border-2 min-w-[130px] text-center transition-all ${
-        selected ? 'ring-2 ring-pink-500 shadow-md' : ''
-      }`}
+      className="relative px-5 py-2.5 rounded-lg shadow-sm border-2 min-w-[110px] min-h-[40px] text-center transition-all w-full h-full"
       style={{ ...getNodeShapeStyles(data, '#fdf2f8', '#db2777'), color: text }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={90} minHeight={36} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
       <InlineEditableLabel
@@ -559,14 +560,14 @@ HexagonNode.displayName = 'HexagonNode';
 export const ConnectorNode = memo((props: any) => {
   const { id, data, selected } = props;
   const text = data.textColor || '#1d4ed8';
+  const size = data?.width ? Number(data.width) : (data?.height ? Number(data.height) : 40);
 
   return (
     <div
-      className={`relative w-10 h-10 rounded-full shadow-sm border-2 flex items-center justify-center transition-all ${
-        selected ? 'ring-2 ring-blue-500 shadow-md' : ''
-      }`}
-      style={{ ...getNodeShapeStyles(data, '#ffffff', '#3b82f6'), color: text }}
+      className="relative rounded-full shadow-sm border-2 flex items-center justify-center transition-all"
+      style={{ ...getNodeShapeStyles(data, '#ffffff', '#3b82f6'), color: text, width: size, height: size }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={24} minHeight={24} keepAspectRatio={true} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
       <InlineEditableLabel
@@ -586,11 +587,10 @@ export const DatabaseNode = memo((props: any) => {
 
   return (
     <div
-      className={`relative px-4 py-3 rounded-lg shadow-sm border-2 min-w-[130px] text-center transition-all flex flex-col items-center ${
-        selected ? 'ring-2 ring-purple-500 shadow-md' : ''
-      }`}
+      className="relative px-4 py-3 rounded-lg shadow-sm border-2 min-w-[110px] min-h-[60px] text-center transition-all flex flex-col items-center justify-center w-full h-full"
       style={{ ...getNodeShapeStyles(data, '#faf5ff', '#9333ea'), color: text }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={80} minHeight={50} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
       <NodeIconDisplay
@@ -621,11 +621,10 @@ export const CloudNode = memo((props: any) => {
 
   return (
     <div
-      className={`relative px-5 py-3 rounded-2xl shadow-sm border-2 min-w-[140px] text-center transition-all flex flex-col items-center ${
-        selected ? 'ring-2 ring-green-500 shadow-md' : ''
-      }`}
+      className="relative px-5 py-3 rounded-2xl shadow-sm border-2 min-w-[120px] min-h-[60px] text-center transition-all flex flex-col items-center justify-center w-full h-full"
       style={{ ...getNodeShapeStyles(data, '#f0fdf4', '#22c55e'), color: text }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={90} minHeight={50} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
       <NodeIconDisplay
@@ -712,12 +711,13 @@ export const MindMapNode = memo((props: any) => {
   };
 
   return (
-    <div className="group relative">
+    <div className="group relative w-full h-full">
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={100} minHeight={38} />
       <NodeQuickActions id={id} selected={selected} />
       <div
-        className={`px-4 py-2.5 rounded-xl shadow-sm border-2 min-w-[130px] max-w-[240px] text-center transition-all flex flex-col items-center justify-center ${
-          selected ? 'ring-2 ring-blue-500 shadow-md' : ''
-        } ${isRoot ? 'shadow-md' : ''}`}
+        className={`w-full h-full px-4 py-2.5 rounded-xl shadow-sm border-2 min-w-[120px] text-center transition-all flex flex-col items-center justify-center ${
+          isRoot ? 'shadow-md' : ''
+        }`}
         style={{ ...shapeStyles, ...textStyles }}
       >
         <StandardHandles />
@@ -771,11 +771,10 @@ export const StickyNoteNode = memo((props: any) => {
 
   return (
     <div
-      className={`relative p-3 rounded-md shadow-md border min-w-[120px] max-w-[180px] min-h-[90px] transition-all ${
-        selected ? 'ring-2 ring-amber-500' : ''
-      }`}
+      className="relative p-3 rounded-md shadow-md border min-w-[100px] min-h-[80px] w-full h-full transition-all"
       style={{ ...shapeStyles, ...textStyles }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={90} minHeight={60} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
       <div className="flex items-center gap-1 mb-1 font-semibold opacity-70">
@@ -801,14 +800,13 @@ export const TextNode = memo((props: any) => {
 
   return (
     <div
-      className={`relative px-2 py-1 rounded min-w-[30px] transition-all select-none ${
-        selected ? 'ring-2 ring-emerald-600 bg-emerald-50/50' : ''
-      }`}
+      className="relative px-2 py-1 rounded min-w-[30px] transition-all select-none w-full h-full"
       style={{
         ...shapeStyles,
         ...textStyles,
       }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={40} minHeight={24} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
       <InlineEditableLabel

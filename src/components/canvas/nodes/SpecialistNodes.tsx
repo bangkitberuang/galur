@@ -20,6 +20,7 @@ import {
   Plus
 } from 'lucide-react';
 import { getNodeTextStyles, getNodeShapeStyles } from '@/lib/nodeStyles';
+import UniversalNodeResizer from './UniversalNodeResizer';
 
 // Floating Quick Action Toolbar
 const NodeQuickActions = ({ id, selected }: { id: string; selected?: boolean }) => {
@@ -197,11 +198,10 @@ export const UMLClassNode = memo((props: any) => {
 
   return (
     <div
-      className={`bg-white rounded-xl shadow-md border overflow-hidden min-w-[200px] text-xs font-mono transition-all ${
-        selected ? 'ring-2 ring-emerald-500 shadow-lg' : ''
-      }`}
+      className="bg-white rounded-xl shadow-md border overflow-hidden min-w-[200px] text-xs font-mono transition-all w-full h-full"
       style={{ ...shapeStyles, borderColor }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={160} minHeight={100} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
 
@@ -903,10 +903,11 @@ export const SwimlaneGroupNode = memo((props: any) => {
   return (
     <div
       className={`relative rounded-2xl border-2 border-slate-300 bg-white/70 backdrop-blur-2xs shadow-sm overflow-visible transition-all ${
-        selected ? 'ring-2 ring-blue-500 shadow-md border-blue-400' : ''
+        selected ? 'shadow-md border-blue-400' : ''
       }`}
       style={{ width: totalWidth, zIndex: -1 }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={400} minHeight={200} />
       <NodeQuickActions id={id} selected={selected} />
 
       {/* Header Judul Container Swimlane */}

@@ -5,6 +5,7 @@ import { Handle, Position, NodeToolbar, useReactFlow } from '@xyflow/react';
 import { Trash2, Copy, Smile } from 'lucide-react';
 import { getNodeTextStyles, getNodeShapeStyles, getSvgStrokeProps } from '@/lib/nodeStyles';
 import { NodeIconDisplay } from './NodeIconDisplay';
+import UniversalNodeResizer from './UniversalNodeResizer';
 
 // Floating Quick Action Toolbar (Hapus & Duplikat Cepat)
 const NodeQuickActions = ({ id, selected }: { id: string; selected?: boolean }) => {
@@ -225,7 +226,7 @@ const SvgShapeWrapper = ({
   return (
     <div
       className={`relative flex items-center justify-center transition-all ${
-        selected ? 'drop-shadow-md ring-2 ring-blue-500 rounded-lg' : ''
+        selected ? 'drop-shadow-md' : ''
       }`}
       style={{
         ...shapeStyles,
@@ -233,6 +234,7 @@ const SvgShapeWrapper = ({
         height: effectiveHeight,
       }}
     >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={60} minHeight={30} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
       {/* Lencana Status Alur (✓ Disetujui / ✕ Ditolak) */}
