@@ -526,19 +526,35 @@ export const StickyNoteNode = memo((props: any) => {
 });
 StickyNoteNode.displayName = 'StickyNoteNode';
 
-// 13. Text Node (Teks Melayang Bebas)
+// 13. Text Node (Teks Melayang Bebas dengan Dukungan Rotasi & Format Sumbu Diagram)
 export const TextNode = memo((props: any) => {
   const { id, data, selected } = props;
+  const rotation = data.rotation ? `rotate(${data.rotation}deg)` : undefined;
+
   return (
     <div
-      className={`relative px-2 py-1 rounded min-w-[60px] text-center transition-all ${
-        selected ? 'ring-1 ring-blue-400 bg-blue-50/50' : ''
+      className={`relative px-2 py-1 rounded min-w-[30px] text-center transition-all select-none ${
+        selected ? 'ring-2 ring-emerald-600 bg-emerald-50/50' : ''
       }`}
-      style={{ color: data.textColor || '#1e293b' }}
+      style={{
+        color: data.textColor || '#0f172a',
+        transform: rotation,
+        fontSize: data.fontSize || undefined,
+        fontWeight: data.fontWeight || undefined,
+        letterSpacing: data.letterSpacing || undefined,
+      }}
     >
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
-      <span className="font-medium text-sm">{data.label || 'Teks'}</span>
+      <span
+        className={`inline-block leading-none ${
+          data.fontWeight === 'bold' || data.fontWeight === '800' || data.fontWeight === '900'
+            ? 'font-black'
+            : 'font-medium'
+        } ${data.isUppercase ? 'uppercase' : ''}`}
+      >
+        {data.label || 'Teks'}
+      </span>
     </div>
   );
 });

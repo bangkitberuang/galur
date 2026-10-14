@@ -325,48 +325,97 @@ export const OrgNode = memo((props: any) => {
 });
 OrgNode.displayName = 'OrgNode';
 
-// 4. SWOT QUADRANT CARD NODE
+// 4. SWOT QUADRANT CARD NODE (Matriks 4 Kuadran dengan Watermark Huruf S / W / O / T)
 export const SWOTCardNode = memo((props: any) => {
   const { id, data, selected } = props;
-  const swotType = (data.type || 'S').toUpperCase();
-  const title = data.title || (
-    swotType === 'S' ? 'Strengths (Kekuatan)' :
-    swotType === 'W' ? 'Weaknesses (Kelemahan)' :
-    swotType === 'O' ? 'Opportunities (Peluang)' : 'Threats (Ancaman)'
-  );
-  const items: string[] = Array.isArray(data.items) ? data.items : ['Poin analisis strategis 1', 'Poin analisis strategis 2'];
-  const bg = data.color || '#ecfdf5';
-  const border = data.borderColor || '#059669';
-  const headerBg = data.headerBg || '#0b4632';
-  const text = data.textColor || '#064e3b';
+  const swotType = (data.type || 'S').toUpperCase() as 'S' | 'W' | 'O' | 'T';
+
+  const defaultTitles: Record<'S' | 'W' | 'O' | 'T', string> = {
+    S: 'strengths',
+    W: 'weaknesses',
+    O: 'opportunities',
+    T: 'threats',
+  };
+
+  const defaultPresets: Record<'S' | 'W' | 'O' | 'T', { bg: string; border: string; text: string; watermark: string }> = {
+    S: { bg: '#8ed95a', border: '#78c644', text: '#0f172a', watermark: 'rgba(0, 0, 0, 0.15)' },
+    W: { bg: '#72aae0', border: '#5b98d2', text: '#0f172a', watermark: 'rgba(0, 0, 0, 0.15)' },
+    O: { bg: '#ffd966', border: '#f0c742', text: '#0f172a', watermark: 'rgba(0, 0, 0, 0.15)' },
+    T: { bg: '#f07d7d', border: '#df6666', text: '#0f172a', watermark: 'rgba(0, 0, 0, 0.15)' },
+  };
+
+  const preset = defaultPresets[swotType] || defaultPresets.S;
+  const title = data.title || defaultTitles[swotType] || 'strengths';
+  const bg = data.color || preset.bg;
+  const border = data.borderColor || preset.border;
+  const text = data.textColor || preset.text;
+  const watermark = preset.watermark;
+
+  const defaultSampleItems: Record<'S' | 'W' | 'O' | 'T', string[]> = {
+    S: [
+      'Low labor cost',
+      'Strong specialization in electric services',
+      'Well recognized, national brand name',
+      'Good relationship with major investors',
+    ],
+    W: [
+      'Lack expertise in renewable energy',
+      'Lack capital',
+      'Lack of industrial partners',
+      'Lack interaction with major stakeholders and policy makers',
+      'Low R&D capability',
+    ],
+    O: [
+      '2-year government subsidies',
+      'Fast growing sector',
+      'High social acceptance',
+      'High oil and coal cost',
+      'Well established legal framework for storage, manufacturing and transportation',
+    ],
+    T: [
+      'Potentially high R&D expenses',
+      'High waste management fee',
+      'The "Not in my backyard" philosophy makes waste management difficult',
+      'Large competitors get majority of market share',
+    ],
+  };
+
+  const items: string[] = Array.isArray(data.items) && data.items.length > 0 
+    ? data.items 
+    : (defaultSampleItems[swotType] || defaultSampleItems.S);
 
   return (
     <div
-      className={`rounded-2xl shadow-lg border p-4 min-w-[340px] max-w-[380px] transition-all ${
-        selected ? 'ring-2 ring-emerald-600 shadow-xl scale-101' : ''
+      className={`relative rounded-xl shadow-md border p-5 min-w-[300px] max-w-[330px] min-h-[320px] flex flex-col justify-start transition-all overflow-hidden select-none ${
+        selected ? 'ring-3 ring-emerald-700 shadow-xl scale-101' : ''
       }`}
       style={{ backgroundColor: bg, borderColor: border }}
     >
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
 
-      {/* Header Badge */}
-      <div className="flex items-center gap-2.5 mb-3">
-        <div
-          className="w-8 h-8 rounded-xl text-white font-black text-sm flex items-center justify-center shadow-xs shrink-0"
-          style={{ backgroundColor: headerBg }}
-        >
-          {swotType}
-        </div>
-        <div className="font-extrabold text-sm text-slate-900">{title}</div>
+      {/* Giant Background Watermark Letter (S / W / O / T) persis seperti pada Gambar Contoh */}
+      <div
+        className="absolute inset-0 flex items-center justify-center pointer-events-none select-none font-black font-sans leading-none z-0"
+        style={{ fontSize: '210px', color: watermark }}
+        aria-hidden="true"
+      >
+        {swotType}
       </div>
 
-      {/* List Items */}
-      <ul className="space-y-2 text-xs leading-relaxed" style={{ color: text }}>
+      {/* Judul Kuadran (Tengah) */}
+      <div className="relative z-10 text-center mb-3">
+        <h3 className="font-bold text-lg lowercase tracking-tight text-slate-900 drop-shadow-2xs">
+          {title}
+        </h3>
+      </div>
+
+      {/* Daftar Poin Analisis (Bullet Points) */}
+      <ul className="relative z-10 space-y-2 text-xs font-medium leading-relaxed" style={{ color: text }}>
         {items.map((item, idx) => (
-          <li key={idx} className="flex items-start gap-1.5">
-            <span className="font-bold opacity-60">•</span>
-            <span>{item}</span>
+          <li key={idx} className="flex items-start gap-2">
+            <span className="font-black text-sm leading-none mt-0.5">•</span>
+            <span className="leading-snug">{item}</span>
           </li>
         ))}
       </ul>

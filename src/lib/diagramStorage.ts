@@ -116,21 +116,142 @@ const defaultMindmapEdges: Edge[] = [
   },
 ];
 
+// Template Bawaan Matriks Analisis SWOT 4 Kuadran (Sesuai Contoh Gambar)
+const defaultSwotNodes: Node[] = [
+  {
+    id: 'swot-axis-internal',
+    type: 'text',
+    position: { x: 410, y: 30 },
+    data: {
+      label: 'INTERNAL',
+      fontSize: '18px',
+      fontWeight: '900',
+      letterSpacing: '0.15em',
+      textColor: '#0f172a',
+      isUppercase: true,
+    },
+  },
+  {
+    id: 'swot-axis-external',
+    type: 'text',
+    position: { x: 410, y: 800 },
+    data: {
+      label: 'EXTERNAL',
+      fontSize: '18px',
+      fontWeight: '900',
+      letterSpacing: '0.15em',
+      textColor: '#0f172a',
+      isUppercase: true,
+    },
+  },
+  {
+    id: 'swot-axis-positive',
+    type: 'text',
+    position: { x: 45, y: 415 },
+    data: {
+      label: 'POSITIVE',
+      rotation: -90,
+      fontSize: '18px',
+      fontWeight: '900',
+      letterSpacing: '0.15em',
+      textColor: '#0f172a',
+      isUppercase: true,
+    },
+  },
+  {
+    id: 'swot-axis-negative',
+    type: 'text',
+    position: { x: 810, y: 415 },
+    data: {
+      label: 'NEGATIVE',
+      rotation: 90,
+      fontSize: '18px',
+      fontWeight: '900',
+      letterSpacing: '0.15em',
+      textColor: '#0f172a',
+      isUppercase: true,
+    },
+  },
+  {
+    id: 'swot-s',
+    type: 'swot_card',
+    position: { x: 130, y: 80 },
+    data: {
+      type: 'S',
+      title: 'strengths',
+      color: '#8ed95a',
+      borderColor: '#78c644',
+      textColor: '#0f172a',
+      items: [
+        'Low labor cost',
+        'Strong specialization in electric services',
+        'Well recognized, national brand name',
+        'Good relationship with major investors',
+      ],
+    },
+  },
+  {
+    id: 'swot-w',
+    type: 'swot_card',
+    position: { x: 470, y: 80 },
+    data: {
+      type: 'W',
+      title: 'weaknesses',
+      color: '#72aae0',
+      borderColor: '#5b98d2',
+      textColor: '#0f172a',
+      items: [
+        'Lack expertise in renewable energy',
+        'Lack capital',
+        'Lack of industrial partners',
+        'Lack interaction with major stakeholders and policy makers',
+        'Low R&D capability',
+      ],
+    },
+  },
+  {
+    id: 'swot-o',
+    type: 'swot_card',
+    position: { x: 130, y: 440 },
+    data: {
+      type: 'O',
+      title: 'opportunities',
+      color: '#ffd966',
+      borderColor: '#f0c742',
+      textColor: '#0f172a',
+      items: [
+        '2-year government subsidies',
+        'Fast growing sector',
+        'High social acceptance',
+        'High oil and coal cost',
+        'Well established legal framework for storage, manufacturing and transportation',
+      ],
+    },
+  },
+  {
+    id: 'swot-t',
+    type: 'swot_card',
+    position: { x: 470, y: 440 },
+    data: {
+      type: 'T',
+      title: 'threats',
+      color: '#f07d7d',
+      borderColor: '#df6666',
+      textColor: '#0f172a',
+      items: [
+        'Potentially high R&D expenses',
+        'High waste management fee',
+        'The "Not in my backyard" philosophy makes waste management difficult',
+        'Large competitors get majority of market share',
+      ],
+    },
+  },
+];
+
 // Inisialisasi awal jika riwayat masih kosong
 export function initDefaultDiagramsIfEmpty(): DiagramMetadata[] {
   if (typeof window === 'undefined') return [];
 
-  const rawIndex = localStorage.getItem(META_INDEX_KEY);
-  if (rawIndex) {
-    try {
-      const parsed = JSON.parse(rawIndex);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
-      }
-    } catch (e) {}
-  }
-
-  // Buat 2 diagram awal agar riwayat langsung terisi rapi
   const initialList: DiagramContent[] = [
     {
       id: 'flowchart-demo-1',
@@ -154,8 +275,38 @@ export function initDefaultDiagramsIfEmpty(): DiagramMetadata[] {
       nodes: defaultMindmapNodes,
       edges: defaultMindmapEdges,
     },
+    {
+      id: 'swot-demo-3',
+      title: 'Matriks Analisis SWOT 4 Kuadran (Sesuai Contoh Gambar)',
+      updatedAt: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
+      createdAt: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
+      nodeCount: defaultSwotNodes.length,
+      edgeCount: 0,
+      type: 'custom',
+      nodes: defaultSwotNodes,
+      edges: [],
+    },
   ];
 
+  const rawIndex = localStorage.getItem(META_INDEX_KEY);
+  if (rawIndex) {
+    try {
+      const parsed: DiagramMetadata[] = JSON.parse(rawIndex);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Pastikan demo SWOT selalu tersedia
+        if (!parsed.some((d) => d.id === 'swot-demo-3')) {
+          const swotDiagram = initialList.find((d) => d.id === 'swot-demo-3')!;
+          localStorage.setItem(`galur_diagram_${swotDiagram.id}`, JSON.stringify(swotDiagram));
+          const updatedIndex = [swotDiagram, ...parsed].map(({ nodes, edges, ...meta }: any) => meta);
+          localStorage.setItem(META_INDEX_KEY, JSON.stringify(updatedIndex));
+          return updatedIndex;
+        }
+        return parsed;
+      }
+    } catch (e) {}
+  }
+
+  // Buat diagram awal agar riwayat langsung terisi rapi
   initialList.forEach((diagram) => {
     localStorage.setItem(`galur_diagram_${diagram.id}`, JSON.stringify(diagram));
   });
