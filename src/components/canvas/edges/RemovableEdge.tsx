@@ -450,10 +450,10 @@ export const RemovableStepEdge = memo((props: EdgeProps) => {
             </div>
           )}
 
-          {/* Floating Action Capsule (Tampil saat hover atau garis sedang aktif terseleksi) */}
+          {/* Floating Action Capsule (Tampil saat hover atau garis sedang aktif terseleksi) - Skala 70% (-30%) */}
           <div
-            className={`flex items-center gap-1 bg-white/95 backdrop-blur-xs border border-slate-200/90 rounded-full shadow-lg py-0.5 px-1.5 transition-all duration-150 mb-1 ${
-              showControls ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 pointer-events-none scale-90'
+            className={`flex items-center gap-1 bg-white/95 backdrop-blur-xs border border-slate-200/90 rounded-full shadow-lg py-0.5 px-1.5 transition-all duration-150 mb-1 origin-bottom ${
+              showControls ? 'opacity-100 scale-[0.70] pointer-events-auto' : 'opacity-0 pointer-events-none scale-[0.55]'
             }`}
           >
             {/* Pemilih Bentuk Cepat: Lengkung / Lurus / Siku (Aktif) */}
@@ -568,8 +568,7 @@ export const RemovableStepEdge = memo((props: EdgeProps) => {
             </button>
           </div>
 
-          {/* Titik Geser Utama di Tengah Garis (Visio / draw.io Draggable Handle Dot) */}
-          {/* SELALU TAMPIL di kanvas agar pengguna langsung melihat titik kontrol garis */}
+          {/* Titik Geser Utama di Tengah Garis (Sleek 30% Smaller Handle Dot) */}
           <div
             onPointerDown={handleMainDotPointerDown}
             onClick={(e) => {
@@ -582,24 +581,19 @@ export const RemovableStepEdge = memo((props: EdgeProps) => {
               );
             }}
             title="Titik Kontrol Garis: Klik & tahan titik ini lalu geser mouse untuk memindahkan posisi garis"
-            className="group/dot relative flex items-center justify-center cursor-grab active:cursor-grabbing select-none pointer-events-auto transition-all"
+            className="group/dot relative p-1 flex items-center justify-center cursor-grab active:cursor-grabbing select-none pointer-events-auto transition-all"
           >
             {showControls ? (
-              // Saat Hover atau Garis Terpilih: Membesar dengan efek ring glowing
-              <div className="w-5 h-5 rounded-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 border-2 border-white ring-2 ring-blue-500/80 shadow-lg flex items-center justify-center text-white transition-all transform hover:scale-125">
-                <div className="w-1.5 h-1.5 rounded-full bg-white shadow-2xs" />
+              // Saat Hover atau Garis Terpilih: 14px (ringkas, sleek & presisi)
+              <div className="w-3.5 h-3.5 rounded-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 border-[1.5px] border-white ring-1 ring-blue-500/80 shadow-md flex items-center justify-center text-white transition-all transform hover:scale-125">
+                <div className="w-1 h-1 rounded-full bg-white shadow-2xs" />
               </div>
             ) : (
-              // Saat Idle/Biasa: SELALU TAMPIL lingkaran putih berbingkai biru dengan titik tengah biru
-              <div className="w-4 h-4 rounded-full bg-white hover:bg-blue-600 border-2 border-blue-600 shadow-md flex items-center justify-center transition-all transform hover:scale-125">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-600 group-hover/dot:bg-white transition-colors" />
+              // Saat Idle/Biasa: 10px (halus dan tidak menghalangi diagram)
+              <div className="w-2.5 h-2.5 rounded-full bg-white hover:bg-blue-600 border-[1.5px] border-blue-600 shadow-xs flex items-center justify-center transition-all transform hover:scale-125">
+                <div className="w-1 h-1 rounded-full bg-blue-600 group-hover/dot:bg-white transition-colors" />
               </div>
             )}
-
-            {/* Tooltip petunjuk saat hover titik */}
-            <div className="absolute top-full mt-1.5 px-2 py-0.5 rounded bg-slate-900/95 text-white text-[9px] font-semibold whitespace-nowrap opacity-0 group-hover/dot:opacity-100 transition-opacity pointer-events-none shadow-md z-50">
-              Tarik titik ini untuk geser garis (↔ / ↕)
-            </div>
           </div>
         </div>
       </EdgeLabelRenderer>
@@ -768,10 +762,10 @@ export const RemovableBezierEdge = memo((props: EdgeProps) => {
             </div>
           )}
 
-          {/* Quick Action Capsule (Muncul saat hover atau saat garis merah terpilih) */}
+          {/* Quick Action Capsule (Muncul saat hover atau saat garis merah terpilih) - Skala 70% (-30%) */}
           <div
-            className={`flex items-center gap-1.5 bg-white/95 backdrop-blur-xs border border-slate-200/90 rounded-full shadow-xl py-1 px-2 transition-all duration-150 mb-1 ${
-              showButton ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 pointer-events-none scale-90'
+            className={`flex items-center gap-1.5 bg-white/95 backdrop-blur-xs border border-slate-200/90 rounded-full shadow-xl py-1 px-2 transition-all duration-150 mb-1 origin-bottom ${
+              showButton ? 'opacity-100 scale-[0.70] pointer-events-auto' : 'opacity-0 pointer-events-none scale-[0.55]'
             }`}
           >
             {/* Pemilih Bentuk Cepat: Lengkung (Aktif) / Lurus / Siku */}
@@ -839,7 +833,7 @@ export const RemovableBezierEdge = memo((props: EdgeProps) => {
             </button>
           </div>
 
-          {/* Titik Kontrol Lengkung di Tengah Garis (Dapat Ditarik untuk Atur Lengkungan) */}
+          {/* Titik Kontrol Lengkung di Tengah Garis (Sleek 30% Smaller Handle Dot) */}
           <div
             onPointerDown={handleCurvaturePointerDown}
             onClick={(e) => {
@@ -852,20 +846,19 @@ export const RemovableBezierEdge = memo((props: EdgeProps) => {
               );
             }}
             title="Titik Kontrol: Klik untuk memilih garis, atau klik & tahan lalu tarik untuk mengatur kelengkungan kustom"
-            className="group/dot relative flex items-center justify-center cursor-ns-resize select-none pointer-events-auto transition-all"
+            className="group/dot relative p-1 flex items-center justify-center cursor-ns-resize select-none pointer-events-auto transition-all"
           >
             {showButton ? (
-              <div className="w-5 h-5 rounded-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 border-2 border-white ring-2 ring-blue-500/80 shadow-lg flex items-center justify-center text-white transition-all transform hover:scale-125">
-                <div className="w-1.5 h-1.5 rounded-full bg-white shadow-2xs" />
+              // Saat Hover atau Garis Terpilih: 14px (ringkas, sleek & presisi)
+              <div className="w-3.5 h-3.5 rounded-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 border-[1.5px] border-white ring-1 ring-blue-500/80 shadow-md flex items-center justify-center text-white transition-all transform hover:scale-125">
+                <div className="w-1 h-1 rounded-full bg-white shadow-2xs" />
               </div>
             ) : (
-              <div className="w-4 h-4 rounded-full bg-white hover:bg-blue-600 border-2 border-blue-600 shadow-md flex items-center justify-center transition-all transform hover:scale-125">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-600 group-hover/dot:bg-white transition-colors" />
+              // Saat Idle/Biasa: 10px (halus dan tidak menghalangi diagram)
+              <div className="w-2.5 h-2.5 rounded-full bg-white hover:bg-blue-600 border-[1.5px] border-blue-600 shadow-xs flex items-center justify-center transition-all transform hover:scale-125">
+                <div className="w-1 h-1 rounded-full bg-blue-600 group-hover/dot:bg-white transition-colors" />
               </div>
             )}
-            <div className="absolute top-full mt-1.5 px-2 py-0.5 rounded bg-slate-900/95 text-white text-[9px] font-semibold whitespace-nowrap opacity-0 group-hover/dot:opacity-100 transition-opacity pointer-events-none shadow-md z-50">
-              Tarik titik ini untuk ubah lengkungan kustom (↕)
-            </div>
           </div>
         </div>
       </EdgeLabelRenderer>
@@ -966,10 +959,10 @@ export const RemovableStraightEdge = memo((props: EdgeProps) => {
             </div>
           )}
 
-          {/* Quick Action Capsule */}
+          {/* Quick Action Capsule - Skala 70% (-30%) */}
           <div
-            className={`flex items-center gap-1.5 bg-white/95 backdrop-blur-xs border border-slate-200/90 rounded-full shadow-xl py-1 px-2 transition-all duration-150 mb-1 ${
-              showButton ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 pointer-events-none scale-90'
+            className={`flex items-center gap-1.5 bg-white/95 backdrop-blur-xs border border-slate-200/90 rounded-full shadow-xl py-1 px-2 transition-all duration-150 mb-1 origin-bottom ${
+              showButton ? 'opacity-100 scale-[0.70] pointer-events-auto' : 'opacity-0 pointer-events-none scale-[0.55]'
             }`}
           >
             {/* Pemilih Bentuk Cepat: Lengkung / Lurus (Aktif) / Siku */}
@@ -1012,7 +1005,7 @@ export const RemovableStraightEdge = memo((props: EdgeProps) => {
             </button>
           </div>
 
-          {/* Titik Garis Lurus Selalu Tampil */}
+          {/* Titik Garis Lurus (Sleek 30% Smaller Handle Dot) */}
           <div
             onClick={(e) => {
               e.stopPropagation();
@@ -1024,15 +1017,17 @@ export const RemovableStraightEdge = memo((props: EdgeProps) => {
               );
             }}
             title="Titik Garis Lurus (Klik untuk memilih garis)"
-            className="group/dot relative flex items-center justify-center cursor-pointer select-none pointer-events-auto transition-all"
+            className="group/dot relative p-1 flex items-center justify-center cursor-pointer select-none pointer-events-auto transition-all"
           >
             {showButton ? (
-              <div className="w-5 h-5 rounded-full bg-blue-600 hover:bg-blue-700 border-2 border-white ring-2 ring-blue-500/80 shadow-lg flex items-center justify-center text-white transition-all transform hover:scale-125">
-                <div className="w-1.5 h-1.5 rounded-full bg-white shadow-2xs" />
+              // Saat Hover atau Garis Terpilih: 14px (ringkas, sleek & presisi)
+              <div className="w-3.5 h-3.5 rounded-full bg-blue-600 hover:bg-blue-700 border-[1.5px] border-white ring-1 ring-blue-500/80 shadow-md flex items-center justify-center text-white transition-all transform hover:scale-125">
+                <div className="w-1 h-1 rounded-full bg-white shadow-2xs" />
               </div>
             ) : (
-              <div className="w-4 h-4 rounded-full bg-white hover:bg-blue-600 border-2 border-blue-600 shadow-md flex items-center justify-center transition-all transform hover:scale-125">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-600 group-hover/dot:bg-white transition-colors" />
+              // Saat Idle/Biasa: 10px (halus dan tidak menghalangi diagram)
+              <div className="w-2.5 h-2.5 rounded-full bg-white hover:bg-blue-600 border-[1.5px] border-blue-600 shadow-xs flex items-center justify-center transition-all transform hover:scale-125">
+                <div className="w-1 h-1 rounded-full bg-blue-600 group-hover/dot:bg-white transition-colors" />
               </div>
             )}
           </div>
