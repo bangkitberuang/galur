@@ -5,7 +5,7 @@
 
 -- 1. Buat Tabel Diagram
 create table if not exists public.diagrams (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key default gen_random_uuid()::text,
   user_id uuid references auth.users(id) on delete cascade not null,
   title text not null default 'Diagram Baru Tanpa Judul',
   description text default '',
