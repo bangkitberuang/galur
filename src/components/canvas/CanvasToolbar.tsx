@@ -304,9 +304,7 @@ export default function CanvasToolbar({
           </>
         )}
 
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1 hidden sm:inline">
-          Garis:
-        </span>
+        <div className="w-[1px] h-4 bg-slate-200 mx-1 hidden sm:block" />
 
         {/* Pemilih Ujung Panah (->, <->, ---) */}
         <div className="flex items-center gap-0.5 bg-slate-100 p-0.5 rounded-lg border border-slate-200">
@@ -391,12 +389,9 @@ export default function CanvasToolbar({
           </button>
         </div>
 
-        <div className="h-4 w-[1px] bg-slate-200 mx-1.5" />
+        <div className="h-4 w-[1px] bg-slate-200 mx-1 hidden sm:block" />
 
-        {/* SEKSI TENGAH: TUMPUKAN LAYER / Z-INDEX (GAMBAR 2) */}
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1 hidden sm:inline">
-          Layer:
-        </span>
+        {/* SEKSI TENGAH: TUMPUKAN LAYER / Z-INDEX */}
         <div className="flex items-center gap-0.5 bg-slate-100 p-0.5 rounded-lg border border-slate-200">
           <button
             type="button"
@@ -437,11 +432,8 @@ export default function CanvasToolbar({
         </div>
       </div>
 
-      {/* SEKSI KANAN: ALAT PERATAAN & DISTRIBUSI (ALIGNMENT & DISTRIBUTE DARI GAMBAR 2) */}
+      {/* SEKSI KANAN: ALAT PERATAAN & DISTRIBUSI */}
       <div className="flex items-center gap-1.5">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1 hidden md:inline">
-          Perataan:
-        </span>
 
         {/* Align Tools */}
         <div className="flex items-center gap-0.5 bg-slate-100 p-0.5 rounded-lg border border-slate-200">
