@@ -15,7 +15,11 @@ import {
   Layers, 
   ShieldCheck, 
   Palette,
-  CheckCircle2
+  CheckCircle2,
+  Calendar,
+  Clock,
+  Star,
+  ChevronRight
 } from 'lucide-react';
 import { APP_VERSION, APP_VERSION_CODENAME, APP_LOGO_URL } from '@/lib/version';
 
@@ -154,37 +158,158 @@ export default function LandingPage() {
 
         {/* Preview Mockup Card */}
         <div className="pt-8">
-          <div className="relative mx-auto rounded-3xl p-3 bg-gradient-to-b from-slate-200 to-slate-100 shadow-2xl border border-slate-200/80 max-w-4xl">
-            <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-inner p-6 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-8 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:16px_16px]">
-              {/* Flowchart Mock Node */}
-              <div className="space-y-4 w-full md:w-auto text-left">
-                <div className="px-4 py-2 rounded-full border-2 border-emerald-500 bg-emerald-50 text-emerald-800 font-semibold text-xs inline-block shadow-xs">
-                  ● Mulai Proses
-                </div>
-                <div className="w-0.5 h-6 bg-blue-500 mx-6" />
-                <div className="px-5 py-3 rounded-xl border-2 border-blue-500 bg-white text-slate-800 font-semibold text-xs shadow-sm max-w-[200px]">
-                  Validasi Struktur Data (Visio Mode)
-                </div>
-                <div className="w-0.5 h-6 bg-blue-500 mx-6" />
-                <div className="px-4 py-2.5 rounded-xl border-2 border-purple-500 bg-purple-50 text-purple-900 font-semibold text-xs shadow-xs inline-block">
-                  Database & Cloud Supabase
-                </div>
+          <div className="relative mx-auto rounded-3xl p-2.5 sm:p-3 bg-gradient-to-b from-slate-200 to-slate-100 shadow-2xl border border-slate-300/80 max-w-5xl">
+            {/* Window Frame Bar */}
+            <div className="bg-slate-900 rounded-t-2xl px-4 py-2.5 flex items-center justify-between border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-rose-500/90" />
+                <div className="w-3 h-3 rounded-full bg-amber-500/90" />
+                <div className="w-3 h-3 rounded-full bg-emerald-500/90" />
+                <span className="ml-2 text-[11px] font-mono text-slate-400 hidden sm:inline">
+                  galur-studio &mdash; Proyek_Siaran_IKP_2026.galur
+                </span>
               </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  3 Tahap: Diagram &rarr; Mindmap &rarr; Timebox
+                </span>
+              </div>
+            </div>
 
-              {/* Mind Map Mock Node */}
-              <div className="border-l-2 border-dashed border-slate-200 pl-8 space-y-3 w-full md:w-auto text-left">
-                <div className="px-5 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs shadow-md">
-                  Pohon Pemikiran (Mind Map)
+            {/* Canvas Mockup Content */}
+            <div className="bg-slate-50/90 rounded-b-2xl overflow-hidden border-x border-b border-slate-200 shadow-inner p-5 sm:p-7 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px]">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
+                {/* 1. DIAGRAM ALIR & VISIO MODE */}
+                <div className="bg-white/95 rounded-2xl p-4 border border-slate-200/90 shadow-xs flex flex-col justify-between relative group hover:border-emerald-500 transition-colors">
+                  <div>
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs">
+                          1
+                        </div>
+                        <span className="text-xs font-bold text-slate-800">Diagram Alir (Visio)</span>
+                      </div>
+                      <span className="text-[10px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                        Proses Kerja
+                      </span>
+                    </div>
+
+                    <div className="space-y-2 text-left">
+                      <div className="px-3 py-1.5 rounded-lg border-2 border-emerald-500 bg-emerald-50/80 text-emerald-900 font-semibold text-[11px] flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        Mulai: Usulan Disposisi
+                      </div>
+                      <div className="flex justify-center text-slate-400 text-xs py-0.5">&darr;</div>
+                      <div className="px-3 py-2 rounded-xl border-2 border-blue-500 bg-white text-slate-800 font-medium text-[11px] shadow-xs">
+                        Validasi SOTK & Kelengkapan SOP
+                      </div>
+                      <div className="flex justify-center text-slate-400 text-xs py-0.5">&darr;</div>
+                      <div className="px-3 py-1.5 rounded-lg border-2 border-purple-500 bg-purple-50/80 text-purple-900 font-semibold text-[11px]">
+                        Surat Perintah Tugas (SPT)
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
+                    <span>180+ Simbol Geometri</span>
+                    <span className="font-semibold text-emerald-600 flex items-center gap-0.5">
+                      Lanjut ke Ide <ChevronRight className="w-3 h-3" />
+                    </span>
+                  </div>
                 </div>
-                <div className="pl-4 space-y-2 border-l-2 border-blue-400">
-                  <div className="px-3.5 py-1.5 rounded-lg border border-blue-300 bg-blue-50 text-blue-900 text-[11px] font-medium">
-                    → Cabang Ide 1: Fleksibel
+
+                {/* 2. MIND MAP & BRAINSTORMING */}
+                <div className="bg-white/95 rounded-2xl p-4 border border-slate-200/90 shadow-xs flex flex-col justify-between relative group hover:border-blue-500 transition-colors">
+                  <div>
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">
+                          2
+                        </div>
+                        <span className="text-xs font-bold text-slate-800">Mind Map Interaktif</span>
+                      </div>
+                      <span className="text-[10px] font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                        Eksplorasi Ide
+                      </span>
+                    </div>
+
+                    <div className="space-y-2 text-left">
+                      <div className="px-3 py-1.5 rounded-xl bg-slate-900 text-white font-bold text-[11px] shadow-xs text-center">
+                        Siaran Live Streaming Terpadu
+                      </div>
+                      <div className="pl-3 space-y-1.5 border-l-2 border-blue-400 text-[10px]">
+                        <div className="px-2.5 py-1 rounded-md border border-sky-300 bg-sky-50 text-sky-900 font-medium">
+                          &bull; Multi-Kamera & Switcher (OBS/vMix)
+                        </div>
+                        <div className="px-2.5 py-1 rounded-md border border-emerald-300 bg-emerald-50 text-emerald-900 font-medium">
+                          &bull; Audio Mixer & Mic Wireless
+                        </div>
+                        <div className="px-2.5 py-1 rounded-md border border-amber-300 bg-amber-50 text-amber-900 font-medium">
+                          &bull; Backup Failover Router 4G/5G
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="px-3.5 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-900 text-[11px] font-medium">
-                    → Cabang Ide 2: Ekspor PDF / JPG
+
+                  <div className="mt-4 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
+                    <span>Cabang Otomatis Tab/Enter</span>
+                    <span className="font-semibold text-blue-600 flex items-center gap-0.5">
+                      Lanjut Jadwal <ChevronRight className="w-3 h-3" />
+                    </span>
                   </div>
-                  <div className="px-3.5 py-1.5 rounded-lg border border-purple-300 bg-purple-50 text-purple-900 text-[11px] font-medium">
-                    → Cabang Ide 3: Multi-User Login
+                </div>
+
+                {/* 3. TIME BOXING & GANTT TIME SCHEDULE */}
+                <div className="bg-white/95 rounded-2xl p-4 border border-slate-200/90 shadow-xs flex flex-col justify-between relative group hover:border-amber-500 transition-colors">
+                  <div>
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xs">
+                          3
+                        </div>
+                        <span className="text-xs font-bold text-slate-800">Jadwal & Time Boxing</span>
+                      </div>
+                      <span className="text-[10px] font-medium text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                        Eksekusi Nyata
+                      </span>
+                    </div>
+
+                    <div className="space-y-2 text-left">
+                      {/* Skala Waktu Mini Header */}
+                      <div className="grid grid-cols-4 gap-1 text-[9px] font-mono text-center text-slate-500 pb-1 border-b border-slate-200">
+                        <span className="bg-slate-100 rounded py-0.5">W1</span>
+                        <span className="bg-slate-100 rounded py-0.5">W2</span>
+                        <span className="bg-emerald-100 text-emerald-800 font-bold rounded py-0.5">W3 (Now)</span>
+                        <span className="bg-slate-100 rounded py-0.5">W4</span>
+                      </div>
+
+                      {/* Bilah Gantt Task */}
+                      <div className="p-2 rounded-xl bg-blue-50 border border-blue-200">
+                        <div className="flex items-center justify-between text-[10px] font-bold text-blue-900 mb-1">
+                          <span>Setup Studio & Gladibersih</span>
+                          <span className="text-blue-700">80%</span>
+                        </div>
+                        <div className="w-full bg-blue-200 rounded-full h-1.5 overflow-hidden">
+                          <div className="bg-blue-600 h-full rounded-full" style={{ width: '80%' }} />
+                        </div>
+                      </div>
+
+                      {/* Kartu Timebox Harian Mini */}
+                      <div className="p-2 rounded-xl bg-amber-50/80 border border-amber-200 text-[10px]">
+                        <div className="flex items-center justify-between font-bold text-amber-900">
+                          <span>SENIN: 08:30 - 11:30</span>
+                          <span className="text-[9px] bg-amber-200/70 text-amber-900 px-1.5 rounded">Deep Work</span>
+                        </div>
+                        <p className="text-slate-600 text-[10px] mt-0.5 truncate">&bull; Uji Coba Jaringan & Audio Multi-Mic</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
+                    <span>Gantt, Milestone & Timeline</span>
+                    <span className="font-semibold text-emerald-600 flex items-center gap-0.5">
+                      ★ Target Selesai
+                    </span>
                   </div>
                 </div>
               </div>
@@ -194,25 +319,56 @@ export default function LandingPage() {
       </section>
 
       {/* Identity Pillars Banner */}
-      <section className="py-8 px-6 md:px-12 max-w-5xl mx-auto">
+      <section className="py-8 px-6 md:px-12 max-w-5xl mx-auto w-full">
         <div className="rounded-3xl bg-gradient-to-r from-[#0b4632] via-[#0d5940] to-[#072419] p-6 sm:p-8 text-white shadow-xl border border-emerald-800/40 flex flex-col md:flex-row items-center gap-6">
-          <div className="w-28 h-28 sm:w-36 sm:h-36 shrink-0 flex items-center justify-center transition-transform hover:scale-105 duration-200">
+          <div className="w-24 h-24 sm:w-28 sm:h-28 shrink-0 flex items-center justify-center transition-transform hover:scale-105 duration-200">
             <Image
               src="/logo.png"
               alt="GALUR Mascot"
-              width={144}
-              height={144}
+              width={112}
+              height={112}
               className="w-full h-full object-contain filter drop-shadow-2xl"
             />
           </div>
-          <div className="space-y-2 text-center md:text-left">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 text-amber-300 text-xs font-bold border border-white/10">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-              <span>Kekuatan Identitas GALUR</span>
+          <div className="space-y-3 text-left flex-1 w-full">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-amber-300 text-xs font-bold border border-white/10">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                <span>Pilar Identitas & Nilai GALUR</span>
+              </div>
+              <span className="text-[11px] font-semibold text-emerald-200/90 bg-emerald-950/50 px-3 py-0.5 rounded-full border border-emerald-500/30">
+                Karya Bangkit Beruang
+              </span>
             </div>
-            <p className="text-xs sm:text-sm text-emerald-100 leading-relaxed font-medium">
-              &ldquo;Kekuatan identitas GALUR terletak pada perpaduan tiga hal: <strong className="text-amber-300 font-bold">nama yang berakar pada nuansa bahasa Sunda</strong>, <strong className="text-white font-bold">fungsi yang jelas sebagai alat visualisasi</strong>, dan <strong className="text-amber-300 font-bold">maskot Macan Tutul Jawa yang memberi karakter ketajaman analisis sekaligus pesan kepedulian</strong>. Itu membuat GALUR lebih dari sekadar aplikasi diagram—ia menjadi bagian dari cerita besar <strong className="text-white underline decoration-amber-400 font-black">BANGKIT BERUANG</strong> tentang berkarya melalui teknologi yang bermanfaat luas.&rdquo;
-            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+              <div className="bg-white/5 border border-white/10 rounded-xl p-3.5 backdrop-blur-xs">
+                <h4 className="text-amber-300 font-bold text-xs flex items-center gap-1.5">
+                  <span>🍃</span> Filosofi Sunda
+                </h4>
+                <p className="text-[11px] text-emerald-100/90 leading-relaxed mt-1">
+                  <em>Galur</em> bermakna alur yang tertata rapi, runut, dan jelas untuk menyederhanakan gagasan rumit.
+                </p>
+              </div>
+
+              <div className="bg-white/5 border border-white/10 rounded-xl p-3.5 backdrop-blur-xs">
+                <h4 className="text-amber-300 font-bold text-xs flex items-center gap-1.5">
+                  <span>🐆</span> Macan Tutul Jawa
+                </h4>
+                <p className="text-[11px] text-emerald-100/90 leading-relaxed mt-1">
+                  Karakter ketajaman analisis, fokus presisi, serta pesan kepedulian fauna endemik Jawa Barat.
+                </p>
+              </div>
+
+              <div className="bg-white/5 border border-white/10 rounded-xl p-3.5 backdrop-blur-xs">
+                <h4 className="text-amber-300 font-bold text-xs flex items-center gap-1.5">
+                  <span>⏱️</span> Produktivitas Kerja
+                </h4>
+                <p className="text-[11px] text-emerald-100/90 leading-relaxed mt-1">
+                  Alur lengkap pekerja: Diagram Alir &rarr; Mind Map &rarr; Jadwal & Time Boxing Mingguan.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -253,6 +409,17 @@ export default function LandingPage() {
             </div>
 
             {/* Card 3 */}
+            <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 hover:border-amber-400 transition-all space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
+                <Calendar className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-base text-slate-900">Jadwal & Time Boxing</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Lanjutkan pemikiran ke aksi nyata. Rancang skala waktu mingguan (W1 - W6), bilah progres Gantt jalur kritis, milestone target, dan kartu fokus time-boxing harian.
+              </p>
+            </div>
+
+            {/* Card 4 */}
             <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 hover:border-purple-400 transition-all space-y-3">
               <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center">
                 <Printer className="w-5 h-5" />
@@ -263,9 +430,9 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Card 4 */}
-            <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 hover:border-amber-400 transition-all space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
+            {/* Card 5 */}
+            <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 hover:border-blue-400 transition-all space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
                 <Users className="w-5 h-5" />
               </div>
               <h3 className="font-bold text-base text-slate-900">Multi-User & Akun Google</h3>
@@ -274,25 +441,14 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Card 5 */}
-            <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 hover:border-sky-400 transition-all space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center">
+            {/* Card 6 */}
+            <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 hover:border-emerald-400 transition-all space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <h3 className="font-bold text-base text-slate-900">Database Supabase RLS</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
                 Didukung oleh PostgreSQL Supabase dengan Row Level Security. Diagram Anda terkunci rapat dan aman dari akses pengguna lain.
-              </p>
-            </div>
-
-            {/* Card 6 */}
-            <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 hover:border-rose-400 transition-all space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center">
-                <Palette className="w-5 h-5" />
-              </div>
-              <h3 className="font-bold text-base text-slate-900">Kustomisasi Penuh</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Ubah warna tema, ketebalan garis tepi, gaya garis konektor (lengkung, siku, lurus), dan teks deskripsi dengan panel properti interaktif.
               </p>
             </div>
           </div>

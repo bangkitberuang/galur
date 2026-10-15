@@ -17,7 +17,12 @@ import {
   HelpCircle,
   CheckCircle2,
   Activity,
-  Plus
+  Plus,
+  Calendar,
+  Clock,
+  Star,
+  Flag,
+  ListTodo
 } from 'lucide-react';
 import { getNodeTextStyles, getNodeShapeStyles } from '@/lib/nodeStyles';
 import UniversalNodeResizer from './UniversalNodeResizer';
@@ -1983,7 +1988,417 @@ export const ProcessLegendNode = memo((props: any) => {
     </div>
   );
 });
-ProcessLegendNode.displayName = 'ProcessLegendNode';
+// 12. GANTT HEADER NODE (Tabel Header Skala Waktu Mingguan & Harian)
+export const GanttHeaderNode = memo((props: any) => {
+  const { id, data, selected } = props;
+  const { setNodes } = useReactFlow();
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [tempTitle, setTempTitle] = useState(data.title || 'JADWAL PROYEK & TIME BOXING');
+
+  const weeks: string[] = data.weeks || ['WEEK 1', 'WEEK 2', 'WEEK 3', 'WEEK 4', 'WEEK 5', 'WEEK 6'];
+  const showDays = data.showDays !== false;
+  const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  const width = data.width || Math.max(700, weeks.length * 150);
+  const height = data.height || 360;
+
+  const handleSaveTitle = () => {
+    setEditingTitle(false);
+    setNodes((nds) =>
+      nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, title: tempTitle } } : n))
+    );
+  };
+
+  return (
+    <div
+      className="relative rounded-2xl shadow-md border-2 border-slate-300 bg-white/95 overflow-hidden select-none"
+      style={{ width, height, minWidth: 400, minHeight: 200 }}
+    >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={400} minHeight={200} />
+      <NodeQuickActions id={id} selected={selected} />
+
+      {/* Top Banner Bar */}
+      <div className="bg-slate-800 text-white px-5 py-2.5 flex items-center justify-between border-b border-slate-700">
+        <div className="flex items-center gap-2">
+          <Calendar className="w-4 h-4 text-amber-400" />
+          {editingTitle ? (
+            <input
+              autoFocus
+              type="text"
+              value={tempTitle}
+              onChange={(e) => setTempTitle(e.target.value)}
+              onBlur={handleSaveTitle}
+              onKeyDown={(e) => e.key === 'Enter' && handleSaveTitle()}
+              className="px-2 py-0.5 text-xs font-bold rounded bg-slate-700 text-white border border-amber-400 outline-none"
+            />
+          ) : (
+            <h4
+              onDoubleClick={() => setEditingTitle(true)}
+              className="text-xs font-black tracking-wider cursor-pointer hover:text-amber-300 transition-colors uppercase"
+              title="Klik ganda untuk mengedit judul jadwal"
+            >
+              {data.title || 'Jadwal Proyek & Time Boxing'}
+            </h4>
+          )}
+        </div>
+        <div className="flex items-center gap-2 text-[10px] text-slate-300 font-semibold">
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500" /> On Track</span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" /> Critical</span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Complete</span>
+        </div>
+      </div>
+
+      {/* Week Header Row */}
+      <div className="flex border-b border-slate-300 bg-slate-100/90 text-slate-700 text-xs font-bold divide-x divide-slate-300">
+        {weeks.map((week, idx) => (
+          <div key={idx} className="flex-1 text-center py-1.5 flex flex-col justify-center">
+            <span className="text-[11px] font-black uppercase tracking-tight text-slate-800">{week}</span>
+            {showDays && (
+              <div className="grid grid-cols-7 text-[9px] font-semibold text-slate-500 pt-1 border-t border-slate-200 mt-1 divide-x divide-slate-200">
+                {days.map((d, dIdx) => (
+                  <span key={dIdx} className={d === 'S' ? 'text-amber-600 bg-amber-50/50' : ''}>{d}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Vertical Grid Columns Body */}
+      <div className="relative w-full h-[calc(100%-65px)] flex divide-x divide-slate-200/80 bg-[linear-gradient(to_bottom,#f8fafc_1px,transparent_1px)] bg-[size:100%_40px]">
+        {weeks.map((_, idx) => (
+          <div key={idx} className="flex-1 h-full relative">
+            {showDays && (
+              <div className="grid grid-cols-7 h-full divide-x divide-slate-100">
+                {days.map((_, dIdx) => (
+                  <div key={dIdx} className="h-full" />
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+
+        {/* Marker Garis "Hari Ini / Today" jika ada */}
+        {data.showToday && (
+          <div
+            className="absolute top-0 bottom-0 border-r-2 border-dashed border-amber-500 z-10 pointer-events-none"
+            style={{ left: `${data.todayPercent || 42}%` }}
+          >
+            <span className="absolute -top-3 -translate-x-1/2 px-1.5 py-0.5 rounded bg-amber-500 text-white text-[9px] font-black shadow-xs">
+              HARI INI
+            </span>
+          </div>
+        )}
+      </div>
+
+      <Handle type="target" position={Position.Top} className="!w-2 !h-2 !bg-slate-400" />
+      <Handle type="source" position={Position.Bottom} className="!w-2 !h-2 !bg-slate-400" />
+    </div>
+  );
+});
+GanttHeaderNode.displayName = 'GanttHeaderNode';
+
+// 13. GANTT BAR NODE (Bilah Jadwal Tugas dengan Progress & Dependencies)
+export const GanttBarNode = memo((props: any) => {
+  const { id, data, selected } = props;
+  const { setNodes } = useReactFlow();
+  const [editing, setEditing] = useState(false);
+  const [label, setLabel] = useState(data.label || 'Tugas Baru');
+
+  const status = data.status || 'on_track'; // 'on_track' | 'critical' | 'completed' | 'delayed'
+  const progress = Math.min(100, Math.max(0, data.progress ?? 50));
+  const duration = data.duration || 'W1 - W2';
+
+  const statusConfig: Record<string, { bg: string; fill: string; border: string; text: string; badge: string }> = {
+    on_track: { bg: '#eff6ff', fill: '#3b82f6', border: '#2563eb', text: '#1e3a8a', badge: 'On Track' },
+    critical: { bg: '#fef2f2', fill: '#ef4444', border: '#dc2626', text: '#991b1b', badge: 'Critical Path' },
+    completed: { bg: '#ecfdf5', fill: '#10b981', border: '#059669', text: '#065f46', badge: 'Selesai 100%' },
+    delayed: { bg: '#fffbeb', fill: '#f59e0b', border: '#d97706', text: '#92400e', badge: 'Tertunda' },
+  };
+
+  const currentStatus = statusConfig[status] || statusConfig.on_track;
+  const barWidth = data.width || 220;
+  const barHeight = data.height || 42;
+
+  const handleSave = () => {
+    setEditing(false);
+    setNodes((nds) =>
+      nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, label } } : n))
+    );
+  };
+
+  return (
+    <div
+      className="relative rounded-xl shadow-md border-2 transition-all select-none overflow-hidden flex items-center justify-between px-3 group"
+      style={{
+        width: barWidth,
+        height: barHeight,
+        minWidth: 100,
+        backgroundColor: data.color || currentStatus.bg,
+        borderColor: data.borderColor || currentStatus.border,
+      }}
+    >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={100} minHeight={34} />
+      <NodeQuickActions id={id} selected={selected} />
+
+      {/* Progress Fill Background */}
+      <div
+        className="absolute left-0 top-0 bottom-0 opacity-25 transition-all duration-300 pointer-events-none"
+        style={{
+          width: `${progress}%`,
+          backgroundColor: currentStatus.fill,
+        }}
+      />
+
+      {/* Task Content */}
+      <div className="relative z-10 flex items-center gap-2 w-full pr-2">
+        <span
+          className="w-2 h-2 rounded-full shrink-0 shadow-2xs"
+          style={{ backgroundColor: currentStatus.fill }}
+        />
+        <div className="flex-1 min-w-0">
+          {editing ? (
+            <input
+              autoFocus
+              type="text"
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              onBlur={handleSave}
+              onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+              className="w-full text-xs font-bold bg-white/90 border border-blue-500 rounded px-1 outline-none"
+            />
+          ) : (
+            <p
+              onDoubleClick={() => setEditing(true)}
+              className="text-xs font-black truncate leading-tight cursor-text"
+              style={{ color: data.textColor || currentStatus.text }}
+              title="Klik ganda untuk mengedit nama tugas"
+            >
+              {data.label || 'Tugas Baru'}
+            </p>
+          )}
+          <div className="flex items-center gap-1.5 text-[9px] text-slate-500 font-semibold leading-none pt-0.5">
+            <span>{duration}</span>
+            {progress > 0 && <span>• {progress}%</span>}
+            {data.assignee && <span className="text-slate-600 truncate">• {data.assignee}</span>}
+          </div>
+        </div>
+      </div>
+
+      {/* Connection Handles */}
+      <Handle
+        type="target"
+        position={Position.Left}
+        id="target-left"
+        className="!w-2.5 !h-2.5 !bg-slate-600 !border-2 !border-white hover:!bg-blue-600"
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        id="source-right"
+        className="!w-2.5 !h-2.5 !bg-slate-600 !border-2 !border-white hover:!bg-blue-600"
+      />
+      <Handle type="target" position={Position.Top} id="target-top" className="!w-1.5 !h-1.5 !bg-slate-400" />
+      <Handle type="source" position={Position.Bottom} id="source-bottom" className="!w-1.5 !h-1.5 !bg-slate-400" />
+    </div>
+  );
+});
+GanttBarNode.displayName = 'GanttBarNode';
+
+// 14. MILESTONE NODE (Penanda Target Kunci / Capaian dengan Bintang Emas)
+export const MilestoneNode = memo((props: any) => {
+  const { id, data, selected } = props;
+  const { setNodes } = useReactFlow();
+  const [editing, setEditing] = useState(false);
+  const [label, setLabel] = useState(data.label || 'Milestone Target');
+
+  const color = data.color || '#fffbeb';
+  const border = data.borderColor || '#f59e0b';
+  const text = data.textColor || '#78350f';
+
+  const handleSave = () => {
+    setEditing(false);
+    setNodes((nds) =>
+      nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, label } } : n))
+    );
+  };
+
+  return (
+    <div
+      className="relative px-3.5 py-2 rounded-xl shadow-md border-2 transition-all select-none flex items-center gap-2.5 min-w-[130px] group"
+      style={{ backgroundColor: color, borderColor: border, color: text }}
+    >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={100} minHeight={36} />
+      <NodeQuickActions id={id} selected={selected} />
+
+      <div className="w-6 h-6 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+        <Star className="w-3.5 h-3.5 fill-white" />
+      </div>
+
+      <div className="min-w-0 flex-1">
+        {editing ? (
+          <input
+            autoFocus
+            type="text"
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+            onBlur={handleSave}
+            onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+            className="w-full text-xs font-bold bg-white border border-amber-500 rounded px-1 outline-none"
+          />
+        ) : (
+          <h5
+            onDoubleClick={() => setEditing(true)}
+            className="text-xs font-black truncate cursor-text tracking-tight"
+            title="Klik ganda untuk mengedit nama milestone"
+          >
+            {data.label || 'Milestone Target'}
+          </h5>
+        )}
+        {data.date && <p className="text-[10px] opacity-80 font-semibold">{data.date}</p>}
+      </div>
+
+      <Handle type="target" position={Position.Left} className="!w-2 !h-2 !bg-amber-600" />
+      <Handle type="source" position={Position.Right} className="!w-2 !h-2 !bg-amber-600" />
+      <Handle type="target" position={Position.Top} className="!w-2 !h-2 !bg-amber-600" />
+      <Handle type="source" position={Position.Bottom} className="!w-2 !h-2 !bg-amber-600" />
+    </div>
+  );
+});
+MilestoneNode.displayName = 'MilestoneNode';
+
+// 15. VERTICAL TIMELINE NODE (Titik Garis Waktu Vertikal dengan Dot & Penjelasan)
+export const VerticalTimelineNode = memo((props: any) => {
+  const { id, data, selected } = props;
+  const { setNodes } = useReactFlow();
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [title, setTitle] = useState(data.title || 'Tahap Proyek');
+
+  const accent = data.accentColor || '#3b82f6';
+  const width = data.width || 340;
+
+  const handleSave = () => {
+    setEditingTitle(false);
+    setNodes((nds) =>
+      nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, title } } : n))
+    );
+  };
+
+  return (
+    <div
+      className="relative flex items-start gap-3 select-none group"
+      style={{ width, minWidth: 260 }}
+    >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={240} minHeight={60} />
+      <NodeQuickActions id={id} selected={selected} />
+
+      {/* Date / Time Badge di sebelah kiri */}
+      <div className="w-20 text-right pt-2 shrink-0">
+        <span
+          className="text-xs font-black tracking-tight"
+          style={{ color: accent }}
+        >
+          {data.date || 'Januari 10'}
+        </span>
+      </div>
+
+      {/* Circular Dot dengan Jalur Tengah */}
+      <div className="relative flex flex-col items-center shrink-0 pt-2">
+        <div
+          className="w-4 h-4 rounded-full border-2 bg-white flex items-center justify-center shadow-xs z-10"
+          style={{ borderColor: accent }}
+        >
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: accent }} />
+        </div>
+      </div>
+
+      {/* Content Card di sebelah kanan */}
+      <div
+        className="flex-1 rounded-xl p-3 shadow-sm border transition-all bg-white"
+        style={{
+          borderLeftWidth: '3px',
+          borderLeftColor: accent,
+          backgroundColor: data.color || '#ffffff',
+          borderColor: data.borderColor || '#e2e8f0',
+        }}
+      >
+        {editingTitle ? (
+          <input
+            autoFocus
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onBlur={handleSave}
+            onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+            className="w-full text-xs font-bold border border-blue-500 rounded px-1 outline-none mb-1"
+          />
+        ) : (
+          <h4
+            onDoubleClick={() => setEditingTitle(true)}
+            className="text-xs font-black text-slate-800 cursor-text hover:text-blue-600 transition-colors"
+            title="Klik ganda untuk mengedit judul"
+          >
+            {data.title || 'Tahap Proyek'}
+          </h4>
+        )}
+        <p className="text-[11px] text-slate-600 leading-relaxed font-normal pt-0.5">
+          {data.description || 'Deskripsi detail langkah atau target yang harus diselesaikan pada periode ini.'}
+        </p>
+      </div>
+
+      {/* Handles untuk menyambungkan garis waktu vertikal */}
+      <Handle type="target" position={Position.Top} className="!w-2 !h-2 !bg-slate-400" />
+      <Handle type="source" position={Position.Bottom} className="!w-2 !h-2 !bg-slate-400" />
+      <Handle type="target" position={Position.Left} className="!w-2 !h-2 !bg-slate-400" />
+      <Handle type="source" position={Position.Right} className="!w-2 !h-2 !bg-slate-400" />
+    </div>
+  );
+});
+VerticalTimelineNode.displayName = 'VerticalTimelineNode';
+
+// 16. TIMEBOX CARD NODE (Kartu Time Boxing Blok Waktu Kerja Harian)
+export const TimeboxCardNode = memo((props: any) => {
+  const { id, data, selected } = props;
+  const day = data.day || 'SENIN';
+  const hours = data.hours || '08:00 - 12:00';
+  const tasks: string[] = data.tasks || ['Riset Ide & Mindmap', 'Sketsa Topologi Awal'];
+  const color = data.color || '#eff6ff';
+  const border = data.borderColor || '#3b82f6';
+  const width = data.width || 220;
+
+  return (
+    <div
+      className="relative rounded-2xl shadow-md border-2 overflow-hidden select-none"
+      style={{ width, backgroundColor: color, borderColor: border }}
+    >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={160} minHeight={100} />
+      <NodeQuickActions id={id} selected={selected} />
+
+      <div className="px-3.5 py-2 border-b flex items-center justify-between" style={{ borderColor: `${border}40`, backgroundColor: `${border}15` }}>
+        <span className="text-[11px] font-black uppercase tracking-wider text-slate-900">{day}</span>
+        <span className="text-[10px] font-bold text-slate-600 flex items-center gap-1">
+          <Clock className="w-3 h-3" />
+          {hours}
+        </span>
+      </div>
+
+      <div className="p-3 space-y-1.5">
+        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">Fokus Time-Box:</p>
+        {tasks.map((task, i) => (
+          <div key={i} className="flex items-center gap-1.5 text-xs font-semibold text-slate-800">
+            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: border }} />
+            <span className="truncate">{task}</span>
+          </div>
+        ))}
+      </div>
+
+      <Handle type="target" position={Position.Top} className="!w-2 !h-2 !bg-slate-400" />
+      <Handle type="source" position={Position.Bottom} className="!w-2 !h-2 !bg-slate-400" />
+      <Handle type="target" position={Position.Left} className="!w-2 !h-2 !bg-slate-400" />
+      <Handle type="source" position={Position.Right} className="!w-2 !h-2 !bg-slate-400" />
+    </div>
+  );
+});
+TimeboxCardNode.displayName = 'TimeboxCardNode';
 
 export const specialistNodeTypes = {
   uml_class: UMLClassNode,
@@ -1997,6 +2412,11 @@ export const specialistNodeTypes = {
   priority_card: PriorityCardNode,
   swimlane_group: SwimlaneGroupNode,
   process_legend: ProcessLegendNode,
+  gantt_header: GanttHeaderNode,
+  gantt_bar: GanttBarNode,
+  milestone_node: MilestoneNode,
+  timeline_step: VerticalTimelineNode,
+  timebox_card: TimeboxCardNode,
 };
 
 

@@ -81,7 +81,10 @@ import {
   MessagesSquare,
   Usb,
   Mic,
-  Share2
+  Share2,
+  Calendar,
+  Star,
+  ListTodo,
 } from 'lucide-react';
 
 export interface ShapeDefinition {
@@ -1592,6 +1595,158 @@ export const SHAPE_CATEGORIES: ShapeCategory[] = [
   },
 
   // ==========================================
+  // GRUP: JADWAL & TIME BOXING (TIME SCHEDULE)
+  // ==========================================
+  {
+    id: 'jadwal_timebox',
+    name: 'Jadwal & Time Boxing',
+    group: 'IKP & MULTIMEDIA',
+    description: 'Time boxing mingguan, Gantt chart jadwal proyek, milestone target capaian, dan garis waktu (timeline) vertikal.',
+    defaultActive: true,
+    shapes: [
+      {
+        id: 'time-gantt-header',
+        type: 'gantt_header',
+        label: 'Header Jadwal Mingguan',
+        title: 'Tabel Skala Waktu Mingguan (W1 - W6)',
+        icon: Calendar,
+        category: 'jadwal_timebox',
+        tags: ['jadwal', 'gantt', 'mingguan', 'week', 'timebox', 'header', 'waktu'],
+        defaultData: {
+          title: 'JADWAL PROYEK & TIME BOXING MINGGUAN',
+          weeks: ['WEEK 1', 'WEEK 2', 'WEEK 3', 'WEEK 4', 'WEEK 5', 'WEEK 6'],
+          showDays: true,
+          width: 900,
+          height: 380,
+          showToday: true,
+          todayPercent: 42,
+        },
+      },
+      {
+        id: 'time-gantt-ontrack',
+        type: 'gantt_bar',
+        label: 'Tugas (On Track)',
+        title: 'Bilah Tugas Sesuai Jadwal (Biru)',
+        icon: Clock,
+        category: 'jadwal_timebox',
+        tags: ['tugas', 'task', 'gantt bar', 'on track', 'jadwal', 'biru'],
+        defaultData: {
+          label: 'Perencanaan & Riset Konsep',
+          duration: 'W1 (Sen - Kam)',
+          progress: 75,
+          status: 'on_track',
+          assignee: 'Tim IKP',
+          width: 220,
+          height: 42,
+        },
+      },
+      {
+        id: 'time-gantt-critical',
+        type: 'gantt_bar',
+        label: 'Tugas (Critical Path)',
+        title: 'Bilah Tugas Jalur Kritis (Merah)',
+        icon: AlertTriangle,
+        category: 'jadwal_timebox',
+        tags: ['critical', 'kritis', 'gantt bar', 'urgent', 'merah', 'prioritas'],
+        defaultData: {
+          label: 'Produksi Siaran & Setup Studio',
+          duration: 'W2 - W3',
+          progress: 40,
+          status: 'critical',
+          assignee: 'Kru Teknis',
+          width: 260,
+          height: 42,
+        },
+      },
+      {
+        id: 'time-gantt-done',
+        type: 'gantt_bar',
+        label: 'Tugas (Selesai 100%)',
+        title: 'Bilah Tugas Telah Selesai (Hijau)',
+        icon: CheckCircle2,
+        category: 'jadwal_timebox',
+        tags: ['selesai', 'done', 'complete', 'gantt bar', 'hijau'],
+        defaultData: {
+          label: 'Briefing Stakeholder & TOR',
+          duration: 'W1 (3 Hari)',
+          progress: 100,
+          status: 'completed',
+          assignee: 'Pimpinan & Tim',
+          width: 180,
+          height: 42,
+        },
+      },
+      {
+        id: 'time-gantt-delayed',
+        type: 'gantt_bar',
+        label: 'Tugas (Tertunda/Float)',
+        title: 'Bilah Tugas Tertunda / Penyesuaian (Kuning/Oranye)',
+        icon: Clock,
+        category: 'jadwal_timebox',
+        tags: ['delayed', 'tertunda', 'float', 'kuning', 'gantt bar'],
+        defaultData: {
+          label: 'Uji Coba Jaringan Cadangan',
+          duration: 'W3 (2 Hari)',
+          progress: 25,
+          status: 'delayed',
+          assignee: 'Teknisi Jaringan',
+          width: 200,
+          height: 42,
+        },
+      },
+      {
+        id: 'time-milestone',
+        type: 'milestone_node',
+        label: 'Milestone Target',
+        title: 'Penanda Target Capaian Kunci (Bintang Emas)',
+        icon: Star,
+        category: 'jadwal_timebox',
+        tags: ['milestone', 'bintang', 'target', 'capaian', 'deadline', 'emas'],
+        defaultData: {
+          label: 'Target Go-Live Siaran',
+          date: 'Akhir Minggu 4',
+          color: '#fffbeb',
+          borderColor: '#f59e0b',
+          textColor: '#78350f',
+        },
+      },
+      {
+        id: 'time-vertical-step',
+        type: 'timeline_step',
+        label: 'Titik Garis Waktu',
+        title: 'Titik Garis Waktu Vertikal (Roadmap Step)',
+        icon: Activity,
+        category: 'jadwal_timebox',
+        tags: ['timeline', 'garis waktu', 'roadmap', 'vertikal', 'tahap', 'step'],
+        defaultData: {
+          date: '10 Oktober',
+          title: 'Tahap 1: Analisis Kebutuhan',
+          description: 'Identifikasi kendala kerja, pemetaan stakeholder, dan rancangan timeline.',
+          accentColor: '#3b82f6',
+          width: 320,
+        },
+      },
+      {
+        id: 'time-timebox-card',
+        type: 'timebox_card',
+        label: 'Kartu Time Boxing',
+        title: 'Kartu Time Boxing Fokus Kerja Harian/Sesi',
+        icon: ListTodo,
+        category: 'jadwal_timebox',
+        tags: ['timebox', 'kartu waktu', 'fokus', 'harian', 'blok waktu', 'pomodoro'],
+        defaultData: {
+          day: 'SENIN',
+          hours: '08:30 - 11:30 (Fokus Utama)',
+          tasks: ['Riset Topologi & Mindmap', 'Review Jadwal Tim'],
+          color: '#eff6ff',
+          borderColor: '#3b82f6',
+          width: 220,
+        },
+      },
+    ],
+  },
+
+  // ==========================================
   // GRUP 3: PERANGKAT LUNAK & REKAYASA
   // ==========================================
   {
@@ -1853,6 +2008,7 @@ export const DEFAULT_ACTIVE_CATEGORY_IDS = [
   'diagram_alir',
   'multimedia',
   'tata_kelola_asn',
+  'jadwal_timebox',
   'relasi_entitas',
   'uml',
   'problem_solving',
@@ -1867,9 +2023,9 @@ export function getSavedActiveCategories(): string[] {
     if (!raw) return DEFAULT_ACTIVE_CATEGORY_IDS;
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      // Pastikan kategori baru multimedia & tata_kelola_asn otomatis aktif bagi pengguna
+      // Pastikan kategori baru multimedia, tata_kelola_asn & jadwal_timebox otomatis aktif bagi pengguna
       const combined = [...parsed];
-      for (const id of ['multimedia', 'tata_kelola_asn']) {
+      for (const id of ['multimedia', 'tata_kelola_asn', 'jadwal_timebox']) {
         if (!combined.includes(id)) {
           combined.push(id);
         }

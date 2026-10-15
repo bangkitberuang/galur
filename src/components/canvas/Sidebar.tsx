@@ -37,6 +37,7 @@ export default function Sidebar({ onAddNode, edgeType, setEdgeType }: SidebarPro
     umum: true,
     multimedia: true,
     tata_kelola_asn: true,
+    jadwal_timebox: true,
     dasar: false,
     panah: false,
     diagram_alir: false,
@@ -52,7 +53,7 @@ export default function Sidebar({ onAddNode, edgeType, setEdgeType }: SidebarPro
   useEffect(() => {
     const saved = getSavedActiveCategories();
     const combined = [...saved];
-    for (const id of ['multimedia', 'tata_kelola_asn']) {
+    for (const id of ['multimedia', 'tata_kelola_asn', 'jadwal_timebox']) {
       if (!combined.includes(id)) {
         combined.push(id);
       }
@@ -62,6 +63,7 @@ export default function Sidebar({ onAddNode, edgeType, setEdgeType }: SidebarPro
       ...prev,
       multimedia: true,
       tata_kelola_asn: true,
+      jadwal_timebox: true,
     }));
   }, []);
 
