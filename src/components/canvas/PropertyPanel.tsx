@@ -52,7 +52,8 @@ import {
   Activity,
   Clock,
   Calendar,
-  Star
+  Star,
+  Copy
 } from 'lucide-react';
 import { MarkerType, useReactFlow } from '@xyflow/react';
 import { CanvasPageConfig, DEFAULT_PAGE_CONFIG } from './CanvasPageFrame';
@@ -105,6 +106,7 @@ export default function PropertyPanel({
   const [advancedExpanded, setAdvancedExpanded] = React.useState(false);
   const [lockSpacing, setLockSpacing] = React.useState(true);
   const [lockPadding, setLockPadding] = React.useState(true);
+  const [selectedGanttTaskId, setSelectedGanttTaskId] = React.useState<string | null>(null);
 
   // 0. JIKA TIDAK ADA YANG DIPILIH: TAMPILKAN PENGATURAN DIAGRAM HANYA JIKA DIBUKA (AUTO-HIDE BIAR RINGKAS)
   if (!selectedNode && !selectedEdge) {
@@ -1525,13 +1527,15 @@ export default function PropertyPanel({
               </div>
             </div>
           ) : type === 'multiphase_gantt' ? (
-            <div className="space-y-3">
-              <div className="p-2.5 rounded-xl bg-slate-100 border border-slate-200 mb-1">
+            <div className="space-y-3.5">
+              <div className="p-2.5 rounded-xl bg-slate-100 border border-slate-200">
                 <span className="text-[11px] font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-slate-700" />
+                  <Calendar className="w-3.5 h-3.5 text-blue-600" />
                   <span>Master Jadwal Multi-Fase 20-Minggu</span>
                 </span>
               </div>
+
+              {/* Judul & Catatan Proyek */}
               <div>
                 <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
                   Judul Proyek
@@ -1544,17 +1548,279 @@ export default function PropertyPanel({
                   placeholder="MASTER JADWAL PROYEK"
                 />
               </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
-                  Catatan Proyek
-                </label>
-                <textarea
-                  rows={3}
-                  value={data.notes || ''}
-                  onChange={(e) => onUpdateNode(id, { notes: e.target.value })}
-                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-medium focus:ring-2 focus:ring-blue-500"
-                  placeholder="Catatan pelaksanaan..."
-                />
+
+              {/* KELOLA TUGAS (TASKS) */}
+              <div className="border border-slate-200 rounded-2xl bg-white p-3 space-y-3 shadow-2xs">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <div className="flex items-center gap-1.5">
+                    <ListTodo className="w-3.5 h-3.5 text-blue-600" />
+                    <span className="text-xs font-extrabold text-slate-800">
+                      Kelola Tugas ({(data.tasks || []).length})
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const curTasks = data.tasks || [];
+                      const curPhases = data.phases || [];
+                      const targetPhase = curPhases[0]?.id || 'p1';
+                      const lastTask = curTasks[curTasks.length - 1];
+                      const newStart = lastTask ? Math.min(20, lastTask.startWeek + 1) : 1;
+                      const newTask = {
+                        id: `task-${Date.now()}`,
+                        phaseId: targetPhase,
+                        name: `Tugas Baru ${curTasks.length + 1}`,
+                        startWeek: newStart,
+                        endWeek: Math.min(20, newStart + 2),
+                        color: curPhases[0]?.color || '#1e293b',
+                        textColor: '#ffffff',
+                        notes: 'Catatan',
+                      };
+                      onUpdateNode(id, { tasks: [...curTasks, newTask] });
+                      setSelectedGanttTaskId(newTask.id);
+                    }}
+                    className="flex items-center gap-1 text-[11px] font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded-lg transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3 h-3 stroke-[3]" />
+                    <span>Tambah Tugas</span>
+                  </button>
+                </div>
+
+                {/* Dropdown Pemilih Tugas */}
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                    Pilih Tugas untuk Diedit
+                  </label>
+                  <select
+                    value={selectedGanttTaskId || (data.tasks?.[0]?.id || '')}
+                    onChange={(e) => setSelectedGanttTaskId(e.target.value)}
+                    className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500"
+                  >
+                    {(data.tasks || []).map((t: any) => {
+                      const phase = (data.phases || []).find((p: any) => p.id === t.phaseId);
+                      return (
+                        <option key={t.id} value={t.id}>
+                          [{phase?.name || 'Fase'}] {t.name} (W{t.startWeek}-W{t.endWeek})
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+
+                {/* Form Detail Tugas Terpilih */}
+                {(() => {
+                  const tasks = data.tasks || [];
+                  const activeTask = tasks.find((t: any) => t.id === (selectedGanttTaskId || tasks[0]?.id));
+                  if (!activeTask) return null;
+
+                  const updateActiveTask = (updates: any) => {
+                    const updated = tasks.map((t: any) => (t.id === activeTask.id ? { ...t, ...updates } : t));
+                    onUpdateNode(id, { tasks: updated });
+                  };
+
+                  return (
+                    <div className="space-y-2.5 pt-1">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                          Nama Tugas
+                        </label>
+                        <input
+                          type="text"
+                          value={activeTask.name || ''}
+                          onChange={(e) => updateActiveTask({ name: e.target.value })}
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 font-bold focus:ring-2 focus:ring-blue-500"
+                          placeholder="Nama aktivitas..."
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                            Fase
+                          </label>
+                          <select
+                            value={activeTask.phaseId}
+                            onChange={(e) => {
+                              const p = (data.phases || []).find((ph: any) => ph.id === e.target.value);
+                              updateActiveTask({ phaseId: e.target.value, color: p?.color || activeTask.color });
+                            }}
+                            className="w-full px-2 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 bg-white"
+                          >
+                            {(data.phases || []).map((p: any) => (
+                              <option key={p.id} value={p.id}>
+                                {p.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                            Warna Bilah
+                          </label>
+                          <div className="flex items-center gap-1 pt-0.5">
+                            {['#1e293b', '#e11d48', '#f59e0b', '#059669', '#2563eb', '#7c3aed'].map((c) => (
+                              <button
+                                key={c}
+                                type="button"
+                                onClick={() => updateActiveTask({ color: c })}
+                                className={`w-4 h-4 rounded-full border transition-transform cursor-pointer ${
+                                  activeTask.color === c ? 'scale-125 ring-2 ring-blue-500 border-white' : 'border-slate-300 hover:scale-110'
+                                }`}
+                                style={{ backgroundColor: c }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Minggu Mulai & Selesai Sliders */}
+                      <div className="space-y-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
+                        <div>
+                          <div className="flex items-center justify-between text-[10px] font-bold text-slate-600 mb-0.5">
+                            <span>Minggu Mulai</span>
+                            <span className="font-mono text-blue-600 font-extrabold">Minggu ke-{activeTask.startWeek}</span>
+                          </div>
+                          <input
+                            type="range"
+                            min={1}
+                            max={activeTask.endWeek}
+                            value={activeTask.startWeek}
+                            onChange={(e) => updateActiveTask({ startWeek: Number(e.target.value) })}
+                            className="w-full accent-blue-600 cursor-pointer"
+                          />
+                        </div>
+
+                        <div>
+                          <div className="flex items-center justify-between text-[10px] font-bold text-slate-600 mb-0.5">
+                            <span>Minggu Selesai</span>
+                            <span className="font-mono text-blue-600 font-extrabold">Minggu ke-{activeTask.endWeek}</span>
+                          </div>
+                          <input
+                            type="range"
+                            min={activeTask.startWeek}
+                            max={20}
+                            value={activeTask.endWeek}
+                            onChange={(e) => updateActiveTask({ endWeek: Number(e.target.value) })}
+                            className="w-full accent-blue-600 cursor-pointer"
+                          />
+                        </div>
+                        <div className="text-[10px] text-slate-500 font-medium text-center bg-white py-0.5 rounded border border-slate-200">
+                          Total Durasi: <strong className="text-slate-800">{activeTask.endWeek - activeTask.startWeek + 1} Minggu</strong>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                          Catatan (Kolom Notes)
+                        </label>
+                        <input
+                          type="text"
+                          value={activeTask.notes || ''}
+                          onChange={(e) => updateActiveTask({ notes: e.target.value })}
+                          className="w-full px-2.5 py-1 text-xs rounded-lg border border-slate-200"
+                          placeholder="Catatan tugas..."
+                        />
+                      </div>
+
+                      {/* Tombol Aksi Tugas */}
+                      <div className="flex items-center gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newTask = {
+                              ...activeTask,
+                              id: `task-${Date.now()}`,
+                              name: `${activeTask.name} (Salinan)`,
+                              startWeek: Math.min(20, activeTask.startWeek + 1),
+                              endWeek: Math.min(20, activeTask.endWeek + 1),
+                            };
+                            onUpdateNode(id, { tasks: [...tasks, newTask] });
+                            setSelectedGanttTaskId(newTask.id);
+                          }}
+                          className="flex-1 py-1.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-lg flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                        >
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>Duplikat</span>
+                        </button>
+
+                        {tasks.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const remaining = tasks.filter((t: any) => t.id !== activeTask.id);
+                              onUpdateNode(id, { tasks: remaining });
+                              setSelectedGanttTaskId(remaining[0]?.id || null);
+                            }}
+                            className="py-1.5 px-3 bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs rounded-lg flex items-center justify-center gap-1 cursor-pointer transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Hapus</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* KELOLA FASE (PHASES) */}
+              <div className="border border-slate-200 rounded-2xl bg-white p-3 space-y-2.5 shadow-2xs">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <span className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Fase Proyek ({(data.phases || []).length})</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const curPhases = data.phases || [];
+                      const nextNum = curPhases.length + 1;
+                      const colors = ['#dc2626', '#ffe4e6', '#f59e0b', '#059669', '#2563eb', '#7c3aed'];
+                      const chosenColor = colors[(nextNum - 1) % colors.length];
+                      const newPhase = {
+                        id: `p${Date.now()}`,
+                        name: `Phase ${nextNum}`,
+                        color: chosenColor,
+                        textColor: chosenColor === '#ffe4e6' ? '#9f1239' : '#ffffff',
+                      };
+                      onUpdateNode(id, { phases: [...curPhases, newPhase] });
+                    }}
+                    className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded cursor-pointer"
+                  >
+                    + Fase Baru
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  {(data.phases || []).map((ph: any) => (
+                    <div key={ph.id} className="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200/80">
+                      <input
+                        type="color"
+                        value={ph.color.startsWith('#') && ph.color.length === 7 ? ph.color : '#dc2626'}
+                        onChange={(e) => {
+                          const updated = (data.phases || []).map((p: any) =>
+                            p.id === ph.id ? { ...p, color: e.target.value } : p
+                          );
+                          onUpdateNode(id, { phases: updated });
+                        }}
+                        className="w-6 h-6 rounded cursor-pointer border border-slate-300"
+                        title="Ubah warna fase"
+                      />
+                      <input
+                        type="text"
+                        value={ph.name}
+                        onChange={(e) => {
+                          const updated = (data.phases || []).map((p: any) =>
+                            p.id === ph.id ? { ...p, name: e.target.value } : p
+                          );
+                          onUpdateNode(id, { phases: updated });
+                        }}
+                        className="flex-1 px-2 py-1 text-xs font-bold rounded border border-slate-200 bg-white"
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           ) : type === 'org_node' ? (
@@ -2183,6 +2449,140 @@ export default function PropertyPanel({
                   />
                   <span>Tampilkan Bar Judul Atas</span>
                 </label>
+              </div>
+
+              {/* KELOLA JALUR SWIMLANE & SERVICE BLUEPRINT (LANES) */}
+              <div className="border border-slate-200 rounded-2xl bg-white p-3 space-y-3 shadow-2xs">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <div className="flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5 text-blue-600" />
+                    <span className="text-xs font-extrabold text-slate-800">
+                      Kelola Jalur ({(data.lanes || []).length})
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const curLanes = data.lanes || [];
+                      const hasDivider = curLanes.some((l: any) => l.dividerLabel);
+                      const newLane = {
+                        id: `lane-${Date.now()}`,
+                        name: `Jalur Baru ${curLanes.length + 1}`,
+                        color: '#64748b',
+                        height: 140,
+                        dividerLabel: hasDivider ? `Garis Pembatas ${curLanes.length}` : undefined,
+                      };
+                      onUpdateNode(id, { lanes: [...curLanes, newLane] });
+                    }}
+                    className="flex items-center gap-1 text-[11px] font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded-lg transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3 h-3 stroke-[3]" />
+                    <span>Tambah Jalur</span>
+                  </button>
+                </div>
+
+                <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1">
+                  {(data.lanes || []).map((lane: any, lIdx: number) => (
+                    <div key={lane.id || lIdx} className="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 flex-1 mr-2">
+                          <input
+                            type="color"
+                            value={lane.color?.startsWith('#') && lane.color.length === 7 ? lane.color : '#3b82f6'}
+                            onChange={(e) => {
+                              const updated = (data.lanes || []).map((l: any) =>
+                                l.id === lane.id ? { ...l, color: e.target.value } : l
+                              );
+                              onUpdateNode(id, { lanes: updated });
+                            }}
+                            className="w-5 h-5 rounded cursor-pointer border border-slate-300 shrink-0"
+                            title="Ubah warna header jalur"
+                          />
+                          <input
+                            type="text"
+                            value={lane.name || ''}
+                            onChange={(e) => {
+                              const updated = (data.lanes || []).map((l: any) =>
+                                l.id === lane.id ? { ...l, name: e.target.value } : l
+                              );
+                              onUpdateNode(id, { lanes: updated });
+                            }}
+                            className="flex-1 px-2 py-1 text-xs font-bold rounded border border-slate-200 bg-white focus:ring-1 focus:ring-blue-500"
+                            placeholder="Nama jalur..."
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          {/* Reorder Up */}
+                          <button
+                            type="button"
+                            disabled={lIdx === 0}
+                            onClick={() => {
+                              const lanes = [...(data.lanes || [])];
+                              const temp = lanes[lIdx];
+                              lanes[lIdx] = lanes[lIdx - 1];
+                              lanes[lIdx - 1] = temp;
+                              onUpdateNode(id, { lanes });
+                            }}
+                            className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30 cursor-pointer"
+                            title="Geser Naik"
+                          >
+                            <ChevronUp className="w-3.5 h-3.5" />
+                          </button>
+                          {/* Reorder Down */}
+                          <button
+                            type="button"
+                            disabled={lIdx === (data.lanes || []).length - 1}
+                            onClick={() => {
+                              const lanes = [...(data.lanes || [])];
+                              const temp = lanes[lIdx];
+                              lanes[lIdx] = lanes[lIdx + 1];
+                              lanes[lIdx + 1] = temp;
+                              onUpdateNode(id, { lanes });
+                            }}
+                            className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30 cursor-pointer"
+                            title="Geser Turun"
+                          >
+                            <ChevronDown className="w-3.5 h-3.5" />
+                          </button>
+                          {/* Delete Lane */}
+                          {(data.lanes || []).length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const remaining = (data.lanes || []).filter((l: any) => l.id !== lane.id);
+                                onUpdateNode(id, { lanes: remaining });
+                              }}
+                              className="p-1 text-slate-400 hover:text-red-500 cursor-pointer transition-colors"
+                              title="Hapus Jalur"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Divider Label (Khusus Service Blueprint: Line of interaction, Line of visibility, dll) */}
+                      <div>
+                        <label className="block text-[9px] font-bold text-slate-500 uppercase mb-0.5">
+                          Label Garis Pembatas (Service Blueprint)
+                        </label>
+                        <input
+                          type="text"
+                          value={lane.dividerLabel || ''}
+                          onChange={(e) => {
+                            const updated = (data.lanes || []).map((l: any) =>
+                              l.id === lane.id ? { ...l, dividerLabel: e.target.value } : l
+                            );
+                            onUpdateNode(id, { lanes: updated });
+                          }}
+                          className="w-full px-2 py-1 text-xs rounded border border-slate-200 bg-white text-slate-700 focus:ring-1 focus:ring-blue-500"
+                          placeholder="Misal: Line of interaction / visibility"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {/* ======================================================== */}

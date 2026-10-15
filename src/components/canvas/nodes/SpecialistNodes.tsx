@@ -1,6 +1,6 @@
 'use client';
 
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useRef } from 'react';
 import { Handle, Position, useReactFlow, NodeToolbar } from '@xyflow/react';
 import { 
   Database, 
@@ -1753,6 +1753,8 @@ export const SwimlaneGroupNode = memo((props: any) => {
 
   const [editingLaneId, setEditingLaneId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
+  const [editingDividerLaneId, setEditingDividerLaneId] = useState<string | null>(null);
+  const [editingDividerText, setEditingDividerText] = useState('');
 
   const handleStartRename = (lane: SwimlaneLane, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -1776,6 +1778,27 @@ export const SwimlaneGroupNode = memo((props: any) => {
       );
     }
     setEditingLaneId(null);
+  };
+
+  const handleStartDividerEdit = (lane: SwimlaneLane, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingDividerLaneId(lane.id);
+    setEditingDividerText(lane.dividerLabel || '');
+  };
+
+  const handleSaveDividerEdit = (laneId: string) => {
+    setNodes((nds) =>
+      nds.map((n) => {
+        if (n.id === id) {
+          const updated = lanes.map((l) =>
+            l.id === laneId ? { ...l, dividerLabel: editingDividerText.trim() } : l
+          );
+          return { ...n, data: { ...n.data, lanes: updated } };
+        }
+        return n;
+      })
+    );
+    setEditingDividerLaneId(null);
   };
 
   const handleAddLane = (e: React.MouseEvent) => {
@@ -1925,11 +1948,32 @@ export const SwimlaneGroupNode = memo((props: any) => {
               {lane.dividerLabel && !isLast && (
                 <div 
                   className="absolute -bottom-3 left-0 -translate-x-full pr-2 z-40 pointer-events-auto flex items-center select-none"
-                  title={lane.dividerLabel}
+                  title="Klik ganda untuk mengubah teks pembatas jalur"
+                  onDoubleClick={(e) => handleStartDividerEdit(lane, e)}
                 >
-                  <div className="px-2.5 py-1 rounded-xl bg-white border border-slate-400/80 shadow-xs text-[10px] font-bold text-slate-800 whitespace-nowrap hover:border-blue-500 transition-colors">
-                    {lane.dividerLabel}
-                  </div>
+                  {editingDividerLaneId === lane.id ? (
+                    <div 
+                      className="bg-white rounded-xl shadow-lg border-2 border-blue-500 p-1 flex items-center z-50 nodrag nopan"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <input
+                        autoFocus
+                        type="text"
+                        value={editingDividerText}
+                        onChange={(e) => setEditingDividerText(e.target.value)}
+                        onBlur={() => handleSaveDividerEdit(lane.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleSaveDividerEdit(lane.id);
+                          if (e.key === 'Escape') setEditingDividerLaneId(null);
+                        }}
+                        className="nodrag nopan px-2 py-0.5 text-[11px] font-bold text-slate-800 border-none outline-none w-44 text-center bg-slate-50 rounded"
+                      />
+                    </div>
+                  ) : (
+                    <div className="px-2.5 py-1 rounded-xl bg-white border border-slate-400/80 shadow-xs text-[10px] font-bold text-slate-800 whitespace-nowrap hover:border-blue-500 hover:text-blue-700 hover:shadow-sm transition-all cursor-pointer">
+                      {lane.dividerLabel}
+                    </div>
+                  )}
                   <div className="w-2.5 h-[1.5px] bg-slate-400" />
                 </div>
               )}
@@ -1975,6 +2019,22 @@ export const SwimlaneGroupNode = memo((props: any) => {
             </div>
           );
         })}
+      </div>
+
+      {/* Bilah Aksi Bawah: Tambah Jalur Baru & Panduan (Selalu Tampak) */}
+      <div className="p-2 bg-slate-50/90 border-t border-slate-200 flex items-center justify-between text-xs select-none">
+        <button
+          type="button"
+          onClick={handleAddLane}
+          className="nodrag nopan flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-slate-300 hover:border-blue-500 text-blue-600 hover:text-blue-700 font-bold text-xs shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+          title="Tambah jalur proses / swimlane baru"
+        >
+          <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+          <span>Tambah Jalur Baru (+ Lane)</span>
+        </button>
+        <span className="text-[11px] text-slate-400 font-medium">
+          💡 Dobel klik nama jalur atau label pembatas untuk edit teks langsung
+        </span>
       </div>
     </div>
   );
@@ -3012,6 +3072,112 @@ export const MultiPhaseGanttNode = memo((props: any) => {
     updateData({ tasks: [...tasks, newTask] });
   };
 
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  const handleStartBarDrag = (
+    e: React.MouseEvent,
+    task: MultiPhaseGanttTask,
+    mode: 'move' | 'resize-start' | 'resize-end'
+  ) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!gridRef.current) return;
+
+    const startX = e.clientX;
+    const origStart = task.startWeek;
+    const origEnd = task.endWeek;
+    const duration = origEnd - origStart;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      if (!gridRef.current) return;
+      const rect = gridRef.current.getBoundingClientRect();
+      const colWidth = rect.width / 20;
+      const deltaX = moveEvent.clientX - startX;
+      const deltaWeeks = Math.round(deltaX / colWidth);
+
+      if (mode === 'move') {
+        const newStart = Math.max(1, Math.min(20 - duration, origStart + deltaWeeks));
+        const newEnd = newStart + duration;
+        setNodes((nds) =>
+          nds.map((n) => {
+            if (n.id !== id) return n;
+            const updated = ((n.data as any).tasks || []).map((t: MultiPhaseGanttTask) =>
+              t.id === task.id ? { ...t, startWeek: newStart, endWeek: newEnd } : t
+            );
+            return { ...n, data: { ...n.data, tasks: updated } };
+          })
+        );
+      } else if (mode === 'resize-start') {
+        const newStart = Math.max(1, Math.min(origEnd, origStart + deltaWeeks));
+        setNodes((nds) =>
+          nds.map((n) => {
+            if (n.id !== id) return n;
+            const updated = ((n.data as any).tasks || []).map((t: MultiPhaseGanttTask) =>
+              t.id === task.id ? { ...t, startWeek: newStart } : t
+            );
+            return { ...n, data: { ...n.data, tasks: updated } };
+          })
+        );
+      } else if (mode === 'resize-end') {
+        const newEnd = Math.max(origStart, Math.min(20, origEnd + deltaWeeks));
+        setNodes((nds) =>
+          nds.map((n) => {
+            if (n.id !== id) return n;
+            const updated = ((n.data as any).tasks || []).map((t: MultiPhaseGanttTask) =>
+              t.id === task.id ? { ...t, endWeek: newEnd } : t
+            );
+            return { ...n, data: { ...n.data, tasks: updated } };
+          })
+        );
+      }
+    };
+
+    const onMouseUp = () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  };
+
+  const handleDuplicateTask = (task: MultiPhaseGanttTask) => {
+    const newTask: MultiPhaseGanttTask = {
+      ...task,
+      id: `task-${Date.now()}`,
+      name: `${task.name} (Salinan)`,
+      startWeek: Math.min(20, task.startWeek + 1),
+      endWeek: Math.min(20, task.endWeek + 1),
+    };
+    updateData({ tasks: [...tasks, newTask] });
+  };
+
+  const handleAddPhase = () => {
+    const nextIdx = phases.length + 1;
+    const colors = ['#dc2626', '#ffe4e6', '#f59e0b', '#059669', '#2563eb', '#7c3aed'];
+    const chosenColor = colors[(nextIdx - 1) % colors.length];
+    const newPhase: MultiPhaseGanttPhase = {
+      id: `p${Date.now()}`,
+      name: `Phase ${nextIdx}`,
+      color: chosenColor,
+      textColor: chosenColor === '#ffe4e6' ? '#9f1239' : '#ffffff',
+    };
+    const newTask: MultiPhaseGanttTask = {
+      id: `task-${Date.now()}`,
+      phaseId: newPhase.id,
+      name: `Tugas Baru Fase ${nextIdx}`,
+      startWeek: 1,
+      endWeek: 4,
+      color: chosenColor === '#ffe4e6' ? '#e11d48' : chosenColor,
+      textColor: '#ffffff',
+      notes: 'Text Here',
+    };
+    updateData({
+      phases: [...phases, newPhase],
+      tasks: [...tasks, newTask],
+    });
+  };
+
   const handleDeleteTask = (taskId: string) => {
     if (tasks.length <= 1) return;
     updateData({ tasks: tasks.filter((t) => t.id !== taskId) });
@@ -3158,7 +3324,7 @@ export const MultiPhaseGanttNode = memo((props: any) => {
         </div>
 
         {/* Middle 20-Week Grid Area */}
-        <div className="flex-1 relative flex flex-col bg-white">
+        <div ref={gridRef} className="flex-1 relative flex flex-col bg-white">
           {/* 20 Vertical Grid Guidelines */}
           <div className="absolute inset-0 grid grid-cols-20 divide-x divide-slate-200/70 pointer-events-none">
             {Array.from({ length: 20 }).map((_, cIdx) => (
@@ -3246,18 +3412,26 @@ export const MultiPhaseGanttNode = memo((props: any) => {
           <div className="relative z-20 flex-1 flex flex-col divide-y divide-slate-200/50">
             {tasks.map((task) => (
               <div key={task.id} className="flex-1 flex items-center relative px-0.5 group">
-                {/* Gantt Bar */}
+                {/* Gantt Bar dengan Mouse Drag & Resize Handle Interaktif */}
                 <div
-                  className="absolute h-[24px] rounded-xs flex items-center px-2 cursor-pointer shadow-xs hover:shadow-md transition-all group-hover:brightness-105"
+                  className="nodrag nopan absolute h-[26px] rounded-xs flex items-center px-2 cursor-grab active:cursor-grabbing shadow-xs hover:shadow-md transition-all group-hover:brightness-105 select-none"
                   style={{
                     left: `${(task.startWeek - 1) * 5}%`,
                     width: `${(task.endWeek - task.startWeek + 1) * 5}%`,
                     backgroundColor: task.color,
                     color: task.textColor || '#ffffff',
                   }}
+                  onMouseDown={(e) => handleStartBarDrag(e, task, 'move')}
                   onDoubleClick={(e) => handleStartEdit(e, 'task', task.id, task.name)}
-                  title={`${task.name} (Minggu ${task.startWeek} - ${task.endWeek})`}
+                  title={`${task.name} (Minggu ${task.startWeek} - ${task.endWeek}) • Tarik tengah untuk geser minggu • Tarik tepi untuk ubah durasi • Dobel klik untuk edit`}
                 >
+                  {/* Handle Resize Kiri (Ubah Minggu Mulai) */}
+                  <div
+                    className="nodrag nopan absolute left-0 top-0 bottom-0 w-2.5 cursor-ew-resize hover:bg-white/40 rounded-l-xs z-10"
+                    onMouseDown={(e) => handleStartBarDrag(e, task, 'resize-start')}
+                    title="Tarik untuk mengubah minggu mulai"
+                  />
+
                   {editingField?.type === 'task' && editingField.id === task.id ? (
                     <input
                       autoFocus
@@ -3270,12 +3444,20 @@ export const MultiPhaseGanttNode = memo((props: any) => {
                         if (e.key === 'Escape') setEditingField(null);
                       }}
                       className="nodrag nopan w-full text-[11px] font-bold bg-white text-slate-900 rounded px-1 outline-none"
+                      onClick={(e) => e.stopPropagation()}
                     />
                   ) : (
-                    <span className="text-[10px] md:text-[11px] font-bold truncate tracking-tight">
+                    <span className="text-[10px] md:text-[11px] font-bold truncate tracking-tight pointer-events-none drop-shadow-2xs">
                       {task.name}
                     </span>
                   )}
+
+                  {/* Handle Resize Kanan (Ubah Minggu Selesai) */}
+                  <div
+                    className="nodrag nopan absolute right-0 top-0 bottom-0 w-2.5 cursor-ew-resize hover:bg-white/40 rounded-r-xs z-10"
+                    onMouseDown={(e) => handleStartBarDrag(e, task, 'resize-end')}
+                    title="Tarik untuk mengubah minggu selesai"
+                  />
                 </div>
 
                 {/* Quick Task Adjuster Controls on Hover */}
@@ -3311,6 +3493,13 @@ export const MultiPhaseGanttNode = memo((props: any) => {
                     title="Perpanjang 1 Minggu"
                   >
                     +1W
+                  </button>
+                  <button
+                    onClick={() => handleDuplicateTask(task)}
+                    className="p-0.5 hover:bg-blue-50 text-slate-400 hover:text-blue-600 rounded cursor-pointer transition-colors"
+                    title="Duplikat Tugas Ini"
+                  >
+                    <Copy className="w-3 h-3" />
                   </button>
                   <button
                     onClick={() => handleCycleColor(task.id)}
@@ -3361,7 +3550,40 @@ export const MultiPhaseGanttNode = memo((props: any) => {
         </div>
       </div>
 
-      {/* Handles */}
+      {/* BILAH AKSI BAWAH: TAMBAH TUGAS PER FASE & TAMBAH FASE BARU */}
+      <div className="bg-slate-50/95 border-t border-slate-200 px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-xs shrink-0 select-none">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mr-1">
+            + Tugas:
+          </span>
+          {phases.map((p) => (
+            <button
+              key={`add-btn-${p.id}`}
+              type="button"
+              onClick={() => handleAddTask(p.id)}
+              className="nodrag nopan flex items-center gap-1 px-2.5 py-1 rounded-lg text-white font-bold text-xs shadow-2xs hover:opacity-90 active:scale-95 transition-all cursor-pointer"
+              style={{ backgroundColor: p.color }}
+              title={`Tambah tugas baru di ${p.name}`}
+            >
+              <Plus className="w-3 h-3 stroke-[3]" />
+              <span>{p.name}</span>
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={handleAddPhase}
+            className="nodrag nopan flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-slate-300 hover:border-blue-500 text-slate-700 hover:text-blue-600 font-bold text-xs shadow-2xs hover:shadow-xs active:scale-95 transition-all cursor-pointer"
+            title="Tambah Fase Proyek Baru"
+          >
+            <Plus className="w-3 h-3 stroke-[2.5]" />
+            <span>Fase Baru</span>
+          </button>
+        </div>
+
+        <div className="text-[11px] text-slate-400 font-medium hidden md:flex items-center gap-2">
+          <span>💡 Tarik bilah untuk geser minggu • Tarik tepi kiri/kanan untuk ubah durasi • Dobel klik untuk edit teks</span>
+        </div>
+      </div>
       <Handle type="target" position={Position.Top} className="!w-2.5 !h-2.5 !bg-slate-400" />
       <Handle type="source" position={Position.Bottom} className="!w-2.5 !h-2.5 !bg-slate-400" />
       <Handle type="target" position={Position.Left} className="!w-2.5 !h-2.5 !bg-slate-400" />

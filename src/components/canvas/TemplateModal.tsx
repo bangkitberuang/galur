@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
+import { APP_LOGO_URL } from '@/lib/version';
 import { 
   X, 
   Sparkles, 
@@ -154,8 +156,14 @@ export default function TemplateModal({
         {/* Header Modal dengan Pencarian Terpadu */}
         <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#0b4632] text-amber-300 flex items-center justify-center shadow-md shrink-0">
-              <Sparkles className="w-5 h-5 text-amber-400 fill-amber-400" />
+            <div className="w-10 h-10 rounded-2xl bg-[#0b4632] flex items-center justify-center shadow-md shrink-0 p-1.5 border border-emerald-600/30">
+              <Image
+                src={APP_LOGO_URL}
+                alt="GALUR Logo"
+                width={28}
+                height={28}
+                className="w-7 h-7 object-contain drop-shadow-xs"
+              />
             </div>
             <div>
               <div className="flex items-center gap-2">
