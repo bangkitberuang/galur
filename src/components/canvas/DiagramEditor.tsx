@@ -48,7 +48,9 @@ import {
   Sliders,
   Share2,
   Users,
-  Printer
+  Printer,
+  LogOut,
+  LogIn
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -119,12 +121,34 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   const [activeRoomId, setActiveRoomId] = useState<string>('galur-main-room');
   const [collabUsers, setCollabUsers] = useState<CollabUser[]>([]);
   const [currentUser, setCurrentUser] = useState<CollabUser>(INITIAL_COLLAB_USER);
+  const [authUser, setAuthUser] = useState<any>(null);
   const [isMounted, setIsMounted] = useState(false);
   const isRemoteUpdating = useRef(false);
 
   useEffect(() => {
     setIsMounted(true);
-    setCurrentUser(getLocalCollabUser());
+    const local = getLocalCollabUser();
+    if (isSupabaseConfigured && supabase) {
+      supabase.auth.getUser().then(({ data }) => {
+        if (data?.user) {
+          setAuthUser(data.user);
+          const fullName =
+            data.user.user_metadata?.full_name ||
+            data.user.user_metadata?.name ||
+            data.user.email?.split('@')[0] ||
+            local.name;
+          setCurrentUser({
+            ...local,
+            id: data.user.id,
+            name: fullName,
+          });
+        } else {
+          setCurrentUser(local);
+        }
+      });
+    } else {
+      setCurrentUser(local);
+    }
   }, []);
 
   // Multi-Page Diagram State (Halaman 1, 2, 3...)
@@ -1506,6 +1530,42 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
             <Download className="w-3.5 h-3.5" />
             <span>Ekspor & Unduh</span>
           </button>
+
+          {/* User Account / Sign In Status */}
+          {authUser ? (
+            <div className="flex items-center gap-1.5 pl-1.5 border-l border-slate-200">
+              <div className="text-right hidden xl:block leading-tight select-none">
+                <div className="text-[11px] font-bold text-slate-800 truncate max-w-[120px]" title={authUser.email}>
+                  {authUser.user_metadata?.full_name || authUser.email?.split('@')[0]}
+                </div>
+                <div className="text-[9px] text-emerald-700 font-semibold truncate max-w-[120px]">
+                  {authUser.email}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (confirm(`Keluar dari akun (${authUser.email})?`)) {
+                    if (supabase) await supabase.auth.signOut();
+                    window.location.href = '/dashboard';
+                  }
+                }}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                title={`Akun: ${authUser.email} (Klik untuk keluar / ganti akun)`}
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-bold border border-slate-200 transition-colors shrink-0"
+              title="Masuk dengan Akun Google"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Masuk</span>
+            </Link>
+          )}
         </div>
       </header>
 
