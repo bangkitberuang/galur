@@ -207,7 +207,7 @@ export default function TemplateModal({
         <div className="px-4 py-2.5 bg-slate-100/70 border-b border-slate-200 flex flex-wrap items-center gap-1.5 no-scrollbar">
           {[
             { id: 'all', label: 'Semua Format', count: SPECIALIST_CATEGORIES.length },
-            { id: 'strategic', label: '🎯 Strategic & AI', count: SPECIALIST_CATEGORIES.filter(c => c.group === 'strategic').length },
+            { id: 'strategic', label: '🎯 Analisis Strategis', count: SPECIALIST_CATEGORIES.filter(c => c.group === 'strategic').length },
             { id: 'problem_solving', label: '💡 Problem Solving', count: SPECIALIST_CATEGORIES.filter(c => c.group === 'problem_solving').length },
             { id: 'business', label: '📊 Alur & Jadwal Kerja', count: SPECIALIST_CATEGORIES.filter(c => c.group === 'business' || c.id === 'flowchart' || c.id === 'org' || c.id === 'floorplan' || c.id === 'mindmap' || c.id === 'swimlane' || c.id === 'service_blueprint' || c.id === 'timebox_gantt' || c.id === 'vertical_timeline' || c.id === 'gantt_multiphase_20w').length },
             { id: 'engineering', label: '🎥 Siaran & Jaringan', count: SPECIALIST_CATEGORIES.filter(c => c.id === 'network' || c.id === 'rack' || c.id === 'circuit' || c.id === 'pid' || c.id === 'live_streaming').length },
@@ -297,11 +297,6 @@ export default function TemplateModal({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
                       <span className="truncate">{cat.name}</span>
-                      {cat.isAI && (
-                        <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-purple-100 text-purple-700 border border-purple-200/80 shrink-0">
-                          AI
-                        </span>
-                      )}
                     </div>
                     <div className={`text-[10px] truncate ${isSelected ? 'text-emerald-200' : 'text-slate-400'}`}>
                       {cat.badge}
@@ -324,12 +319,6 @@ export default function TemplateModal({
                 >
                   {currentTemplate.badge}
                 </span>
-                {currentTemplate.isAI && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200 flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-purple-600 fill-purple-600" />
-                    AI Framework
-                  </span>
-                )}
                 <span className="text-xs text-slate-400">
                   {currentTemplate.nodes.length} Objek • {currentTemplate.edges.length} Konektor
                 </span>

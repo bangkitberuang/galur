@@ -819,7 +819,13 @@ export const TextNode = memo((props: any) => {
 });
 TextNode.displayName = 'TextNode';
 
-import { flowchartNodeTypes } from './FlowchartShapes';
+import {
+  flowchartNodeTypes,
+  HexagonSvgNode,
+  DatabaseSvgNode,
+  ExtractSvgNode,
+  MergeSvgNode,
+} from './FlowchartShapes';
 import { specialistNodeTypes } from './SpecialistNodes';
 
 export const nodeTypes: any = {
@@ -831,9 +837,17 @@ export const nodeTypes: any = {
   parallelogram: ParallelogramNode,
   document: DocumentNode,
   predefined: PredefinedNode,
-  hexagon: HexagonNode,
+  hexagon: HexagonSvgNode,
   connector: ConnectorNode,
-  database: DatabaseNode,
+  database: DatabaseSvgNode,
+  cylinder: DatabaseSvgNode,
+  merge: MergeSvgNode,
+  extract: ExtractSvgNode,
+  triangle: ExtractSvgNode,
+  triangle_up: ExtractSvgNode,
+  triangle_down: MergeSvgNode,
+  circle: ConnectorNode,
+  diamond: DecisionNode,
   cloud: CloudNode,
   mindmap: MindMapNode,
   stickynote: StickyNoteNode,

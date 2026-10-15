@@ -47,7 +47,12 @@ import {
   Upload,
   Search,
   Image as ImageIcon,
-  X
+  X,
+  ListTodo,
+  Activity,
+  Clock,
+  Calendar,
+  Star
 } from 'lucide-react';
 import { MarkerType, useReactFlow } from '@xyflow/react';
 import { CanvasPageConfig, DEFAULT_PAGE_CONFIG } from './CanvasPageFrame';
@@ -1195,7 +1200,364 @@ export default function PropertyPanel({
         {/* 1. KONTEN & DATA SPESIFIK                                 */}
         {/* ======================================================== */}
         <div className="space-y-3">
-          {type === 'org_node' ? (
+          {type === 'timebox_card' ? (
+            <div className="space-y-3">
+              <div className="p-2.5 rounded-xl bg-blue-50/80 border border-blue-200/80 mb-1">
+                <span className="text-[11px] font-black text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <ListTodo className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Kartu Time Boxing Fokus</span>
+                </span>
+                <p className="text-[10px] text-blue-700/80 mt-0.5">Atur blok fokus kerja harian & daftar tugas terencana.</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                    Hari Sesi
+                  </label>
+                  <input
+                    type="text"
+                    value={data.day || ''}
+                    onChange={(e) => onUpdateNode(id, { day: e.target.value })}
+                    className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-black uppercase focus:ring-2 focus:ring-blue-500"
+                    placeholder="SENIN"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                    Rentang Waktu (Jam)
+                  </label>
+                  <input
+                    type="text"
+                    value={data.hours || ''}
+                    onChange={(e) => onUpdateNode(id, { hours: e.target.value })}
+                    className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-semibold focus:ring-2 focus:ring-blue-500"
+                    placeholder="08:30 - 11:30"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                  Daftar Tugas Time-Box (1 baris per tugas)
+                </label>
+                <textarea
+                  rows={4}
+                  value={Array.isArray(data.tasks) ? data.tasks.join('\n') : (typeof data.tasks === 'string' ? data.tasks : '')}
+                  onChange={(e) => onUpdateNode(id, { tasks: e.target.value.split('\n') })}
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 leading-relaxed font-medium"
+                  placeholder="Riset Topologi & Mindmap&#10;Review Jadwal Tim"
+                />
+              </div>
+            </div>
+          ) : type === 'timeline_step' ? (
+            <div className="space-y-3">
+              <div className="p-2.5 rounded-xl bg-indigo-50/80 border border-indigo-200/80 mb-1">
+                <span className="text-[11px] font-black text-indigo-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <Activity className="w-3.5 h-3.5 text-indigo-600" />
+                  <span>Titik Garis Waktu (Roadmap)</span>
+                </span>
+                <p className="text-[10px] text-indigo-700/80 mt-0.5">Atur tanggal fase capaian dan rincian langkah kerja.</p>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                <div className="col-span-1">
+                  <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                    Tanggal
+                  </label>
+                  <input
+                    type="text"
+                    value={data.date || ''}
+                    onChange={(e) => onUpdateNode(id, { date: e.target.value })}
+                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 font-bold text-center focus:ring-2 focus:ring-indigo-500"
+                    placeholder="10 Oktober"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                    Judul Tahap Proyek
+                  </label>
+                  <input
+                    type="text"
+                    value={data.title || data.label || ''}
+                    onChange={(e) => onUpdateNode(id, { title: e.target.value, label: e.target.value })}
+                    className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-bold focus:ring-2 focus:ring-indigo-500"
+                    placeholder="Tahap 1: Analisis Kebutuhan"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                  Uraian Detail Langkah
+                </label>
+                <textarea
+                  rows={3}
+                  value={data.description || ''}
+                  onChange={(e) => onUpdateNode(id, { description: e.target.value })}
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 leading-relaxed font-normal"
+                  placeholder="Tuliskan kendala, sasaran kerja, dan pemangku kepentingan..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                  Warna Aksen Penanda
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={data.accentColor || '#3b82f6'}
+                    onChange={(e) => onUpdateNode(id, { accentColor: e.target.value })}
+                    className="w-8 h-8 rounded-lg border border-slate-200 cursor-pointer p-0.5"
+                  />
+                  <input
+                    type="text"
+                    value={data.accentColor || '#3b82f6'}
+                    onChange={(e) => onUpdateNode(id, { accentColor: e.target.value })}
+                    className="flex-1 px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-mono text-xs uppercase"
+                  />
+                </div>
+              </div>
+            </div>
+          ) : type === 'gantt_bar' ? (
+            <div className="space-y-3">
+              <div className="p-2.5 rounded-xl bg-blue-50/80 border border-blue-200/80 mb-1">
+                <span className="text-[11px] font-black text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Bilah Tugas Jadwal (Gantt)</span>
+                </span>
+                <p className="text-[10px] text-blue-700/80 mt-0.5">Atur durasi, status kritis, PIC, dan progres penyelesaian.</p>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                  Nama Tugas / Aktivitas
+                </label>
+                <input
+                  type="text"
+                  value={data.label || ''}
+                  onChange={(e) => onUpdateNode(id, { label: e.target.value, title: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-bold focus:ring-2 focus:ring-blue-500"
+                  placeholder="Perencanaan & Riset Konsep"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                    Durasi / Waktu
+                  </label>
+                  <input
+                    type="text"
+                    value={data.duration || ''}
+                    onChange={(e) => onUpdateNode(id, { duration: e.target.value })}
+                    className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-medium focus:ring-2 focus:ring-blue-500"
+                    placeholder="W1 (Sen - Kam)"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                    Penanggung Jawab (PIC)
+                  </label>
+                  <input
+                    type="text"
+                    value={data.assignee || ''}
+                    onChange={(e) => onUpdateNode(id, { assignee: e.target.value })}
+                    className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-medium focus:ring-2 focus:ring-blue-500"
+                    placeholder="Tim IKP"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                  Status Tugas
+                </label>
+                <select
+                  value={data.status || 'on_track'}
+                  onChange={(e) => onUpdateNode(id, { status: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-bold bg-white focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="on_track">🟢 Tepat Waktu (On Track)</option>
+                  <option value="critical">🔴 Jalur Kritis (Critical Path)</option>
+                  <option value="completed">🟣 Selesai Penuh (Completed)</option>
+                  <option value="delayed">🟡 Tertunda / Penyesuaian (Delayed)</option>
+                </select>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+                    Persentase Capaian (Progres)
+                  </label>
+                  <span className="text-xs font-black text-blue-600 font-mono">
+                    {data.progress !== undefined ? data.progress : 50}%
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  step={5}
+                  value={data.progress !== undefined ? Number(data.progress) : 50}
+                  onChange={(e) => onUpdateNode(id, { progress: Number(e.target.value) })}
+                  className="w-full accent-blue-600 cursor-pointer"
+                />
+              </div>
+            </div>
+          ) : type === 'gantt_header' ? (
+            <div className="space-y-3">
+              <div className="p-2.5 rounded-xl bg-slate-100 border border-slate-200 mb-1">
+                <span className="text-[11px] font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-slate-700" />
+                  <span>Header Skala Waktu (Gantt)</span>
+                </span>
+                <p className="text-[10px] text-slate-600 mt-0.5">Atur kolom minggu, nama periode, dan penanda Hari Ini.</p>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                  Judul Garis Waktu
+                </label>
+                <input
+                  type="text"
+                  value={data.title || data.label || ''}
+                  onChange={(e) => onUpdateNode(id, { title: e.target.value, label: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-bold focus:ring-2 focus:ring-blue-500"
+                  placeholder="JADWAL KERJA & TIME BOXING MINGGUAN"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                  Daftar Minggu (Pisahkan Koma)
+                </label>
+                <input
+                  type="text"
+                  value={Array.isArray(data.weeks) ? data.weeks.join(', ') : 'WEEK 1, WEEK 2, WEEK 3, WEEK 4, WEEK 5, WEEK 6'}
+                  onChange={(e) =>
+                    onUpdateNode(id, {
+                      weeks: e.target.value.split(',').map((w: string) => w.trim()).filter((w: string) => w.length > 0),
+                    })
+                  }
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-mono text-xs focus:ring-2 focus:ring-blue-500"
+                  placeholder="WEEK 1, WEEK 2, WEEK 3..."
+                />
+              </div>
+
+              <div className="space-y-2 pt-1 border-t border-slate-100">
+                <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={data.showDays !== false}
+                    onChange={(e) => onUpdateNode(id, { showDays: e.target.checked })}
+                    className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
+                  />
+                  <span>Tampilkan Baris Hari (S M T W T F S)</span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={data.showToday !== false}
+                    onChange={(e) => onUpdateNode(id, { showToday: e.target.checked })}
+                    className="rounded text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer"
+                  />
+                  <span>Tampilkan Garis Penanda "HARI INI"</span>
+                </label>
+
+                {data.showToday !== false && (
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase">Posisi Penanda Hari Ini</span>
+                      <span className="text-xs font-bold text-amber-600 font-mono">
+                        {data.todayPercent !== undefined ? data.todayPercent : 42}%
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      step={1}
+                      value={data.todayPercent !== undefined ? Number(data.todayPercent) : 42}
+                      onChange={(e) => onUpdateNode(id, { todayPercent: Number(e.target.value) })}
+                      className="w-full accent-amber-500 cursor-pointer"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : type === 'milestone_node' ? (
+            <div className="space-y-3">
+              <div className="p-2.5 rounded-xl bg-amber-50/80 border border-amber-200/80 mb-1">
+                <span className="text-[11px] font-black text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <Star className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />
+                  <span>Milestone Target Capaian</span>
+                </span>
+                <p className="text-[10px] text-amber-700/80 mt-0.5">Penanda tonggak penting keberhasilan suatu fase proyek.</p>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                  Nama Milestone
+                </label>
+                <input
+                  type="text"
+                  value={data.label || ''}
+                  onChange={(e) => onUpdateNode(id, { label: e.target.value, title: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-bold focus:ring-2 focus:ring-amber-500"
+                  placeholder="Target Go-Live Siaran"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                  Tenggat / Waktu Sasaran
+                </label>
+                <input
+                  type="text"
+                  value={data.date || ''}
+                  onChange={(e) => onUpdateNode(id, { date: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-semibold focus:ring-2 focus:ring-amber-500"
+                  placeholder="Akhir Minggu 4"
+                />
+              </div>
+            </div>
+          ) : type === 'multiphase_gantt' ? (
+            <div className="space-y-3">
+              <div className="p-2.5 rounded-xl bg-slate-100 border border-slate-200 mb-1">
+                <span className="text-[11px] font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-slate-700" />
+                  <span>Master Jadwal Multi-Fase 20-Minggu</span>
+                </span>
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                  Judul Proyek
+                </label>
+                <input
+                  type="text"
+                  value={data.title || data.label || ''}
+                  onChange={(e) => onUpdateNode(id, { title: e.target.value, label: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-bold focus:ring-2 focus:ring-blue-500"
+                  placeholder="MASTER JADWAL PROYEK"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                  Catatan Proyek
+                </label>
+                <textarea
+                  rows={3}
+                  value={data.notes || ''}
+                  onChange={(e) => onUpdateNode(id, { notes: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-medium focus:ring-2 focus:ring-blue-500"
+                  placeholder="Catatan pelaksanaan..."
+                />
+              </div>
+            </div>
+          ) : type === 'org_node' ? (
             <div className="space-y-2.5">
               <div>
                 <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1">
@@ -1658,13 +2020,13 @@ export default function PropertyPanel({
                 </label>
                 <textarea
                   rows={5}
-                  value={Array.isArray(data.items) ? data.items.join('\n') : ''}
+                  value={Array.isArray(data.items) ? data.items.join('\n') : (typeof data.items === 'string' ? data.items : '')}
                   onChange={(e) =>
                     onUpdateNode(id, {
-                      items: e.target.value.split('\n').filter((line: string) => line.trim().length > 0),
+                      items: e.target.value.split('\n'),
                     })
                   }
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 leading-relaxed"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 leading-relaxed font-medium"
                   placeholder="Tulis poin di sini..."
                 />
               </div>

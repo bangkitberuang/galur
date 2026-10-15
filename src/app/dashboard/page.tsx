@@ -348,11 +348,6 @@ export default function DashboardPage() {
                   }`}
                 >
                   <span>{cat.name}</span>
-                  {cat.isAI && (
-                    <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-purple-100 text-purple-700 border border-purple-200/80 shrink-0">
-                      AI
-                    </span>
-                  )}
                 </button>
               );
             })}
@@ -371,12 +366,6 @@ export default function DashboardPage() {
                     >
                       {currentCat.badge}
                     </span>
-                    {currentCat.isAI && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200 flex items-center gap-1 shadow-2xs">
-                        <Sparkles className="w-3 h-3 text-purple-600 fill-purple-600" />
-                        AI Framework
-                      </span>
-                    )}
                     <span className="text-xs text-slate-400 font-medium">
                       {currentCat.nodes.length} Bentuk Pre-configured • {currentCat.edges.length} Relasi Garis
                     </span>

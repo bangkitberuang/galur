@@ -1241,7 +1241,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
                 </button>
 
                 
-                {/* 4b. Business Model Canvas (Strategic • AI) */}
+                {/* 4b. Business Model Canvas (Analisis Strategis) */}
                 <button
                   onClick={() => {
                     const t = getTemplateByCategory('bmc');
@@ -1256,7 +1256,6 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-sky-950 flex items-center gap-1">
                       <span>Business Model Canvas</span>
-                      <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-purple-100 text-purple-700 border border-purple-200">AI</span>
                     </div>
                     <div className="text-[10px] text-sky-700">9 blok arsitektur bisnis Alexander Osterwalder</div>
                   </div>
@@ -1594,6 +1593,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
               selectionMode={SelectionMode.Partial}
               panOnDrag={interactionMode === 'pan' ? true : [1, 2]}
               panActivationKeyCode="Space"
+              zoomOnDoubleClick={false}
               proOptions={{ hideAttribution: true }}
             >
               {/* Lembar Halaman A4 Presisi dengan Fitur Auto-Expand Sesuai Perkembangan Diagram */}

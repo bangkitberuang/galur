@@ -211,7 +211,21 @@ const SvgShapeWrapper = ({
   const effectiveHeight = data?.height ? Number(data.height) : height;
 
   const textStyles = data ? getNodeTextStyles(data, 12, textColor) : { color: textColor };
-  const shapeStyles = data ? getNodeShapeStyles(data) : {};
+  const rawShapeStyles = data ? getNodeShapeStyles(data) : {};
+
+  // PENTING: Untuk SVG Wrapper, jangan pernah menerapkan backgroundColor, borderColor, borderWidth,
+  // atau borderRadius ke container <div> luar!
+  // Isi warna (fill) dan garis tepi (stroke) ditangani langsung oleh elemen SVG anak (<polygon>, <path>, <ellipse>).
+  // Menerapkan background ke <div> akan membuat kotak putih/transparan persegi di belakang segitiga/lingkaran!
+  const {
+    backgroundColor: _bg,
+    borderColor: _bc,
+    borderWidth: _bw,
+    borderStyle: _bs,
+    borderRadius: _br,
+    boxShadow: _boxShadow,
+    ...cleanShapeStyles
+  } = rawShapeStyles;
 
   const handleSave = () => {
     const trimmed = tempLabel.trim();
@@ -229,7 +243,9 @@ const SvgShapeWrapper = ({
         selected ? 'drop-shadow-md' : ''
       }`}
       style={{
-        ...shapeStyles,
+        ...cleanShapeStyles,
+        backgroundColor: 'transparent',
+        border: 'none',
         width: effectiveWidth,
         height: effectiveHeight,
       }}
@@ -262,7 +278,7 @@ const SvgShapeWrapper = ({
         {children}
       </svg>
       <div
-        className="relative z-10 px-3 max-w-[88%] break-words leading-tight text-center flex flex-col items-center justify-center"
+        className="relative z-10 px-3 max-w-[88%] break-words leading-tight text-center flex flex-col items-center justify-center pointer-events-auto"
         style={textStyles}
       >
         {(data?.icon || data?.emoji || data?.iconUrl) && (
@@ -287,7 +303,7 @@ const SvgShapeWrapper = ({
               if (e.key === 'Enter') handleSave();
               if (e.key === 'Escape') setIsEditing(false);
             }}
-            className="w-full px-1.5 py-0.5 border border-blue-500 bg-white/95 rounded text-xs text-slate-900 focus:outline-hidden font-medium text-center shadow-xs"
+            className="nodrag nopan w-full px-1.5 py-0.5 border border-blue-500 bg-white/95 rounded text-xs text-slate-900 focus:outline-hidden font-medium text-center shadow-xs"
           />
         ) : (
           <div
@@ -404,8 +420,8 @@ export const HexagonSvgNode = memo((props: any) => {
   const text = data.textColor || '#831843';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} data={data} width={140} height={65} label={data.label || 'Persiapan / Loop'} textColor={text}>
-      <polygon points="25,2 115,2 138,32.5 115,63 25,63 2,32.5" fill={bg} stroke={stroke} strokeWidth={strokeWidth} strokeDasharray={strokeDasharray} />
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={120} height={80} label={data.label || 'Hexagon'} textColor={text}>
+      <polygon points="30,2 90,2 118,40 90,78 30,78 2,40" fill={bg} stroke={stroke} strokeWidth={strokeWidth} strokeDasharray={strokeDasharray} />
     </SvgShapeWrapper>
   );
 });
@@ -436,15 +452,34 @@ export const DatabaseSvgNode = memo((props: any) => {
   const text = data.textColor || '#581c87';
 
   return (
-    <SvgShapeWrapper id={id} selected={selected} data={data} width={120} height={80} label={data.label || 'Basis Data'} textColor={text}>
+    <SvgShapeWrapper id={id} selected={selected} data={data} width={110} height={85} label={data.label || 'Basis Data'} textColor={text}>
+      {/* Body Tabung Silinder 3D */}
       <path
-        d="M 2 15 C 2 5, 118 5, 118 15 L 118 65 C 118 75, 2 75, 2 65 Z"
+        d="M 2 16 L 2 68 C 2 78, 108 78, 108 68 L 108 16 C 108 26, 2 26, 2 16 Z"
         fill={bg}
         stroke={stroke}
         strokeWidth={strokeWidth}
         strokeDasharray={strokeDasharray}
       />
-      <ellipse cx="60" cy="15" rx="58" ry="10" fill={bg} stroke={stroke} strokeWidth={strokeWidth} strokeDasharray={strokeDasharray} />
+      {/* Garis Lengkung Bawah Kedalaman 3D */}
+      <path
+        d="M 2 68 C 2 78, 108 78, 108 68"
+        fill="none"
+        stroke={stroke}
+        strokeWidth={strokeWidth}
+        strokeDasharray={strokeDasharray}
+      />
+      {/* Tutup Atas Ellipse 3D */}
+      <ellipse
+        cx="55"
+        cy="16"
+        rx="53"
+        ry="11"
+        fill={bg}
+        stroke={stroke}
+        strokeWidth={strokeWidth}
+        strokeDasharray={strokeDasharray}
+      />
     </SvgShapeWrapper>
   );
 });

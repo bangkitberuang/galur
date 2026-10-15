@@ -1107,28 +1107,30 @@ export const CanvasBlockNode = memo((props: any) => {
   const nodeWidth = props.width || data.width;
   const nodeHeight = props.height || data.height;
 
-  // Base font size
+  // Base font size - proporsional & terbaca jelas untuk pemula
   const baseFontSize = typeof data.fontSize === 'number'
     ? data.fontSize
-    : (data.fontSize ? parseInt(data.fontSize, 10) || 12 : 12);
+    : (data.fontSize ? parseInt(data.fontSize, 10) || 13 : 13);
 
   // Proportional font sizing
-  const titleFontSize = Math.max(12, Math.round(baseFontSize * 1.15));
-  const subtitleFontSize = Math.max(10, Math.round(baseFontSize * 0.85));
-  const badgeSize = Math.max(20, Math.round(baseFontSize * 1.5));
-  const badgeFontSize = Math.max(10, Math.round(baseFontSize * 0.8));
+  const titleFontSize = Math.max(14, Math.round(baseFontSize * 1.15));
+  const subtitleFontSize = Math.max(11, Math.round(baseFontSize * 0.9));
+  const badgeSize = Math.max(22, Math.round(baseFontSize * 1.6));
+  const badgeFontSize = Math.max(11, Math.round(baseFontSize * 0.85));
 
   const textStyles = getNodeTextStyles(data, baseFontSize, data.textColor || '#1e293b');
   const shapeStyles = getNodeShapeStyles(data, color, borderColor);
 
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
+  const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingItemIdx, setEditingItemIdx] = useState<number | null>(null);
   const [tempValue, setTempValue] = useState('');
 
   const handleStartEditTitle = (e: React.MouseEvent) => {
     e.stopPropagation();
     setEditingItemIdx(null);
+    setEditingSubtitle(false);
     setEditingTitle(true);
     setTempValue(title);
   };
@@ -1147,9 +1149,30 @@ export const CanvasBlockNode = memo((props: any) => {
     setEditingTitle(false);
   };
 
+  const handleStartEditSubtitle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingTitle(false);
+    setEditingItemIdx(null);
+    setEditingSubtitle(true);
+    setTempValue(subtitle);
+  };
+
+  const handleSaveSubtitle = () => {
+    const val = tempValue.trim();
+    setNodes((nds) =>
+      nds.map((n) =>
+        n.id === id
+          ? { ...n, data: { ...n.data, subtitle: val, prompt: val } }
+          : n
+      )
+    );
+    setEditingSubtitle(false);
+  };
+
   const handleStartEditItem = (idx: number, currentVal: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setEditingTitle(false);
+    setEditingSubtitle(false);
     setEditingItemIdx(idx);
     setTempValue(currentVal);
   };
@@ -1170,9 +1193,23 @@ export const CanvasBlockNode = memo((props: any) => {
     setEditingItemIdx(null);
   };
 
+  const handleAddItem = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newItems = [...items, 'Poin baru'];
+    setNodes((nds) =>
+      nds.map((n) =>
+        n.id === id
+          ? { ...n, data: { ...n.data, items: newItems } }
+          : n
+      )
+    );
+    setEditingItemIdx(newItems.length - 1);
+    setTempValue('Poin baru');
+  };
+
   return (
     <div
-      className={`relative min-w-[180px] p-3.5 rounded-2xl border-2 shadow-sm transition-all select-none flex flex-col justify-start ${
+      className={`relative min-w-[200px] p-4 rounded-2xl border-2 shadow-sm transition-all select-none flex flex-col justify-start ${
         selected ? 'ring-3 ring-emerald-600 shadow-xl scale-101' : ''
       }`}
       style={{
@@ -1184,7 +1221,7 @@ export const CanvasBlockNode = memo((props: any) => {
         height: nodeHeight ? `${nodeHeight}px` : undefined,
       }}
     >
-      <UniversalNodeResizer id={id} isVisible={selected} minWidth={160} minHeight={100} />
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={180} minHeight={110} />
       <NodeQuickActions id={id} selected={selected} />
       <StandardHandles />
 
@@ -1214,14 +1251,14 @@ export const CanvasBlockNode = memo((props: any) => {
               if (e.key === 'Enter') handleSaveTitle();
               if (e.key === 'Escape') setEditingTitle(false);
             }}
-            className="w-full px-1.5 py-0.5 border border-emerald-500 rounded bg-white text-slate-900 focus:outline-hidden font-bold"
+            className="nodrag nopan w-full px-1.5 py-0.5 border border-emerald-500 rounded bg-white text-slate-900 focus:outline-hidden font-bold"
             style={{ fontSize: `${titleFontSize}px`, fontFamily: textStyles.fontFamily }}
           />
         ) : (
           <h4
             onDoubleClick={handleStartEditTitle}
             title="Klik ganda untuk mengedit judul blok"
-            className="tracking-tight leading-tight cursor-text hover:bg-black/5 px-1 py-0.5 -mx-1 rounded transition-colors truncate"
+            className="tracking-tight leading-snug cursor-text hover:bg-black/5 px-1 py-0.5 -mx-1 rounded transition-colors break-words flex-1 font-bold"
             style={{
               fontSize: `${titleFontSize}px`,
               fontFamily: textStyles.fontFamily,
@@ -1240,9 +1277,25 @@ export const CanvasBlockNode = memo((props: any) => {
       </div>
 
       {/* Subtitle / Guiding Question */}
-      {subtitle && (
+      {editingSubtitle ? (
+        <input
+          autoFocus
+          type="text"
+          value={tempValue}
+          onChange={(e) => setTempValue(e.target.value)}
+          onBlur={handleSaveSubtitle}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleSaveSubtitle();
+            if (e.key === 'Escape') setEditingSubtitle(false);
+          }}
+          className="nodrag nopan w-full px-1.5 py-0.5 mb-2 border border-emerald-500 rounded bg-white text-slate-800 text-xs focus:outline-hidden"
+          style={{ fontSize: `${subtitleFontSize}px` }}
+        />
+      ) : subtitle ? (
         <p
-          className="font-medium mb-2 leading-tight"
+          onDoubleClick={handleStartEditSubtitle}
+          title="Klik ganda untuk mengedit subtitle"
+          className="font-medium mb-2 leading-relaxed cursor-text hover:bg-black/5 px-1 py-0.5 -mx-1 rounded transition-colors break-words"
           style={{
             fontSize: `${subtitleFontSize}px`,
             fontFamily: textStyles.fontFamily,
@@ -1253,7 +1306,7 @@ export const CanvasBlockNode = memo((props: any) => {
         >
           {subtitle}
         </p>
-      )}
+      ) : null}
 
       {/* Bullet / Sticky Items */}
       <div className="space-y-1.5 mt-1 flex-1">
@@ -1274,7 +1327,7 @@ export const CanvasBlockNode = memo((props: any) => {
                 }
                 if (e.key === 'Escape') setEditingItemIdx(null);
               }}
-              className="w-full p-1.5 rounded-lg border border-emerald-500 bg-white text-slate-800 focus:outline-hidden shadow-xs leading-snug"
+              className="nodrag nopan w-full p-2 rounded-lg border border-emerald-500 bg-white text-slate-800 focus:outline-hidden shadow-xs leading-snug"
               style={{ fontSize: `${baseFontSize}px`, fontFamily: textStyles.fontFamily }}
             />
           ) : (
@@ -1306,6 +1359,16 @@ export const CanvasBlockNode = memo((props: any) => {
             </div>
           );
         })}
+
+        {selected && (
+          <button
+            type="button"
+            onClick={handleAddItem}
+            className="nodrag nopan w-full py-1 text-[11px] font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100/80 border border-dashed border-emerald-300 rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1 mt-1"
+          >
+            <span>+ Tambah Poin</span>
+          </button>
+        )}
       </div>
     </div>
   );
@@ -1993,8 +2056,8 @@ export const ProcessLegendNode = memo((props: any) => {
 export const GanttHeaderNode = memo((props: any) => {
   const { id, data, selected } = props;
   const { setNodes } = useReactFlow();
-  const [editingTitle, setEditingTitle] = useState(false);
-  const [tempTitle, setTempTitle] = useState(data.title || 'JADWAL PROYEK & TIME BOXING');
+  const [editingField, setEditingField] = useState<{ type: 'title' | 'week'; index?: number } | null>(null);
+  const [tempValue, setTempValue] = useState('');
 
   const weeks: string[] = data.weeks || ['WEEK 1', 'WEEK 2', 'WEEK 3', 'WEEK 4', 'WEEK 5', 'WEEK 6'];
   const showDays = data.showDays !== false;
@@ -2002,16 +2065,34 @@ export const GanttHeaderNode = memo((props: any) => {
   const width = data.width || Math.max(700, weeks.length * 150);
   const height = data.height || 360;
 
-  const handleSaveTitle = () => {
-    setEditingTitle(false);
-    setNodes((nds) =>
-      nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, title: tempTitle } } : n))
-    );
+  const handleStartEdit = (e: React.MouseEvent, type: 'title' | 'week', initial: string, index?: number) => {
+    e.stopPropagation();
+    setEditingField({ type, index });
+    setTempValue(initial);
+  };
+
+  const handleSave = () => {
+    if (!editingField) return;
+    if (editingField.type === 'title') {
+      const newTitle = tempValue.trim() || data.title || 'Jadwal Proyek & Time Boxing';
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, title: newTitle, label: newTitle } } : n))
+      );
+    } else if (editingField.type === 'week' && typeof editingField.index === 'number') {
+      const newWeeks = [...weeks];
+      newWeeks[editingField.index] = tempValue.trim() || newWeeks[editingField.index];
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, weeks: newWeeks } } : n))
+      );
+    }
+    setEditingField(null);
   };
 
   return (
     <div
-      className="relative rounded-2xl shadow-md border-2 border-slate-300 bg-white/95 overflow-hidden select-none"
+      className={`relative rounded-2xl shadow-md border-2 border-slate-300 bg-white/95 overflow-hidden select-none ${
+        selected ? 'ring-2 ring-blue-500 shadow-xl' : ''
+      }`}
       style={{ width, height, minWidth: 400, minHeight: 200 }}
     >
       <UniversalNodeResizer id={id} isVisible={selected} minWidth={400} minHeight={200} />
@@ -2019,29 +2100,32 @@ export const GanttHeaderNode = memo((props: any) => {
 
       {/* Top Banner Bar */}
       <div className="bg-slate-800 text-white px-5 py-2.5 flex items-center justify-between border-b border-slate-700">
-        <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-amber-400" />
-          {editingTitle ? (
+        <div className="flex items-center gap-2 flex-1 mr-4">
+          <Calendar className="w-4 h-4 text-amber-400 shrink-0" />
+          {editingField?.type === 'title' ? (
             <input
               autoFocus
               type="text"
-              value={tempTitle}
-              onChange={(e) => setTempTitle(e.target.value)}
-              onBlur={handleSaveTitle}
-              onKeyDown={(e) => e.key === 'Enter' && handleSaveTitle()}
-              className="px-2 py-0.5 text-xs font-bold rounded bg-slate-700 text-white border border-amber-400 outline-none"
+              value={tempValue}
+              onChange={(e) => setTempValue(e.target.value)}
+              onBlur={handleSave}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSave();
+                if (e.key === 'Escape') setEditingField(null);
+              }}
+              className="nodrag nopan px-2 py-0.5 text-xs font-bold rounded bg-slate-700 text-white border border-amber-400 outline-none w-full max-w-md"
             />
           ) : (
             <h4
-              onDoubleClick={() => setEditingTitle(true)}
-              className="text-xs font-black tracking-wider cursor-pointer hover:text-amber-300 transition-colors uppercase"
+              onDoubleClick={(e) => handleStartEdit(e, 'title', data.title || 'Jadwal Proyek & Time Boxing')}
+              className="text-xs font-black tracking-wider cursor-pointer hover:text-amber-300 transition-colors uppercase truncate"
               title="Klik ganda untuk mengedit judul jadwal"
             >
               {data.title || 'Jadwal Proyek & Time Boxing'}
             </h4>
           )}
         </div>
-        <div className="flex items-center gap-2 text-[10px] text-slate-300 font-semibold">
+        <div className="flex items-center gap-2 text-[10px] text-slate-300 font-semibold shrink-0">
           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500" /> On Track</span>
           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" /> Critical</span>
           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Complete</span>
@@ -2051,8 +2135,29 @@ export const GanttHeaderNode = memo((props: any) => {
       {/* Week Header Row */}
       <div className="flex border-b border-slate-300 bg-slate-100/90 text-slate-700 text-xs font-bold divide-x divide-slate-300">
         {weeks.map((week, idx) => (
-          <div key={idx} className="flex-1 text-center py-1.5 flex flex-col justify-center">
-            <span className="text-[11px] font-black uppercase tracking-tight text-slate-800">{week}</span>
+          <div key={idx} className="flex-1 text-center py-1.5 flex flex-col justify-center px-1">
+            {editingField?.type === 'week' && editingField.index === idx ? (
+              <input
+                autoFocus
+                type="text"
+                value={tempValue}
+                onChange={(e) => setTempValue(e.target.value)}
+                onBlur={handleSave}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSave();
+                  if (e.key === 'Escape') setEditingField(null);
+                }}
+                className="nodrag nopan w-full text-center text-[10px] font-bold bg-white text-slate-900 rounded outline-none border border-blue-500 shadow-xs"
+              />
+            ) : (
+              <span
+                onDoubleClick={(e) => handleStartEdit(e, 'week', week, idx)}
+                className="text-[11px] font-black uppercase tracking-tight text-slate-800 cursor-pointer hover:text-blue-600 transition-colors truncate"
+                title="Klik ganda untuk mengedit nama minggu"
+              >
+                {week}
+              </span>
+            )}
             {showDays && (
               <div className="grid grid-cols-7 text-[9px] font-semibold text-slate-500 pt-1 border-t border-slate-200 mt-1 divide-x divide-slate-200">
                 {days.map((d, dIdx) => (
@@ -2065,7 +2170,7 @@ export const GanttHeaderNode = memo((props: any) => {
       </div>
 
       {/* Vertical Grid Columns Body */}
-      <div className="relative w-full h-[calc(100%-65px)] flex divide-x divide-slate-200/80 bg-[linear-gradient(to_bottom,#f8fafc_1px,transparent_1px)] bg-[size:100%_40px]">
+      <div className="relative w-full h-[calc(100%-65px)] flex divide-x divide-slate-200/80 bg-[linear-gradient(to_bottom,#f8fafc_1px,transparent_1px)] bg-[size:100%_40px] pointer-events-none">
         {weeks.map((_, idx) => (
           <div key={idx} className="flex-1 h-full relative">
             {showDays && (
@@ -2102,12 +2207,13 @@ GanttHeaderNode.displayName = 'GanttHeaderNode';
 export const GanttBarNode = memo((props: any) => {
   const { id, data, selected } = props;
   const { setNodes } = useReactFlow();
-  const [editing, setEditing] = useState(false);
-  const [label, setLabel] = useState(data.label || 'Tugas Baru');
+  const [editingField, setEditingField] = useState<'label' | 'duration' | 'assignee' | null>(null);
+  const [tempVal, setTempVal] = useState('');
 
   const status = data.status || 'on_track'; // 'on_track' | 'critical' | 'completed' | 'delayed'
   const progress = Math.min(100, Math.max(0, data.progress ?? 50));
   const duration = data.duration || 'W1 - W2';
+  const label = data.label || 'Tugas Baru';
 
   const statusConfig: Record<string, { bg: string; fill: string; border: string; text: string; badge: string }> = {
     on_track: { bg: '#eff6ff', fill: '#3b82f6', border: '#2563eb', text: '#1e3a8a', badge: 'On Track' },
@@ -2120,16 +2226,48 @@ export const GanttBarNode = memo((props: any) => {
   const barWidth = data.width || 220;
   const barHeight = data.height || 42;
 
+  const handleStartEdit = (e: React.MouseEvent, field: 'label' | 'duration' | 'assignee', initial: string) => {
+    e.stopPropagation();
+    setEditingField(field);
+    setTempVal(initial);
+  };
+
   const handleSave = () => {
-    setEditing(false);
+    if (!editingField) return;
+    const trimmed = tempVal.trim();
+    if (editingField === 'label') {
+      const newLabel = trimmed || label;
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, label: newLabel } } : n))
+      );
+    } else if (editingField === 'duration') {
+      const newDuration = trimmed || duration;
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, duration: newDuration } } : n))
+      );
+    } else if (editingField === 'assignee') {
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, assignee: trimmed } } : n))
+      );
+    }
+    setEditingField(null);
+  };
+
+  const handleCycleStatus = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const statuses = ['on_track', 'critical', 'completed', 'delayed'];
+    const curIdx = statuses.indexOf(status);
+    const nextStatus = statuses[(curIdx + 1) % statuses.length];
     setNodes((nds) =>
-      nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, label } } : n))
+      nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: nextStatus } } : n))
     );
   };
 
   return (
     <div
-      className="relative rounded-xl shadow-md border-2 transition-all select-none overflow-hidden flex items-center justify-between px-3 group"
+      className={`relative rounded-xl shadow-md border-2 transition-all select-none overflow-hidden flex items-center justify-between px-3 group ${
+        selected ? 'ring-2 ring-blue-500 shadow-xl' : ''
+      }`}
       style={{
         width: barWidth,
         height: barHeight,
@@ -2151,36 +2289,85 @@ export const GanttBarNode = memo((props: any) => {
       />
 
       {/* Task Content */}
-      <div className="relative z-10 flex items-center gap-2 w-full pr-2">
-        <span
-          className="w-2 h-2 rounded-full shrink-0 shadow-2xs"
+      <div className="relative z-10 flex items-center gap-2 w-full pr-1">
+        <button
+          type="button"
+          onClick={handleCycleStatus}
+          className="nodrag nopan w-2.5 h-2.5 rounded-full shrink-0 shadow-2xs hover:scale-125 transition-transform cursor-pointer"
           style={{ backgroundColor: currentStatus.fill }}
+          title={`Status: ${currentStatus.badge}. Klik untuk mengganti status.`}
         />
         <div className="flex-1 min-w-0">
-          {editing ? (
+          {editingField === 'label' ? (
             <input
               autoFocus
               type="text"
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
+              value={tempVal}
+              onChange={(e) => setTempVal(e.target.value)}
               onBlur={handleSave}
-              onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-              className="w-full text-xs font-bold bg-white/90 border border-blue-500 rounded px-1 outline-none"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSave();
+                if (e.key === 'Escape') setEditingField(null);
+              }}
+              className="nodrag nopan w-full text-xs font-bold bg-white text-slate-900 border border-blue-500 rounded px-1 outline-none shadow-xs"
             />
           ) : (
             <p
-              onDoubleClick={() => setEditing(true)}
-              className="text-xs font-black truncate leading-tight cursor-text"
+              onDoubleClick={(e) => handleStartEdit(e, 'label', label)}
+              className="text-xs font-black truncate leading-tight cursor-pointer hover:underline"
               style={{ color: data.textColor || currentStatus.text }}
               title="Klik ganda untuk mengedit nama tugas"
             >
-              {data.label || 'Tugas Baru'}
+              {label}
             </p>
           )}
+
           <div className="flex items-center gap-1.5 text-[9px] text-slate-500 font-semibold leading-none pt-0.5">
-            <span>{duration}</span>
+            {editingField === 'duration' ? (
+              <input
+                autoFocus
+                type="text"
+                value={tempVal}
+                onChange={(e) => setTempVal(e.target.value)}
+                onBlur={handleSave}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSave();
+                  if (e.key === 'Escape') setEditingField(null);
+                }}
+                className="nodrag nopan w-20 text-[9px] font-bold bg-white text-slate-900 border border-blue-500 rounded px-0.5 outline-none"
+              />
+            ) : (
+              <span
+                onDoubleClick={(e) => handleStartEdit(e, 'duration', duration)}
+                className="cursor-pointer hover:text-blue-600 transition-colors"
+                title="Klik ganda untuk mengedit durasi"
+              >
+                {duration}
+              </span>
+            )}
             {progress > 0 && <span>• {progress}%</span>}
-            {data.assignee && <span className="text-slate-600 truncate">• {data.assignee}</span>}
+            {editingField === 'assignee' ? (
+              <input
+                autoFocus
+                type="text"
+                value={tempVal}
+                onChange={(e) => setTempVal(e.target.value)}
+                onBlur={handleSave}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSave();
+                  if (e.key === 'Escape') setEditingField(null);
+                }}
+                className="nodrag nopan w-24 text-[9px] font-bold bg-white text-slate-900 border border-blue-500 rounded px-0.5 outline-none"
+              />
+            ) : (
+              <span
+                onDoubleClick={(e) => handleStartEdit(e, 'assignee', data.assignee || 'Personil')}
+                className="text-slate-600 truncate cursor-pointer hover:text-blue-600 transition-colors"
+                title="Klik ganda untuk mengedit penanggung jawab"
+              >
+                • {data.assignee || 'Personil'}
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -2209,23 +2396,43 @@ GanttBarNode.displayName = 'GanttBarNode';
 export const MilestoneNode = memo((props: any) => {
   const { id, data, selected } = props;
   const { setNodes } = useReactFlow();
-  const [editing, setEditing] = useState(false);
-  const [label, setLabel] = useState(data.label || 'Milestone Target');
+  const [editingField, setEditingField] = useState<'label' | 'date' | null>(null);
+  const [tempVal, setTempVal] = useState('');
 
+  const label = data.label || 'Target Capaian';
+  const date = data.date || 'Akhir Minggu';
   const color = data.color || '#fffbeb';
   const border = data.borderColor || '#f59e0b';
   const text = data.textColor || '#78350f';
 
+  const handleStartEdit = (e: React.MouseEvent, field: 'label' | 'date', initial: string) => {
+    e.stopPropagation();
+    setEditingField(field);
+    setTempVal(initial);
+  };
+
   const handleSave = () => {
-    setEditing(false);
-    setNodes((nds) =>
-      nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, label } } : n))
-    );
+    if (!editingField) return;
+    const trimmed = tempVal.trim();
+    if (editingField === 'label') {
+      const newLabel = trimmed || label;
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, label: newLabel } } : n))
+      );
+    } else if (editingField === 'date') {
+      const newDate = trimmed || date;
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, date: newDate } } : n))
+      );
+    }
+    setEditingField(null);
   };
 
   return (
     <div
-      className="relative px-3.5 py-2 rounded-xl shadow-md border-2 transition-all select-none flex items-center gap-2.5 min-w-[130px] group"
+      className={`relative px-3.5 py-2 rounded-xl shadow-md border-2 transition-all select-none flex items-center gap-2.5 min-w-[130px] group ${
+        selected ? 'ring-2 ring-amber-500 shadow-xl' : ''
+      }`}
       style={{ backgroundColor: color, borderColor: border, color: text }}
     >
       <UniversalNodeResizer id={id} isVisible={selected} minWidth={100} minHeight={36} />
@@ -2236,26 +2443,51 @@ export const MilestoneNode = memo((props: any) => {
       </div>
 
       <div className="min-w-0 flex-1">
-        {editing ? (
+        {editingField === 'label' ? (
           <input
             autoFocus
             type="text"
-            value={label}
-            onChange={(e) => setLabel(e.target.value)}
+            value={tempVal}
+            onChange={(e) => setTempVal(e.target.value)}
             onBlur={handleSave}
-            onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-            className="w-full text-xs font-bold bg-white border border-amber-500 rounded px-1 outline-none"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSave();
+              if (e.key === 'Escape') setEditingField(null);
+            }}
+            className="nodrag nopan w-full text-xs font-bold bg-white text-slate-900 border border-amber-500 rounded px-1 outline-none shadow-xs"
           />
         ) : (
           <h5
-            onDoubleClick={() => setEditing(true)}
-            className="text-xs font-black truncate cursor-text tracking-tight"
+            onDoubleClick={(e) => handleStartEdit(e, 'label', label)}
+            className="text-xs font-black truncate cursor-pointer tracking-tight hover:underline"
             title="Klik ganda untuk mengedit nama milestone"
           >
-            {data.label || 'Milestone Target'}
+            {label}
           </h5>
         )}
-        {data.date && <p className="text-[10px] opacity-80 font-semibold">{data.date}</p>}
+
+        {editingField === 'date' ? (
+          <input
+            autoFocus
+            type="text"
+            value={tempVal}
+            onChange={(e) => setTempVal(e.target.value)}
+            onBlur={handleSave}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSave();
+              if (e.key === 'Escape') setEditingField(null);
+            }}
+            className="nodrag nopan w-full text-[10px] font-bold bg-white text-slate-900 border border-amber-500 rounded px-1 outline-none shadow-xs mt-0.5"
+          />
+        ) : (
+          <p
+            onDoubleClick={(e) => handleStartEdit(e, 'date', date)}
+            className="text-[10px] opacity-80 font-semibold truncate cursor-pointer hover:underline"
+            title="Klik ganda untuk mengedit tanggal/tenggat"
+          >
+            {date}
+          </p>
+        )}
       </div>
 
       <Handle type="target" position={Position.Left} className="!w-2 !h-2 !bg-amber-600" />
@@ -2271,17 +2503,40 @@ MilestoneNode.displayName = 'MilestoneNode';
 export const VerticalTimelineNode = memo((props: any) => {
   const { id, data, selected } = props;
   const { setNodes } = useReactFlow();
-  const [editingTitle, setEditingTitle] = useState(false);
-  const [title, setTitle] = useState(data.title || 'Tahap Proyek');
+  const [editingField, setEditingField] = useState<'date' | 'title' | 'description' | null>(null);
+  const [tempVal, setTempVal] = useState('');
 
+  const date = data.date || '10 Oktober';
+  const title = data.title || data.label || 'Tahap Proyek';
+  const description = data.description || '';
   const accent = data.accentColor || '#3b82f6';
   const width = data.width || 340;
 
+  const handleStartEdit = (e: React.MouseEvent, field: 'date' | 'title' | 'description', current: string) => {
+    e.stopPropagation();
+    setEditingField(field);
+    setTempVal(current);
+  };
+
   const handleSave = () => {
-    setEditingTitle(false);
-    setNodes((nds) =>
-      nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, title } } : n))
-    );
+    if (!editingField) return;
+    const trimmed = tempVal.trim();
+    if (editingField === 'title') {
+      const val = trimmed.length > 0 ? trimmed : 'Tahap Proyek';
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, title: val, label: val } } : n))
+      );
+    } else if (editingField === 'date') {
+      const val = trimmed.length > 0 ? trimmed : '10 Oktober';
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, date: val } } : n))
+      );
+    } else if (editingField === 'description') {
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, description: trimmed } } : n))
+      );
+    }
+    setEditingField(null);
   };
 
   return (
@@ -2293,13 +2548,30 @@ export const VerticalTimelineNode = memo((props: any) => {
       <NodeQuickActions id={id} selected={selected} />
 
       {/* Date / Time Badge di sebelah kiri */}
-      <div className="w-20 text-right pt-2 shrink-0">
-        <span
-          className="text-xs font-black tracking-tight"
-          style={{ color: accent }}
-        >
-          {data.date || 'Januari 10'}
-        </span>
+      <div className="w-24 text-right pt-2 shrink-0">
+        {editingField === 'date' ? (
+          <input
+            autoFocus
+            type="text"
+            value={tempVal}
+            onChange={(e) => setTempVal(e.target.value)}
+            onBlur={handleSave}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSave();
+              if (e.key === 'Escape') setEditingField(null);
+            }}
+            className="nodrag nopan w-full text-xs font-black tracking-tight text-right border border-blue-500 rounded px-1 bg-white outline-none"
+          />
+        ) : (
+          <span
+            onDoubleClick={(e) => handleStartEdit(e, 'date', date)}
+            className="text-xs font-black tracking-tight cursor-pointer hover:underline"
+            style={{ color: accent }}
+            title="Klik ganda untuk mengedit tanggal/tenggat"
+          >
+            {date}
+          </span>
+        )}
       </div>
 
       {/* Circular Dot dengan Jalur Tengah */}
@@ -2322,28 +2594,54 @@ export const VerticalTimelineNode = memo((props: any) => {
           borderColor: data.borderColor || '#e2e8f0',
         }}
       >
-        {editingTitle ? (
+        {editingField === 'title' ? (
           <input
             autoFocus
             type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={tempVal}
+            onChange={(e) => setTempVal(e.target.value)}
             onBlur={handleSave}
-            onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-            className="w-full text-xs font-bold border border-blue-500 rounded px-1 outline-none mb-1"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSave();
+              if (e.key === 'Escape') setEditingField(null);
+            }}
+            className="nodrag nopan w-full text-xs font-bold border border-blue-500 rounded px-1 outline-none mb-1 bg-white"
           />
         ) : (
           <h4
-            onDoubleClick={() => setEditingTitle(true)}
+            onDoubleClick={(e) => handleStartEdit(e, 'title', title)}
             className="text-xs font-black text-slate-800 cursor-text hover:text-blue-600 transition-colors"
-            title="Klik ganda untuk mengedit judul"
+            title="Klik ganda untuk mengedit judul tahap"
           >
-            {data.title || 'Tahap Proyek'}
+            {title}
           </h4>
         )}
-        <p className="text-[11px] text-slate-600 leading-relaxed font-normal pt-0.5">
-          {data.description || 'Deskripsi detail langkah atau target yang harus diselesaikan pada periode ini.'}
-        </p>
+
+        {editingField === 'description' ? (
+          <textarea
+            autoFocus
+            rows={2}
+            value={tempVal}
+            onChange={(e) => setTempVal(e.target.value)}
+            onBlur={handleSave}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSave();
+              }
+              if (e.key === 'Escape') setEditingField(null);
+            }}
+            className="nodrag nopan w-full text-[11px] border border-blue-500 rounded p-1 outline-none bg-white leading-relaxed mt-1"
+          />
+        ) : (
+          <p
+            onDoubleClick={(e) => handleStartEdit(e, 'description', description || 'Deskripsi detail langkah atau target...')}
+            className="text-[11px] text-slate-600 leading-relaxed font-normal pt-0.5 cursor-text hover:text-slate-900 transition-colors"
+            title="Klik ganda untuk mengedit deskripsi tahap"
+          >
+            {description || 'Deskripsi detail langkah atau target yang harus diselesaikan pada periode ini.'}
+          </p>
+        )}
       </div>
 
       {/* Handles untuk menyambungkan garis waktu vertikal */}
@@ -2359,35 +2657,172 @@ VerticalTimelineNode.displayName = 'VerticalTimelineNode';
 // 16. TIMEBOX CARD NODE (Kartu Time Boxing Blok Waktu Kerja Harian)
 export const TimeboxCardNode = memo((props: any) => {
   const { id, data, selected } = props;
+  const { setNodes } = useReactFlow();
+  const [editingField, setEditingField] = useState<{ type: 'day' | 'hours' | 'task'; index?: number } | null>(null);
+  const [tempVal, setTempVal] = useState('');
+
   const day = data.day || 'SENIN';
   const hours = data.hours || '08:00 - 12:00';
-  const tasks: string[] = data.tasks || ['Riset Ide & Mindmap', 'Sketsa Topologi Awal'];
+  const tasks: string[] = Array.isArray(data.tasks) ? data.tasks : ['Riset Ide & Mindmap', 'Sketsa Topologi Awal'];
   const color = data.color || '#eff6ff';
   const border = data.borderColor || '#3b82f6';
   const width = data.width || 220;
 
+  const handleStartEdit = (e: React.MouseEvent, type: 'day' | 'hours' | 'task', initial: string, index?: number) => {
+    e.stopPropagation();
+    setEditingField({ type, index });
+    setTempVal(initial);
+  };
+
+  const handleSave = () => {
+    if (!editingField) return;
+    const trimmed = tempVal.trim();
+    if (editingField.type === 'day') {
+      const newDay = trimmed || day;
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, day: newDay } } : n))
+      );
+    } else if (editingField.type === 'hours') {
+      const newHours = trimmed || hours;
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, hours: newHours } } : n))
+      );
+    } else if (editingField.type === 'task' && typeof editingField.index === 'number') {
+      const newTasks = [...tasks];
+      newTasks[editingField.index] = trimmed || newTasks[editingField.index];
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, tasks: newTasks } } : n))
+      );
+    }
+    setEditingField(null);
+  };
+
+  const handleAddTask = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newTasks = [...tasks, 'Aktivitas Baru'];
+    setNodes((nds) =>
+      nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, tasks: newTasks } } : n))
+    );
+  };
+
+  const handleDeleteTask = (e: React.MouseEvent, index: number) => {
+    e.stopPropagation();
+    if (tasks.length <= 1) return;
+    const newTasks = tasks.filter((_, i) => i !== index);
+    setNodes((nds) =>
+      nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, tasks: newTasks } } : n))
+    );
+  };
+
   return (
     <div
-      className="relative rounded-2xl shadow-md border-2 overflow-hidden select-none"
+      className={`relative rounded-2xl shadow-md border-2 overflow-hidden select-none ${
+        selected ? 'ring-2 ring-blue-500 shadow-xl' : ''
+      }`}
       style={{ width, backgroundColor: color, borderColor: border }}
     >
       <UniversalNodeResizer id={id} isVisible={selected} minWidth={160} minHeight={100} />
       <NodeQuickActions id={id} selected={selected} />
 
+      {/* Header Day & Hours */}
       <div className="px-3.5 py-2 border-b flex items-center justify-between" style={{ borderColor: `${border}40`, backgroundColor: `${border}15` }}>
-        <span className="text-[11px] font-black uppercase tracking-wider text-slate-900">{day}</span>
-        <span className="text-[10px] font-bold text-slate-600 flex items-center gap-1">
-          <Clock className="w-3 h-3" />
-          {hours}
-        </span>
+        {editingField?.type === 'day' ? (
+          <input
+            autoFocus
+            type="text"
+            value={tempVal}
+            onChange={(e) => setTempVal(e.target.value)}
+            onBlur={handleSave}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSave();
+              if (e.key === 'Escape') setEditingField(null);
+            }}
+            className="nodrag nopan text-[11px] font-black uppercase tracking-wider bg-white text-slate-900 rounded px-1 outline-none border border-blue-500 shadow-xs max-w-[100px]"
+          />
+        ) : (
+          <span
+            onDoubleClick={(e) => handleStartEdit(e, 'day', day)}
+            className="text-[11px] font-black uppercase tracking-wider text-slate-900 cursor-pointer hover:underline"
+            title="Klik ganda untuk mengedit hari"
+          >
+            {day}
+          </span>
+        )}
+
+        {editingField?.type === 'hours' ? (
+          <input
+            autoFocus
+            type="text"
+            value={tempVal}
+            onChange={(e) => setTempVal(e.target.value)}
+            onBlur={handleSave}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSave();
+              if (e.key === 'Escape') setEditingField(null);
+            }}
+            className="nodrag nopan text-[10px] font-bold bg-white text-slate-900 rounded px-1 outline-none border border-blue-500 shadow-xs max-w-[120px]"
+          />
+        ) : (
+          <span
+            onDoubleClick={(e) => handleStartEdit(e, 'hours', hours)}
+            className="text-[10px] font-bold text-slate-600 flex items-center gap-1 cursor-pointer hover:underline"
+            title="Klik ganda untuk mengedit jam/sesi"
+          >
+            <Clock className="w-3 h-3 shrink-0" />
+            <span className="truncate">{hours}</span>
+          </span>
+        )}
       </div>
 
+      {/* Tasks List */}
       <div className="p-3 space-y-1.5">
-        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">Fokus Time-Box:</p>
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">Fokus Time-Box:</p>
+          <button
+            type="button"
+            onClick={handleAddTask}
+            className="nodrag nopan p-0.5 rounded text-slate-500 hover:text-blue-600 hover:bg-white/80 transition-colors cursor-pointer"
+            title="Tambah butir fokus"
+          >
+            <Plus className="w-3 h-3" />
+          </button>
+        </div>
+
         {tasks.map((task, i) => (
-          <div key={i} className="flex items-center gap-1.5 text-xs font-semibold text-slate-800">
-            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: border }} />
-            <span className="truncate">{task}</span>
+          <div key={i} className="flex items-center gap-1.5 text-xs font-semibold text-slate-800 group/task">
+            <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: border }} />
+            {editingField?.type === 'task' && editingField.index === i ? (
+              <input
+                autoFocus
+                type="text"
+                value={tempVal}
+                onChange={(e) => setTempVal(e.target.value)}
+                onBlur={handleSave}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSave();
+                  if (e.key === 'Escape') setEditingField(null);
+                }}
+                className="nodrag nopan flex-1 text-xs font-semibold bg-white text-slate-900 rounded px-1 outline-none border border-blue-500 shadow-xs"
+              />
+            ) : (
+              <span
+                onDoubleClick={(e) => handleStartEdit(e, 'task', task, i)}
+                className="truncate flex-1 cursor-pointer hover:underline"
+                title="Klik ganda untuk mengedit aktivitas"
+              >
+                {task}
+              </span>
+            )}
+            {tasks.length > 1 && (
+              <button
+                type="button"
+                onClick={(e) => handleDeleteTask(e, i)}
+                className="nodrag nopan opacity-0 group-hover/task:opacity-100 p-0.5 text-slate-400 hover:text-red-500 transition-opacity cursor-pointer shrink-0"
+                title="Hapus butir ini"
+              >
+                <Trash2 className="w-2.5 h-2.5" />
+              </button>
+            )}
           </div>
         ))}
       </div>
@@ -2494,7 +2929,8 @@ export const MultiPhaseGanttNode = memo((props: any) => {
     );
   };
 
-  const handleStartEdit = (type: string, targetId: string, val: string, index?: number) => {
+  const handleStartEdit = (e: React.MouseEvent | undefined, type: string, targetId: string, val: string, index?: number) => {
+    e?.stopPropagation();
     setEditingField({ type, id: targetId, index });
     setTempVal(val);
   };
@@ -2612,7 +3048,7 @@ export const MultiPhaseGanttNode = memo((props: any) => {
         </div>
         <div 
           className="w-[130px] shrink-0 bg-[#ea580c] font-black text-xs uppercase tracking-wider text-center py-2 flex items-center justify-center cursor-pointer hover:bg-orange-600 transition-colors"
-          onDoubleClick={() => handleStartEdit('notes-title', 'notes', notesTitle)}
+          onDoubleClick={(e) => handleStartEdit(e, 'notes-title', 'notes', notesTitle)}
           title="Klik ganda untuk mengubah judul Notes"
         >
           {editingField?.type === 'notes-title' ? (
@@ -2622,8 +3058,11 @@ export const MultiPhaseGanttNode = memo((props: any) => {
               value={tempVal}
               onChange={(e) => setTempVal(e.target.value)}
               onBlur={handleSaveEdit}
-              onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
-              className="w-full text-center text-xs font-bold bg-white text-slate-900 rounded px-1 outline-none"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSaveEdit();
+                if (e.key === 'Escape') setEditingField(null);
+              }}
+              className="nodrag nopan w-full text-center text-xs font-bold bg-white text-slate-900 rounded px-1 outline-none"
             />
           ) : (
             <span>{notesTitle}</span>
@@ -2641,7 +3080,7 @@ export const MultiPhaseGanttNode = memo((props: any) => {
             <div
               key={idx}
               className="flex items-center justify-center px-0.5 truncate cursor-pointer hover:bg-sky-100/60 transition-colors"
-              onDoubleClick={() => handleStartEdit('date', `date-${idx}`, d, idx)}
+              onDoubleClick={(e) => handleStartEdit(e, 'date', `date-${idx}`, d, idx)}
               title="Klik ganda untuk mengubah tanggal mulai"
             >
               {editingField?.type === 'date' && editingField.index === idx ? (
@@ -2651,8 +3090,11 @@ export const MultiPhaseGanttNode = memo((props: any) => {
                   value={tempVal}
                   onChange={(e) => setTempVal(e.target.value)}
                   onBlur={handleSaveEdit}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
-                  className="w-full text-center text-[10px] font-bold bg-white text-slate-900 rounded outline-none shadow-xs"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSaveEdit();
+                    if (e.key === 'Escape') setEditingField(null);
+                  }}
+                  className="nodrag nopan w-full text-center text-[10px] font-bold bg-white text-slate-900 rounded outline-none shadow-xs"
                 />
               ) : (
                 <span>{d}</span>
@@ -2679,7 +3121,7 @@ export const MultiPhaseGanttNode = memo((props: any) => {
                   backgroundColor: phase.color,
                   color: phase.textColor,
                 }}
-                onDoubleClick={() => handleStartEdit('phase', phase.id, phase.name)}
+                onDoubleClick={(e) => handleStartEdit(e, 'phase', phase.id, phase.name)}
                 title="Klik ganda untuk mengedit nama fase"
               >
                 {editingField?.type === 'phase' && editingField.id === phase.id ? (
@@ -2689,8 +3131,11 @@ export const MultiPhaseGanttNode = memo((props: any) => {
                     value={tempVal}
                     onChange={(e) => setTempVal(e.target.value)}
                     onBlur={handleSaveEdit}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
-                    className="w-full text-center text-xs font-bold bg-white text-slate-900 rounded px-1 py-0.5 outline-none shadow-xs"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSaveEdit();
+                      if (e.key === 'Escape') setEditingField(null);
+                    }}
+                    className="nodrag nopan w-full text-center text-xs font-bold bg-white text-slate-900 rounded px-1 py-0.5 outline-none shadow-xs"
                   />
                 ) : (
                   <span className="leading-tight drop-shadow-xs">{phase.name}</span>
@@ -2702,7 +3147,7 @@ export const MultiPhaseGanttNode = memo((props: any) => {
                     e.stopPropagation();
                     handleAddTask(phase.id);
                   }}
-                  className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 hover:bg-white text-slate-900 p-0.5 rounded shadow-xs text-[10px] font-bold no-print"
+                  className="nodrag nopan absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 hover:bg-white text-slate-900 p-0.5 rounded shadow-xs text-[10px] font-bold no-print cursor-pointer"
                   title="Tambah tugas di fase ini"
                 >
                   <Plus className="w-3 h-3" />
@@ -2731,7 +3176,7 @@ export const MultiPhaseGanttNode = memo((props: any) => {
               bottom: 0,
             }}
             title="Klik ganda untuk mengubah teks Milestone"
-            onDoubleClick={() => handleStartEdit('milestone-funds', 'funds', milestoneFunds.name)}
+            onDoubleClick={(e) => handleStartEdit(e, 'milestone-funds', 'funds', milestoneFunds.name)}
           >
             {editingField?.type === 'milestone-funds' ? (
               <input
@@ -2740,8 +3185,11 @@ export const MultiPhaseGanttNode = memo((props: any) => {
                 value={tempVal}
                 onChange={(e) => setTempVal(e.target.value)}
                 onBlur={handleSaveEdit}
-                onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
-                className="w-full text-center text-[10px] font-bold bg-white text-slate-900 rounded px-1 outline-none"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSaveEdit();
+                  if (e.key === 'Escape') setEditingField(null);
+                }}
+                className="nodrag nopan w-full text-center text-[10px] font-bold bg-white text-slate-900 rounded px-1 outline-none"
               />
             ) : (
               <span
@@ -2766,7 +3214,7 @@ export const MultiPhaseGanttNode = memo((props: any) => {
               bottom: 0,
             }}
             title="Klik ganda untuk mengubah teks Project End"
-            onDoubleClick={() => handleStartEdit('milestone-end', 'end', milestoneEnd.name)}
+            onDoubleClick={(e) => handleStartEdit(e, 'milestone-end', 'end', milestoneEnd.name)}
           >
             {editingField?.type === 'milestone-end' ? (
               <input
@@ -2775,8 +3223,11 @@ export const MultiPhaseGanttNode = memo((props: any) => {
                 value={tempVal}
                 onChange={(e) => setTempVal(e.target.value)}
                 onBlur={handleSaveEdit}
-                onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
-                className="w-full text-center text-[10px] font-bold bg-white text-slate-900 rounded px-1 outline-none"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSaveEdit();
+                  if (e.key === 'Escape') setEditingField(null);
+                }}
+                className="nodrag nopan w-full text-center text-[10px] font-bold bg-white text-slate-900 rounded px-1 outline-none"
               />
             ) : (
               <span
@@ -2804,7 +3255,7 @@ export const MultiPhaseGanttNode = memo((props: any) => {
                     backgroundColor: task.color,
                     color: task.textColor || '#ffffff',
                   }}
-                  onDoubleClick={() => handleStartEdit('task', task.id, task.name)}
+                  onDoubleClick={(e) => handleStartEdit(e, 'task', task.id, task.name)}
                   title={`${task.name} (Minggu ${task.startWeek} - ${task.endWeek})`}
                 >
                   {editingField?.type === 'task' && editingField.id === task.id ? (
@@ -2814,8 +3265,11 @@ export const MultiPhaseGanttNode = memo((props: any) => {
                       value={tempVal}
                       onChange={(e) => setTempVal(e.target.value)}
                       onBlur={handleSaveEdit}
-                      onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
-                      className="w-full text-[11px] font-bold bg-white text-slate-900 rounded px-1 outline-none"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSaveEdit();
+                        if (e.key === 'Escape') setEditingField(null);
+                      }}
+                      className="nodrag nopan w-full text-[11px] font-bold bg-white text-slate-900 rounded px-1 outline-none"
                     />
                   ) : (
                     <span className="text-[10px] md:text-[11px] font-bold truncate tracking-tight">
@@ -2825,7 +3279,7 @@ export const MultiPhaseGanttNode = memo((props: any) => {
                 </div>
 
                 {/* Quick Task Adjuster Controls on Hover */}
-                <div className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/95 backdrop-blur-xs px-1.5 py-0.5 rounded-lg shadow-md border border-slate-200 flex items-center gap-1 z-30 no-print">
+                <div className="nodrag nopan absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/95 backdrop-blur-xs px-1.5 py-0.5 rounded-lg shadow-md border border-slate-200 flex items-center gap-1 z-30 no-print">
                   <button
                     onClick={() => handleShiftTask(task.id, -1)}
                     disabled={task.startWeek <= 1}
@@ -2883,7 +3337,7 @@ export const MultiPhaseGanttNode = memo((props: any) => {
             <div
               key={`note-${task.id}`}
               className="flex-1 flex items-center px-2.5 text-[11px] font-medium text-slate-500 cursor-pointer hover:bg-slate-50 transition-colors"
-              onDoubleClick={() => handleStartEdit('note', task.id, task.notes || 'Text Here')}
+              onDoubleClick={(e) => handleStartEdit(e, 'note', task.id, task.notes || 'Text Here')}
               title="Klik ganda untuk mengedit catatan"
             >
               {editingField?.type === 'note' && editingField.id === task.id ? (
@@ -2893,8 +3347,11 @@ export const MultiPhaseGanttNode = memo((props: any) => {
                   value={tempVal}
                   onChange={(e) => setTempVal(e.target.value)}
                   onBlur={handleSaveEdit}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
-                  className="w-full text-[11px] bg-slate-100 text-slate-900 rounded px-1 outline-none border border-amber-500"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSaveEdit();
+                    if (e.key === 'Escape') setEditingField(null);
+                  }}
+                  className="nodrag nopan w-full text-[11px] bg-slate-100 text-slate-900 rounded px-1 outline-none border border-amber-500"
                 />
               ) : (
                 <span className="truncate">{task.notes || 'Text Here'}</span>

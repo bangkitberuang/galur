@@ -285,7 +285,7 @@ export const ICON_CATEGORIES = [
       { id: 'globe', label: 'Web/API', icon: Globe },
       { id: 'terminal', label: 'Terminal', icon: Terminal },
       { id: 'code', label: 'Code', icon: Code2 },
-      { id: 'bot', label: 'Bot/AI', icon: Bot },
+      { id: 'bot', label: 'Robot / Otomasi', icon: Bot },
       { id: 'shield', label: 'Security', icon: Shield },
       { id: 'lock', label: 'Auth/Lock', icon: Lock },
       { id: 'key', label: 'API Key', icon: Key },
