@@ -318,7 +318,11 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
 
   // Real-Time Collaboration: Hubungkan ke room aktif (Multiplayer Live Sync)
   useEffect(() => {
-    if (!activeRoomId) return;
+    if (!activeRoomId) {
+      collabManager.leaveRoom();
+      setCollabUsers([]);
+      return;
+    }
 
     collabManager.joinRoom(activeRoomId, {
       onUsersChange: (users) => {
@@ -1004,6 +1008,9 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     setSelectedNode(null);
     setSelectedEdge(null);
     setSaveStatus('idle');
+    setActiveRoomId('');
+    collabManager.leaveRoom();
+    setCollabUsers([]);
 
     if (typeof window !== 'undefined') {
       window.history.replaceState(null, '', `/editor?id=${newId}`);
@@ -1019,6 +1026,9 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     takeSnapshot();
     const newId = `diag_${Date.now()}`;
     setCurrentId(newId);
+    setActiveRoomId('');
+    collabManager.leaveRoom();
+    setCollabUsers([]);
 
     if (typeof window !== 'undefined') {
       window.history.replaceState(null, '', `/editor?id=${newId}`);
@@ -1058,11 +1068,14 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     takeSnapshot();
     const newId = `diag_${template.id}_${Date.now()}`;
     setCurrentId(newId);
+    setActiveRoomId('');
+    collabManager.leaveRoom();
+    setCollabUsers([]);
     let templateNodes: Node[] = [];
     let templateEdges: Edge[] = [];
 
     if (template.id === 'blank') {
-      setTitle('Kanvas Kosong Baru');
+      setTitle('Diagram Baru');
       templateNodes = [];
       templateEdges = [];
     } else {

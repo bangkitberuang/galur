@@ -294,12 +294,20 @@ export default function ShareModal({
               <div className="bg-blue-50/70 border border-blue-200 rounded-xl p-3.5 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="font-bold text-slate-800">Ruang Kolaborasi Aktif</span>
+                    <span className={`w-2.5 h-2.5 rounded-full ${activeRoomId ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+                    <span className="font-bold text-slate-800">
+                      {activeRoomId ? 'Ruang Kolaborasi Aktif' : 'Kanvas Privat (Belum Ada Ruang Aktif)'}
+                    </span>
                   </div>
-                  <span className="font-mono text-[11px] bg-white border border-blue-200 px-2 py-0.5 rounded-md text-blue-800 font-bold">
-                    {activeRoomId}
-                  </span>
+                  {activeRoomId ? (
+                    <span className="font-mono text-[11px] bg-white border border-blue-200 px-2 py-0.5 rounded-md text-blue-800 font-bold">
+                      {activeRoomId}
+                    </span>
+                  ) : (
+                    <span className="text-[10px] bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md text-slate-500 font-semibold">
+                      Mode Privat
+                    </span>
+                  )}
                 </div>
 
                 <p className="text-[11px] text-slate-600 leading-relaxed">
@@ -404,12 +412,17 @@ export default function ShareModal({
                 </button>
               </form>
 
-              {/* Daftar Pengguna Aktif di Ruang Ini */}
+              {/* Daftar Pengguna Aktif di Ruang Ini / Status Privat */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                    Pengguna Online di Ruang Ini ({collabUsers.length + 1}):
+                    {activeRoomId ? `Pengguna Online di Ruang (${collabUsers.length + 1}):` : 'Status Sesi Kanvas:'}
                   </span>
+                  {!activeRoomId && (
+                    <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                      Privat (Hanya Anda)
+                    </span>
+                  )}
                 </div>
 
                 <div className="border border-slate-200 rounded-xl divide-y divide-slate-100 max-h-40 overflow-y-auto">
@@ -425,12 +438,12 @@ export default function ShareModal({
                       <span className="font-bold text-slate-800">{currentUser.name}</span>
                     </div>
                     <span className="text-[10px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
-                      Anda
+                      {activeRoomId ? 'Anda' : 'Anda (Kanvas Privat)'}
                     </span>
                   </div>
 
-                  {/* Rekan Kolaborasi */}
-                  {collabUsers.map((u) => (
+                  {/* Rekan Kolaborasi jika ada room */}
+                  {activeRoomId && collabUsers.map((u) => (
                     <div key={u.id} className="p-2 flex items-center justify-between hover:bg-slate-50 transition-colors">
                       <div className="flex items-center gap-2">
                         <div
@@ -448,9 +461,15 @@ export default function ShareModal({
                     </div>
                   ))}
 
-                  {collabUsers.length === 0 && (
+                  {activeRoomId && collabUsers.length === 0 && (
                     <div className="p-3 text-center text-slate-400 text-xs italic">
                       Belum ada rekan lain di ruang ini. Bagikan tautan di atas untuk mengundang!
+                    </div>
+                  )}
+
+                  {!activeRoomId && (
+                    <div className="p-3 text-center text-slate-500 text-xs leading-relaxed bg-slate-50/60">
+                      🔒 Kanvas ini sedang berada dalam <strong>mode privat</strong>. Tidak ada sesi kolaborasi yang aktif. Klik &quot;Salin Tautan&quot; di atas jika Anda ingin mengundang rekan untuk berkolaborasi bersama.
                     </div>
                   )}
                 </div>
