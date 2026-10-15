@@ -5136,6 +5136,29 @@ export const SPECIALIST_CATEGORIES: CategoryTemplate[] = [
       },
     ],
   },
+
+  // 19. MASTER JADWAL PROYEK 20-MINGGU (MULTI-FASE & MILESTONE)
+  {
+    id: 'gantt_multiphase_20w',
+    name: 'Master Jadwal Proyek 20-Minggu (Multi-Fase & Milestone)',
+    description: 'Tabel jadwal kerja proyek eksekutif 20 minggu (Januari - Mei) lengkap dengan pembagian multi-fase (Phase 1, 2, 3), bilah tugas Gantt presisi, penanda vertikal Milestone pendanaan, garis Project End, dan kolom catatan.',
+    iconName: 'Calendar',
+    accentColor: '#dc2626',
+    badge: 'Multi-Phase Gantt',
+    group: 'business',
+    nodes: [
+      {
+        id: 'master-gantt-20w',
+        type: 'multiphase_gantt',
+        position: { x: 60, y: 50 },
+        data: {
+          width: 1220,
+          height: 680,
+        },
+      },
+    ],
+    edges: [],
+  },
 ];
 
 export function getTemplateByCategory(categoryId: string): CategoryTemplate | undefined {

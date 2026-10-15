@@ -12,6 +12,7 @@ import {
   Layers,
   Sparkles,
   ChevronRight,
+  ChevronLeft,
   AlertTriangle,
   Lightbulb,
   HelpCircle,
@@ -2400,6 +2401,519 @@ export const TimeboxCardNode = memo((props: any) => {
 });
 TimeboxCardNode.displayName = 'TimeboxCardNode';
 
+// 17. MULTI-PHASE GANTT NODE (Master Jadwal Proyek 20-Minggu Multi-Fase & Milestone)
+export interface MultiPhaseGanttTask {
+  id: string;
+  phaseId: string;
+  name: string;
+  startWeek: number; // 1 to 20
+  endWeek: number;   // 1 to 20
+  color: string;
+  textColor?: string;
+  notes?: string;
+}
+
+export interface MultiPhaseGanttPhase {
+  id: string;
+  name: string;
+  color: string;
+  textColor: string;
+}
+
+const DEFAULT_GANTT_WEEKS = Array.from({ length: 20 }, (_, i) => i + 1);
+
+const DEFAULT_GANTT_DATES = [
+  'Jan 5', 'Jan 12', 'Jan 19', 'Jan 26', 
+  'Feb 2', 'Feb 9', 'Feb 16', 'Feb 23', 
+  'Mar 2', 'Mar 9', 'Mar 16', 'Mar 23', 'Mar 30', 
+  'Apr 6', 'Apr 13', 'Apr 20', 'Apr 27', 
+  'May 4', 'May 11', 'May 18'
+];
+
+const DEFAULT_GANTT_PHASES: MultiPhaseGanttPhase[] = [
+  { id: 'p1', name: 'Phase One', color: '#dc2626', textColor: '#ffffff' },
+  { id: 'p2', name: 'Phase Two', color: '#ffe4e6', textColor: '#9f1239' },
+  { id: 'p3', name: 'Phase Three', color: '#dc2626', textColor: '#ffffff' },
+];
+
+const DEFAULT_GANTT_TASKS: MultiPhaseGanttTask[] = [
+  // Phase One (Navy #1e293b)
+  { id: 't1', phaseId: 'p1', name: 'Quality Assurance Plan', startWeek: 1, endWeek: 5, color: '#1e293b', textColor: '#ffffff', notes: 'Text Here' },
+  { id: 't2', phaseId: 'p1', name: 'Project Plan', startWeek: 2, endWeek: 4, color: '#1e293b', textColor: '#ffffff', notes: 'Text Here' },
+  { id: 't3', phaseId: 'p1', name: 'Review Plan', startWeek: 3, endWeek: 5, color: '#1e293b', textColor: '#ffffff', notes: 'Text Here' },
+
+  // Phase Two (Coral Red #e11d48)
+  { id: 't4', phaseId: 'p2', name: 'Drafting Requirements', startWeek: 4, endWeek: 6, color: '#e11d48', textColor: '#ffffff', notes: 'Text Here' },
+  { id: 't5', phaseId: 'p2', name: 'Capacity Planning', startWeek: 4, endWeek: 6, color: '#e11d48', textColor: '#ffffff', notes: 'Text Here' },
+  { id: 't6', phaseId: 'p2', name: 'Project Test Plan', startWeek: 5, endWeek: 7, color: '#e11d48', textColor: '#ffffff', notes: 'Text Here' },
+  { id: 't7', phaseId: 'p2', name: 'Acceptance Test Plan', startWeek: 5, endWeek: 7, color: '#e11d48', textColor: '#ffffff', notes: 'Text Here' },
+  { id: 't8', phaseId: 'p2', name: 'Specifying Final Requirements', startWeek: 7, endWeek: 11, color: '#e11d48', textColor: '#ffffff', notes: 'Text Here' },
+  { id: 't9', phaseId: 'p2', name: 'Review and Approval', startWeek: 7, endWeek: 10, color: '#e11d48', textColor: '#ffffff', notes: 'Text Here' },
+
+  // Phase Three (Amber #f59e0b)
+  { id: 't10', phaseId: 'p3', name: 'Specifying Draft Design', startWeek: 8, endWeek: 11, color: '#f59e0b', textColor: '#ffffff', notes: 'Text Here' },
+  { id: 't11', phaseId: 'p3', name: 'Configuration Management Plan', startWeek: 8, endWeek: 12, color: '#f59e0b', textColor: '#ffffff', notes: 'Text Here' },
+  { id: 't12', phaseId: 'p3', name: 'Architecture Design Plan', startWeek: 8, endWeek: 11, color: '#f59e0b', textColor: '#ffffff', notes: 'Text Here' },
+  { id: 't13', phaseId: 'p3', name: 'Defining Interface Requirements', startWeek: 8, endWeek: 13, color: '#f59e0b', textColor: '#ffffff', notes: 'Text Here' },
+  { id: 't14', phaseId: 'p3', name: 'Shared Component Design', startWeek: 11, endWeek: 15, color: '#f59e0b', textColor: '#ffffff', notes: 'Text Here' },
+  { id: 't15', phaseId: 'p3', name: 'Text Here', startWeek: 11, endWeek: 13, color: '#f59e0b', textColor: '#ffffff', notes: 'Text Here' },
+  { id: 't16', phaseId: 'p3', name: 'Defining Project Guidelines', startWeek: 12, endWeek: 18, color: '#f59e0b', textColor: '#ffffff', notes: 'Text Here' },
+  { id: 't17', phaseId: 'p3', name: 'Specifying Final Design', startWeek: 13, endWeek: 17, color: '#f59e0b', textColor: '#ffffff', notes: 'Text Here' },
+  { id: 't18', phaseId: 'p3', name: 'Text Here', startWeek: 15, endWeek: 18, color: '#f59e0b', textColor: '#ffffff', notes: 'Text Here' },
+];
+
+const GANTT_COLOR_PALETTES = [
+  '#1e293b', // Navy
+  '#e11d48', // Coral Red
+  '#f59e0b', // Amber Orange
+  '#059669', // Emerald Green
+  '#2563eb', // Royal Blue
+  '#7c3aed', // Purple
+];
+
+export const MultiPhaseGanttNode = memo((props: any) => {
+  const { id, data, selected } = props;
+  const { setNodes } = useReactFlow();
+
+  const weeks: number[] = data.weeks || DEFAULT_GANTT_WEEKS;
+  const dates: string[] = data.dates || DEFAULT_GANTT_DATES;
+  const phases: MultiPhaseGanttPhase[] = data.phases || DEFAULT_GANTT_PHASES;
+  const tasks: MultiPhaseGanttTask[] = data.tasks || DEFAULT_GANTT_TASKS;
+  const milestoneFunds = data.milestoneFunds || { name: 'Milestone : Additional Funds', week: 7 };
+  const milestoneEnd = data.milestoneEnd || { name: 'Project End', week: 20 };
+  const notesTitle = data.notesTitle || 'Notes';
+  const width = data.width || 1200;
+  const height = data.height || 680;
+
+  const [editingField, setEditingField] = useState<{ type: string; id: string; index?: number } | null>(null);
+  const [tempVal, setTempVal] = useState('');
+
+  const updateData = (newData: Partial<any>) => {
+    setNodes((nds) =>
+      nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, ...newData } } : n))
+    );
+  };
+
+  const handleStartEdit = (type: string, targetId: string, val: string, index?: number) => {
+    setEditingField({ type, id: targetId, index });
+    setTempVal(val);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingField) return;
+    const { type, id: targetId, index } = editingField;
+
+    if (type === 'task') {
+      const updated = tasks.map((t) => (t.id === targetId ? { ...t, name: tempVal || t.name } : t));
+      updateData({ tasks: updated });
+    } else if (type === 'note') {
+      const updated = tasks.map((t) => (t.id === targetId ? { ...t, notes: tempVal } : t));
+      updateData({ tasks: updated });
+    } else if (type === 'phase') {
+      const updated = phases.map((p) => (p.id === targetId ? { ...p, name: tempVal || p.name } : p));
+      updateData({ phases: updated });
+    } else if (type === 'date' && typeof index === 'number') {
+      const updated = [...dates];
+      updated[index] = tempVal || updated[index];
+      updateData({ dates: updated });
+    } else if (type === 'milestone-funds') {
+      updateData({ milestoneFunds: { ...milestoneFunds, name: tempVal || milestoneFunds.name } });
+    } else if (type === 'milestone-end') {
+      updateData({ milestoneEnd: { ...milestoneEnd, name: tempVal || milestoneEnd.name } });
+    } else if (type === 'notes-title') {
+      updateData({ notesTitle: tempVal || notesTitle });
+    }
+
+    setEditingField(null);
+  };
+
+  const handleShiftTask = (taskId: string, delta: number) => {
+    const updated = tasks.map((t) => {
+      if (t.id !== taskId) return t;
+      const nextStart = t.startWeek + delta;
+      const nextEnd = t.endWeek + delta;
+      if (nextStart < 1 || nextEnd > 20) return t;
+      return { ...t, startWeek: nextStart, endWeek: nextEnd };
+    });
+    updateData({ tasks: updated });
+  };
+
+  const handleDurationTask = (taskId: string, delta: number) => {
+    const updated = tasks.map((t) => {
+      if (t.id !== taskId) return t;
+      const nextEnd = t.endWeek + delta;
+      if (nextEnd < t.startWeek || nextEnd > 20) return t;
+      return { ...t, endWeek: nextEnd };
+    });
+    updateData({ tasks: updated });
+  };
+
+  const handleCycleColor = (taskId: string) => {
+    const updated = tasks.map((t) => {
+      if (t.id !== taskId) return t;
+      const curIdx = GANTT_COLOR_PALETTES.indexOf(t.color);
+      const nextColor = GANTT_COLOR_PALETTES[(curIdx + 1) % GANTT_COLOR_PALETTES.length];
+      return { ...t, color: nextColor };
+    });
+    updateData({ tasks: updated });
+  };
+
+  const handleAddTask = (phaseId: string) => {
+    const phaseTasks = tasks.filter((t) => t.phaseId === phaseId);
+    const lastTask = phaseTasks[phaseTasks.length - 1];
+    const newStart = lastTask ? Math.min(20, lastTask.startWeek + 1) : 1;
+    const newEnd = Math.min(20, newStart + 2);
+    const newTask: MultiPhaseGanttTask = {
+      id: `task-${Date.now()}`,
+      phaseId,
+      name: 'Tugas Baru',
+      startWeek: newStart,
+      endWeek: newEnd,
+      color: phaseId === 'p1' ? '#1e293b' : phaseId === 'p2' ? '#e11d48' : '#f59e0b',
+      textColor: '#ffffff',
+      notes: 'Text Here',
+    };
+    updateData({ tasks: [...tasks, newTask] });
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+    if (tasks.length <= 1) return;
+    updateData({ tasks: tasks.filter((t) => t.id !== taskId) });
+  };
+
+  // Group tasks by phase
+  const p1Tasks = tasks.filter((t) => t.phaseId === 'p1');
+  const p2Tasks = tasks.filter((t) => t.phaseId === 'p2');
+  const p3Tasks = tasks.filter((t) => t.phaseId === 'p3');
+  const totalTasksCount = Math.max(1, tasks.length);
+  const fundsTopPercent = ((p1Tasks.length + p2Tasks.length) / totalTasksCount) * 100;
+
+  return (
+    <div
+      className={`relative bg-white rounded-2xl shadow-xl border-2 border-slate-300 overflow-hidden select-none flex flex-col font-sans transition-all ${
+        selected ? 'ring-2 ring-blue-500 shadow-2xl' : ''
+      }`}
+      style={{ width, height, minWidth: 800, minHeight: 460 }}
+    >
+      <UniversalNodeResizer id={id} isVisible={selected} minWidth={800} minHeight={460} />
+      <NodeQuickActions id={id} selected={selected} />
+
+      {/* TOP HEADER 1: WEEK NUMBERS (Navy) + NOTES (Orange) */}
+      <div className="flex bg-[#0f2744] text-white border-b border-slate-700/80 shrink-0">
+        <div className="w-[120px] shrink-0 font-black text-xs uppercase tracking-wider text-center py-2 flex items-center justify-center border-r border-slate-700">
+          Week
+        </div>
+        <div className="flex-1 grid grid-cols-20 divide-x divide-slate-700/50 text-center py-2 text-xs font-black">
+          {weeks.map((w) => (
+            <div key={w} className="flex items-center justify-center truncate">
+              {w}
+            </div>
+          ))}
+        </div>
+        <div 
+          className="w-[130px] shrink-0 bg-[#ea580c] font-black text-xs uppercase tracking-wider text-center py-2 flex items-center justify-center cursor-pointer hover:bg-orange-600 transition-colors"
+          onDoubleClick={() => handleStartEdit('notes-title', 'notes', notesTitle)}
+          title="Klik ganda untuk mengubah judul Notes"
+        >
+          {editingField?.type === 'notes-title' ? (
+            <input
+              autoFocus
+              type="text"
+              value={tempVal}
+              onChange={(e) => setTempVal(e.target.value)}
+              onBlur={handleSaveEdit}
+              onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
+              className="w-full text-center text-xs font-bold bg-white text-slate-900 rounded px-1 outline-none"
+            />
+          ) : (
+            <span>{notesTitle}</span>
+          )}
+        </div>
+      </div>
+
+      {/* TOP HEADER 2: STARTING DATES (Light Ice Blue) */}
+      <div className="flex bg-[#e2e8f0] text-slate-700 border-b border-slate-300 shrink-0">
+        <div className="w-[120px] shrink-0 font-extrabold text-[11px] text-center py-1.5 flex items-center justify-center border-r border-slate-300 bg-[#cbd5e1] text-slate-800">
+          Starting
+        </div>
+        <div className="flex-1 grid grid-cols-20 divide-x divide-slate-300 text-center py-1 text-[10px] font-semibold text-slate-700">
+          {dates.map((d, idx) => (
+            <div
+              key={idx}
+              className="flex items-center justify-center px-0.5 truncate cursor-pointer hover:bg-sky-100/60 transition-colors"
+              onDoubleClick={() => handleStartEdit('date', `date-${idx}`, d, idx)}
+              title="Klik ganda untuk mengubah tanggal mulai"
+            >
+              {editingField?.type === 'date' && editingField.index === idx ? (
+                <input
+                  autoFocus
+                  type="text"
+                  value={tempVal}
+                  onChange={(e) => setTempVal(e.target.value)}
+                  onBlur={handleSaveEdit}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
+                  className="w-full text-center text-[10px] font-bold bg-white text-slate-900 rounded outline-none shadow-xs"
+                />
+              ) : (
+                <span>{d}</span>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="w-[130px] shrink-0 bg-[#f1f5f9] border-l border-slate-300" />
+      </div>
+
+      {/* MAIN BODY AREA: PHASES + 20-WEEK GRID + NOTES */}
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* Left Phase Column */}
+        <div className="w-[120px] shrink-0 flex flex-col border-r border-slate-300">
+          {phases.map((phase) => {
+            const phaseTasks = tasks.filter((t) => t.phaseId === phase.id);
+            const flexWeight = Math.max(1, phaseTasks.length);
+            return (
+              <div
+                key={phase.id}
+                className="flex items-center justify-center p-2 text-center font-black text-xs uppercase cursor-pointer hover:opacity-90 transition-opacity border-b border-slate-300 relative group"
+                style={{
+                  flex: flexWeight,
+                  backgroundColor: phase.color,
+                  color: phase.textColor,
+                }}
+                onDoubleClick={() => handleStartEdit('phase', phase.id, phase.name)}
+                title="Klik ganda untuk mengedit nama fase"
+              >
+                {editingField?.type === 'phase' && editingField.id === phase.id ? (
+                  <input
+                    autoFocus
+                    type="text"
+                    value={tempVal}
+                    onChange={(e) => setTempVal(e.target.value)}
+                    onBlur={handleSaveEdit}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
+                    className="w-full text-center text-xs font-bold bg-white text-slate-900 rounded px-1 py-0.5 outline-none shadow-xs"
+                  />
+                ) : (
+                  <span className="leading-tight drop-shadow-xs">{phase.name}</span>
+                )}
+
+                {/* Tombol Tambah Tugas di Fase Ini */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddTask(phase.id);
+                  }}
+                  className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 hover:bg-white text-slate-900 p-0.5 rounded shadow-xs text-[10px] font-bold no-print"
+                  title="Tambah tugas di fase ini"
+                >
+                  <Plus className="w-3 h-3" />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Middle 20-Week Grid Area */}
+        <div className="flex-1 relative flex flex-col bg-white">
+          {/* 20 Vertical Grid Guidelines */}
+          <div className="absolute inset-0 grid grid-cols-20 divide-x divide-slate-200/70 pointer-events-none">
+            {Array.from({ length: 20 }).map((_, cIdx) => (
+              <div key={cIdx} className="h-full" />
+            ))}
+          </div>
+
+          {/* Vertical Milestone: Additional Funds (Column 7 / Week 7, Phase 3 Area) */}
+          <div
+            className="absolute bg-[#bfdbfe] border-x border-[#93c5fd] z-10 flex items-center justify-center cursor-pointer hover:bg-blue-200 transition-colors shadow-2xs"
+            style={{
+              left: `${(7 - 1) * 5}%`,
+              width: '5%',
+              top: `${fundsTopPercent}%`,
+              bottom: 0,
+            }}
+            title="Klik ganda untuk mengubah teks Milestone"
+            onDoubleClick={() => handleStartEdit('milestone-funds', 'funds', milestoneFunds.name)}
+          >
+            {editingField?.type === 'milestone-funds' ? (
+              <input
+                autoFocus
+                type="text"
+                value={tempVal}
+                onChange={(e) => setTempVal(e.target.value)}
+                onBlur={handleSaveEdit}
+                onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
+                className="w-full text-center text-[10px] font-bold bg-white text-slate-900 rounded px-1 outline-none"
+              />
+            ) : (
+              <span
+                className="text-[10px] font-extrabold text-[#1e3a8a] whitespace-nowrap select-none tracking-wide"
+                style={{
+                  writingMode: 'vertical-rl',
+                  transform: 'rotate(180deg)',
+                }}
+              >
+                {milestoneFunds.name}
+              </span>
+            )}
+          </div>
+
+          {/* Vertical Milestone: Project End (Column 20 / Week 20, Spanning Full Height) */}
+          <div
+            className="absolute bg-[#3b82f6] border-x border-blue-600 z-10 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors shadow-2xs"
+            style={{
+              left: `${(20 - 1) * 5}%`,
+              width: '5%',
+              top: 0,
+              bottom: 0,
+            }}
+            title="Klik ganda untuk mengubah teks Project End"
+            onDoubleClick={() => handleStartEdit('milestone-end', 'end', milestoneEnd.name)}
+          >
+            {editingField?.type === 'milestone-end' ? (
+              <input
+                autoFocus
+                type="text"
+                value={tempVal}
+                onChange={(e) => setTempVal(e.target.value)}
+                onBlur={handleSaveEdit}
+                onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
+                className="w-full text-center text-[10px] font-bold bg-white text-slate-900 rounded px-1 outline-none"
+              />
+            ) : (
+              <span
+                className="text-[11px] font-extrabold text-white whitespace-nowrap select-none tracking-widest"
+                style={{
+                  writingMode: 'vertical-rl',
+                  transform: 'rotate(180deg)',
+                }}
+              >
+                {milestoneEnd.name}
+              </span>
+            )}
+          </div>
+
+          {/* Task Rows Stack */}
+          <div className="relative z-20 flex-1 flex flex-col divide-y divide-slate-200/50">
+            {tasks.map((task) => (
+              <div key={task.id} className="flex-1 flex items-center relative px-0.5 group">
+                {/* Gantt Bar */}
+                <div
+                  className="absolute h-[24px] rounded-xs flex items-center px-2 cursor-pointer shadow-xs hover:shadow-md transition-all group-hover:brightness-105"
+                  style={{
+                    left: `${(task.startWeek - 1) * 5}%`,
+                    width: `${(task.endWeek - task.startWeek + 1) * 5}%`,
+                    backgroundColor: task.color,
+                    color: task.textColor || '#ffffff',
+                  }}
+                  onDoubleClick={() => handleStartEdit('task', task.id, task.name)}
+                  title={`${task.name} (Minggu ${task.startWeek} - ${task.endWeek})`}
+                >
+                  {editingField?.type === 'task' && editingField.id === task.id ? (
+                    <input
+                      autoFocus
+                      type="text"
+                      value={tempVal}
+                      onChange={(e) => setTempVal(e.target.value)}
+                      onBlur={handleSaveEdit}
+                      onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
+                      className="w-full text-[11px] font-bold bg-white text-slate-900 rounded px-1 outline-none"
+                    />
+                  ) : (
+                    <span className="text-[10px] md:text-[11px] font-bold truncate tracking-tight">
+                      {task.name}
+                    </span>
+                  )}
+                </div>
+
+                {/* Quick Task Adjuster Controls on Hover */}
+                <div className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/95 backdrop-blur-xs px-1.5 py-0.5 rounded-lg shadow-md border border-slate-200 flex items-center gap-1 z-30 no-print">
+                  <button
+                    onClick={() => handleShiftTask(task.id, -1)}
+                    disabled={task.startWeek <= 1}
+                    className="p-0.5 hover:bg-slate-100 rounded text-slate-600 disabled:opacity-30 cursor-pointer"
+                    title="Geser Kiri 1 Minggu"
+                  >
+                    <ChevronLeft className="w-3 h-3" />
+                  </button>
+                  <button
+                    onClick={() => handleShiftTask(task.id, 1)}
+                    disabled={task.endWeek >= 20}
+                    className="p-0.5 hover:bg-slate-100 rounded text-slate-600 disabled:opacity-30 cursor-pointer"
+                    title="Geser Kanan 1 Minggu"
+                  >
+                    <ChevronRight className="w-3 h-3" />
+                  </button>
+                  <button
+                    onClick={() => handleDurationTask(task.id, -1)}
+                    disabled={task.endWeek <= task.startWeek}
+                    className="px-1 text-[10px] font-bold hover:bg-slate-100 rounded text-slate-600 disabled:opacity-30 cursor-pointer"
+                    title="Perpendek 1 Minggu"
+                  >
+                    -1W
+                  </button>
+                  <button
+                    onClick={() => handleDurationTask(task.id, 1)}
+                    disabled={task.endWeek >= 20}
+                    className="px-1 text-[10px] font-bold hover:bg-slate-100 rounded text-slate-600 disabled:opacity-30 cursor-pointer"
+                    title="Perpanjang 1 Minggu"
+                  >
+                    +1W
+                  </button>
+                  <button
+                    onClick={() => handleCycleColor(task.id)}
+                    className="w-3.5 h-3.5 rounded-full border border-slate-300 shadow-2xs hover:scale-110 transition-transform cursor-pointer"
+                    style={{ backgroundColor: task.color }}
+                    title="Ganti Warna Bilah (Navy / Merah / Oranye / Hijau / Biru / Ungu)"
+                  />
+                  <button
+                    onClick={() => handleDeleteTask(task.id)}
+                    className="p-0.5 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded cursor-pointer transition-colors"
+                    title="Hapus Tugas Ini"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right Notes Column */}
+        <div className="w-[130px] shrink-0 flex flex-col border-l border-slate-300 divide-y divide-slate-200/70 bg-white">
+          {tasks.map((task) => (
+            <div
+              key={`note-${task.id}`}
+              className="flex-1 flex items-center px-2.5 text-[11px] font-medium text-slate-500 cursor-pointer hover:bg-slate-50 transition-colors"
+              onDoubleClick={() => handleStartEdit('note', task.id, task.notes || 'Text Here')}
+              title="Klik ganda untuk mengedit catatan"
+            >
+              {editingField?.type === 'note' && editingField.id === task.id ? (
+                <input
+                  autoFocus
+                  type="text"
+                  value={tempVal}
+                  onChange={(e) => setTempVal(e.target.value)}
+                  onBlur={handleSaveEdit}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
+                  className="w-full text-[11px] bg-slate-100 text-slate-900 rounded px-1 outline-none border border-amber-500"
+                />
+              ) : (
+                <span className="truncate">{task.notes || 'Text Here'}</span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Handles */}
+      <Handle type="target" position={Position.Top} className="!w-2.5 !h-2.5 !bg-slate-400" />
+      <Handle type="source" position={Position.Bottom} className="!w-2.5 !h-2.5 !bg-slate-400" />
+      <Handle type="target" position={Position.Left} className="!w-2.5 !h-2.5 !bg-slate-400" />
+      <Handle type="source" position={Position.Right} className="!w-2.5 !h-2.5 !bg-slate-400" />
+    </div>
+  );
+});
+MultiPhaseGanttNode.displayName = 'MultiPhaseGanttNode';
+
 export const specialistNodeTypes = {
   uml_class: UMLClassNode,
   erd_entity: ERDEntityNode,
@@ -2417,6 +2931,8 @@ export const specialistNodeTypes = {
   milestone_node: MilestoneNode,
   timeline_step: VerticalTimelineNode,
   timebox_card: TimeboxCardNode,
+  multiphase_gantt: MultiPhaseGanttNode,
 };
+
 
 

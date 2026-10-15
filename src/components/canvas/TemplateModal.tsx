@@ -72,6 +72,7 @@ export default function TemplateModal({
     if (filterGroup === 'problem_solving') return cat.group === 'problem_solving';
     if (filterGroup === 'business') {
       return (
+        cat.group === 'business' ||
         cat.id === 'flowchart' ||
         cat.id === 'org' ||
         cat.id === 'floorplan' ||
@@ -79,7 +80,8 @@ export default function TemplateModal({
         cat.id === 'swimlane' ||
         cat.id === 'service_blueprint' ||
         cat.id === 'timebox_gantt' ||
-        cat.id === 'vertical_timeline'
+        cat.id === 'vertical_timeline' ||
+        cat.id === 'gantt_multiphase_20w'
       );
     }
     if (filterGroup === 'engineering') {
@@ -207,7 +209,7 @@ export default function TemplateModal({
             { id: 'all', label: 'Semua Format', count: SPECIALIST_CATEGORIES.length },
             { id: 'strategic', label: '🎯 Strategic & AI', count: SPECIALIST_CATEGORIES.filter(c => c.group === 'strategic').length },
             { id: 'problem_solving', label: '💡 Problem Solving', count: SPECIALIST_CATEGORIES.filter(c => c.group === 'problem_solving').length },
-            { id: 'business', label: '📊 Alur & Jadwal Kerja', count: SPECIALIST_CATEGORIES.filter(c => c.id === 'flowchart' || c.id === 'org' || c.id === 'floorplan' || c.id === 'mindmap' || c.id === 'swimlane' || c.id === 'service_blueprint' || c.id === 'timebox_gantt' || c.id === 'vertical_timeline').length },
+            { id: 'business', label: '📊 Alur & Jadwal Kerja', count: SPECIALIST_CATEGORIES.filter(c => c.group === 'business' || c.id === 'flowchart' || c.id === 'org' || c.id === 'floorplan' || c.id === 'mindmap' || c.id === 'swimlane' || c.id === 'service_blueprint' || c.id === 'timebox_gantt' || c.id === 'vertical_timeline' || c.id === 'gantt_multiphase_20w').length },
             { id: 'engineering', label: '🎥 Siaran & Jaringan', count: SPECIALIST_CATEGORIES.filter(c => c.id === 'network' || c.id === 'rack' || c.id === 'circuit' || c.id === 'pid' || c.id === 'live_streaming').length },
             { id: 'software', label: '💻 Software & Basis Data', count: SPECIALIST_CATEGORIES.filter(c => c.id === 'uml' || c.id === 'erd' || c.id === 'block').length },
           ].map((tab) => (
@@ -222,6 +224,7 @@ export default function TemplateModal({
                   if (tab.id === 'problem_solving') return cat.group === 'problem_solving';
                   if (tab.id === 'business') {
                     return (
+                      cat.group === 'business' ||
                       cat.id === 'flowchart' ||
                       cat.id === 'org' ||
                       cat.id === 'floorplan' ||
@@ -229,7 +232,8 @@ export default function TemplateModal({
                       cat.id === 'swimlane' ||
                       cat.id === 'service_blueprint' ||
                       cat.id === 'timebox_gantt' ||
-                      cat.id === 'vertical_timeline'
+                      cat.id === 'vertical_timeline' ||
+                      cat.id === 'gantt_multiphase_20w'
                     );
                   }
                   if (tab.id === 'engineering') {

@@ -1743,6 +1743,19 @@ export const SHAPE_CATEGORIES: ShapeCategory[] = [
           width: 220,
         },
       },
+      {
+        id: 'time-multiphase-gantt-master',
+        type: 'multiphase_gantt',
+        label: 'Master Gantt 20-Minggu',
+        title: 'Master Jadwal Proyek 20-Minggu Multi-Fase & Milestone',
+        icon: Calendar,
+        category: 'jadwal_timebox',
+        tags: ['gantt', 'jadwal', '20 minggu', 'multi fase', 'milestone', 'phase', 'proyek', 'time boxing'],
+        defaultData: {
+          width: 1200,
+          height: 680,
+        },
+      },
     ],
   },
 
