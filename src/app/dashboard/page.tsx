@@ -115,12 +115,19 @@ export default function DashboardPage() {
       alert('Supabase belum dikonfigurasi di file .env.local. Anda saat ini menggunakan mode penyimpanan lokal browser.');
       return;
     }
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-      },
-    });
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+      if (error) {
+        alert(`Gagal login Google: ${error.message}\n\nPastikan Google Provider sudah diaktifkan di Supabase Dashboard: Authentication -> Providers -> Google (Toggle ke ON dan masukkan Client ID & Secret).`);
+      }
+    } catch (err: any) {
+      alert(`Terjadi kesalahan autentikasi: ${err?.message || 'Provider belum diaktifkan di Supabase'}`);
+    }
   };
 
   const handleLogout = async () => {
