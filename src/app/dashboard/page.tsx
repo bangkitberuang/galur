@@ -31,7 +31,7 @@ import {
   BookOpen
 } from 'lucide-react';
 import { supabase, isSupabaseConfigured, DiagramRecord } from '@/lib/supabase';
-import { getAllDiagramsMeta, deleteDiagramFromStorage } from '@/lib/diagramStorage';
+import { getAllDiagramsMeta, deleteDiagramFromStorage, clearLocalDiagramStorage } from '@/lib/diagramStorage';
 import { SPECIALIST_CATEGORIES } from '@/lib/specialistTemplates';
 import AboutGalurSection from '@/components/dashboard/AboutGalurSection';
 import EcosystemFooter from '@/components/common/EcosystemFooter';
@@ -135,6 +135,7 @@ export default function DashboardPage() {
   };
 
   const handleLogout = async () => {
+    clearLocalDiagramStorage();
     if (supabase) {
       await supabase.auth.signOut();
       setUser(null);

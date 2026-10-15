@@ -552,125 +552,67 @@ export const RemovableStepEdge = memo((props: EdgeProps) => {
             </div>
           )}
 
-          {/* Floating Action Capsule (Tampil saat hover atau garis sedang aktif terseleksi) - Skala 70% (-30%) */}
+          {/* Floating Action Capsule - Ultra Compact Mini Pill */}
           <div
-            className={`flex items-center gap-1 bg-white/95 backdrop-blur-xs border border-slate-200/90 rounded-full shadow-lg py-0.5 px-1.5 transition-all duration-150 mb-1 origin-bottom ${
-              showControls ? 'opacity-100 scale-[0.70] pointer-events-auto' : 'opacity-0 pointer-events-none scale-[0.55]'
+            className={`flex items-center gap-0.5 bg-white/95 backdrop-blur-xs border border-slate-200/90 rounded-full shadow-md py-0.5 px-1 transition-all duration-150 mb-1 origin-bottom ${
+              showControls ? 'opacity-100 scale-90 pointer-events-auto' : 'opacity-0 pointer-events-none scale-75'
             }`}
           >
-            {/* Pemilih Bentuk Cepat: Lengkung / Lurus / Siku (Aktif) */}
-            <div className="flex items-center bg-slate-100 rounded-full p-0.5 border border-slate-200/80">
+            {/* Pemilih Bentuk Garis Cepat (Icon Mini) */}
+            <div className="flex items-center bg-slate-100/90 rounded-full p-0.5">
               <button
                 type="button"
                 onClick={(e) => handleChangeType('default', e)}
                 title="Ubah ke Garis Melengkung (Bezier)"
-                className="px-2 py-0.5 rounded-full text-[10px] font-semibold text-slate-600 hover:text-blue-700 hover:bg-white/80 transition-colors cursor-pointer"
+                className="w-5 h-5 flex items-center justify-center rounded-full text-slate-500 hover:text-blue-700 hover:bg-white transition-colors cursor-pointer"
               >
-                <span>Lengkung</span>
+                <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                  <path d="M2 13C6 13 6 3 14 3" />
+                </svg>
               </button>
               <button
                 type="button"
                 onClick={(e) => handleChangeType('straight', e)}
                 title="Ubah ke Garis Lurus (Straight)"
-                className="px-2 py-0.5 rounded-full text-[10px] font-semibold text-slate-600 hover:text-blue-700 hover:bg-white/80 transition-colors cursor-pointer"
+                className="w-5 h-5 flex items-center justify-center rounded-full text-slate-500 hover:text-blue-700 hover:bg-white transition-colors cursor-pointer"
               >
-                <span>Lurus</span>
+                <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                  <path d="M2 13L14 3" />
+                </svg>
               </button>
               <button
                 type="button"
-                title="Bentuk Saat Ini: Garis Siku-Siku (Step/Ortogonal)"
-                className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white text-blue-700 shadow-2xs cursor-default flex items-center gap-1"
+                title="Bentuk Garis: Siku-Siku (Step) Aktif"
+                className="w-5 h-5 flex items-center justify-center rounded-full bg-white text-blue-700 shadow-2xs cursor-default"
               >
-                <span>Siku</span>
+                <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M2 13H8V3H14" />
+                </svg>
               </button>
             </div>
 
-            <div className="w-[1px] h-3.5 bg-slate-200 mx-0.5" />
+            <div className="w-[1px] h-3 bg-slate-200 mx-0.5" />
 
-            {/* Grup Geser Kiri / Kanan (Tampil jika garis memiliki segmen siku vertikal) */}
-            {(!isVerticalFlow && !isLoopTop && !isLoopBottom) && (
-              <div className="flex items-center bg-slate-50 rounded-full border border-slate-200/80 p-0.5" title="Geser siku garis ke Kiri atau Kanan (↔)">
-                <button
-                  type="button"
-                  onClick={(e) => handleNudgeX(-20, e)}
-                  title="Geser siku garis ke kiri (-20px)"
-                  className="p-1 rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
-                >
-                  <ChevronLeft className="w-3.5 h-3.5" />
-                </button>
-                <div
-                  onPointerDown={handlePointerDownX}
-                  title="Klik & tahan lalu geser mouse ke kiri/kanan untuk menggeser posisi garis vertikal"
-                  className="flex items-center gap-1 px-1.5 py-0.5 rounded-full hover:bg-blue-100 text-slate-700 hover:text-blue-700 transition-colors cursor-ew-resize select-none"
-                >
-                  <MoveHorizontal className="w-3 h-3 text-slate-500 hover:text-blue-600" />
-                  <span className="text-[10px] font-mono font-bold leading-none">
-                    {shiftX === 0 ? '↔ Tengah' : `↔ ${shiftX > 0 ? '+' : ''}${shiftX}px`}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={(e) => handleNudgeX(20, e)}
-                  title="Geser siku garis ke kanan (+20px)"
-                  className="p-1 rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
-                >
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
+            {/* Tombol Reset (Tampil jika siku telah digeser dari tengah) */}
+            {(shiftX !== 0 || shiftY !== 0) && (
+              <button
+                type="button"
+                onClick={handleReset}
+                title="Kembalikan posisi siku ke tengah & standar"
+                className="w-5 h-5 flex items-center justify-center rounded-full text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer"
+              >
+                <RotateCcw className="w-2.5 h-2.5" />
+              </button>
             )}
-
-            {/* Grup Geser Atas / Bawah (Tampil jika garis memiliki segmen siku horisontal/offset) */}
-            {(!isHorizontalFlow && !isLoopLeft && !isLoopRight && !isCornerHV) && (
-              <div className="flex items-center bg-slate-50 rounded-full border border-slate-200/80 p-0.5" title="Geser siku garis ke Atas atau Bawah (↕)">
-                <button
-                  type="button"
-                  onClick={(e) => handleNudgeY(-15, e)}
-                  title="Geser siku garis ke atas (-15px)"
-                  className="p-1 rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
-                >
-                  <ChevronUp className="w-3.5 h-3.5" />
-                </button>
-                <div
-                  onPointerDown={handlePointerDownY}
-                  title="Klik & tahan lalu geser mouse ke atas/bawah untuk menggeser posisi garis horisontal"
-                  className="flex items-center gap-1 px-1.5 py-0.5 rounded-full hover:bg-blue-100 text-slate-700 hover:text-blue-700 transition-colors cursor-ns-resize select-none"
-                >
-                  <MoveVertical className="w-3 h-3 text-slate-500 hover:text-blue-600" />
-                  <span className="text-[10px] font-mono font-bold leading-none">
-                    {shiftY !== 0 ? `↕ ${shiftY > 0 ? '+' : ''}${shiftY}px` : `↕ ${currentOffset}px`}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={(e) => handleNudgeY(15, e)}
-                  title="Geser siku garis ke bawah (+15px)"
-                  className="p-1 rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
-                >
-                  <ChevronDown className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            )}
-
-            <div className="w-[1px] h-3.5 bg-slate-200 mx-0.5" />
-
-            {/* Tombol Reset Siku */}
-            <button
-              type="button"
-              onClick={handleReset}
-              title="Kembalikan posisi siku ke tengah & standar"
-              className="p-1 rounded-full text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-            </button>
 
             {/* Tombol Hapus Cepat (×) */}
             <button
               type="button"
               onClick={handleDelete}
-              title="Hapus garis konektor ini"
-              className="p-1 rounded-full text-red-500 hover:text-white hover:bg-red-500 transition-colors cursor-pointer"
+              title="Hapus garis ini"
+              className="w-5 h-5 flex items-center justify-center rounded-full text-red-500 hover:text-white hover:bg-red-500 transition-colors cursor-pointer"
             >
-              <X className="w-3.5 h-3.5 stroke-[2.5]" />
+              <X className="w-3 h-3 stroke-[2.5]" />
             </button>
           </div>
 
@@ -868,74 +810,55 @@ export const RemovableBezierEdge = memo((props: EdgeProps) => {
             </div>
           )}
 
-          {/* Quick Action Capsule (Muncul saat hover atau saat garis merah terpilih) - Skala 70% (-30%) */}
+          {/* Floating Action Capsule - Ultra Compact Mini Pill */}
           <div
-            className={`flex items-center gap-1.5 bg-white/95 backdrop-blur-xs border border-slate-200/90 rounded-full shadow-xl py-1 px-2 transition-all duration-150 mb-1 origin-bottom ${
-              showButton ? 'opacity-100 scale-[0.70] pointer-events-auto' : 'opacity-0 pointer-events-none scale-[0.55]'
+            className={`flex items-center gap-0.5 bg-white/95 backdrop-blur-xs border border-slate-200/90 rounded-full shadow-md py-0.5 px-1 transition-all duration-150 mb-1 origin-bottom ${
+              showButton ? 'opacity-100 scale-90 pointer-events-auto' : 'opacity-0 pointer-events-none scale-75'
             }`}
           >
-            {/* Pemilih Bentuk Cepat: Lengkung (Aktif) / Lurus / Siku */}
-            <div className="flex items-center bg-slate-100 rounded-full p-0.5 border border-slate-200/80">
+            {/* Pemilih Bentuk Garis Cepat (Icon Mini) */}
+            <div className="flex items-center bg-slate-100/90 rounded-full p-0.5">
               <button
                 type="button"
-                title="Bentuk Saat Ini: Melengkung (Bezier)"
-                className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white text-blue-700 shadow-2xs cursor-default flex items-center gap-1"
+                title="Bentuk Garis: Melengkung (Bezier) Aktif"
+                className="w-5 h-5 flex items-center justify-center rounded-full bg-white text-blue-700 shadow-2xs cursor-default"
               >
-                <span>Lengkung</span>
+                <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M2 13C6 13 6 3 14 3" />
+                </svg>
               </button>
               <button
                 type="button"
                 onClick={(e) => handleChangeType('straight', e)}
                 title="Ubah ke Garis Lurus (Straight)"
-                className="px-2 py-0.5 rounded-full text-[10px] font-semibold text-slate-600 hover:text-blue-700 hover:bg-white/80 transition-colors cursor-pointer"
+                className="w-5 h-5 flex items-center justify-center rounded-full text-slate-500 hover:text-blue-700 hover:bg-white transition-colors cursor-pointer"
               >
-                <span>Lurus</span>
+                <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                  <path d="M2 13L14 3" />
+                </svg>
               </button>
               <button
                 type="button"
                 onClick={(e) => handleChangeType('smoothstep', e)}
                 title="Ubah ke Garis Siku-Siku (Step/Ortogonal)"
-                className="px-2 py-0.5 rounded-full text-[10px] font-semibold text-slate-600 hover:text-blue-700 hover:bg-white/80 transition-colors cursor-pointer"
+                className="w-5 h-5 flex items-center justify-center rounded-full text-slate-500 hover:text-blue-700 hover:bg-white transition-colors cursor-pointer"
               >
-                <span>Siku</span>
+                <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                  <path d="M2 13H8V3H14" />
+                </svg>
               </button>
             </div>
 
-            <div className="w-[1px] h-3.5 bg-slate-200" />
-
-            {/* Stepper Kelengkungan Kustom */}
-            <div className="flex items-center bg-slate-50 rounded-full border border-slate-200/80 p-0.5" title="Atur tingkat kelengkungan garis kustom">
-              <button
-                type="button"
-                onClick={(e) => handleAdjustCurvature(-0.15, e)}
-                title="Lebih Lurus (Kurangi kelengkungan)"
-                className="p-1 rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
-              >
-                <Minus className="w-3 h-3" />
-              </button>
-              <span className="text-[10px] font-mono font-bold text-slate-700 px-1 select-none">
-                {Math.round(currentCurvature * 100)}%
-              </span>
-              <button
-                type="button"
-                onClick={(e) => handleAdjustCurvature(0.15, e)}
-                title="Lebih Lengkung (Tambah kelengkungan)"
-                className="p-1 rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
-              >
-                <Plus className="w-3 h-3" />
-              </button>
-            </div>
-
-            <div className="w-[1px] h-3.5 bg-slate-200" />
+            <div className="w-[1px] h-3 bg-slate-200 mx-0.5" />
 
             {/* Tombol Hapus Garis (×) */}
             <button
               type="button"
               onClick={handleDelete}
               title="Hapus garis ini"
-              className="p-1 rounded-full text-red-500 hover:text-white hover:bg-red-500 transition-colors cursor-pointer"
+              className="w-5 h-5 flex items-center justify-center rounded-full text-red-500 hover:text-white hover:bg-red-500 transition-colors cursor-pointer"
             >
-              <X className="w-3.5 h-3.5 stroke-[2.5]" />
+              <X className="w-3 h-3 stroke-[2.5]" />
             </button>
           </div>
 
@@ -1065,49 +988,55 @@ export const RemovableStraightEdge = memo((props: EdgeProps) => {
             </div>
           )}
 
-          {/* Quick Action Capsule - Skala 70% (-30%) */}
+          {/* Floating Action Capsule - Ultra Compact Mini Pill */}
           <div
-            className={`flex items-center gap-1.5 bg-white/95 backdrop-blur-xs border border-slate-200/90 rounded-full shadow-xl py-1 px-2 transition-all duration-150 mb-1 origin-bottom ${
-              showButton ? 'opacity-100 scale-[0.70] pointer-events-auto' : 'opacity-0 pointer-events-none scale-[0.55]'
+            className={`flex items-center gap-0.5 bg-white/95 backdrop-blur-xs border border-slate-200/90 rounded-full shadow-md py-0.5 px-1 transition-all duration-150 mb-1 origin-bottom ${
+              showButton ? 'opacity-100 scale-90 pointer-events-auto' : 'opacity-0 pointer-events-none scale-75'
             }`}
           >
-            {/* Pemilih Bentuk Cepat: Lengkung / Lurus (Aktif) / Siku */}
-            <div className="flex items-center bg-slate-100 rounded-full p-0.5 border border-slate-200/80">
+            {/* Pemilih Bentuk Garis Cepat (Icon Mini) */}
+            <div className="flex items-center bg-slate-100/90 rounded-full p-0.5">
               <button
                 type="button"
                 onClick={(e) => handleChangeType('default', e)}
                 title="Ubah ke Garis Melengkung (Bezier)"
-                className="px-2 py-0.5 rounded-full text-[10px] font-semibold text-slate-600 hover:text-blue-700 hover:bg-white/80 transition-colors cursor-pointer"
+                className="w-5 h-5 flex items-center justify-center rounded-full text-slate-500 hover:text-blue-700 hover:bg-white transition-colors cursor-pointer"
               >
-                <span>Lengkung</span>
+                <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                  <path d="M2 13C6 13 6 3 14 3" />
+                </svg>
               </button>
               <button
                 type="button"
-                title="Bentuk Saat Ini: Garis Lurus (Straight)"
-                className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white text-blue-700 shadow-2xs cursor-default flex items-center gap-1"
+                title="Bentuk Garis: Lurus (Straight) Aktif"
+                className="w-5 h-5 flex items-center justify-center rounded-full bg-white text-blue-700 shadow-2xs cursor-default"
               >
-                <span>Lurus</span>
+                <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M2 13L14 3" />
+                </svg>
               </button>
               <button
                 type="button"
                 onClick={(e) => handleChangeType('smoothstep', e)}
                 title="Ubah ke Garis Siku-Siku (Step/Ortogonal)"
-                className="px-2 py-0.5 rounded-full text-[10px] font-semibold text-slate-600 hover:text-blue-700 hover:bg-white/80 transition-colors cursor-pointer"
+                className="w-5 h-5 flex items-center justify-center rounded-full text-slate-500 hover:text-blue-700 hover:bg-white transition-colors cursor-pointer"
               >
-                <span>Siku</span>
+                <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                  <path d="M2 13H8V3H14" />
+                </svg>
               </button>
             </div>
 
-            <div className="w-[1px] h-3.5 bg-slate-200" />
+            <div className="w-[1px] h-3 bg-slate-200 mx-0.5" />
 
             {/* Tombol Hapus Garis (×) */}
             <button
               type="button"
               onClick={handleDelete}
               title="Hapus garis lurus ini"
-              className="p-1 rounded-full text-red-500 hover:text-white hover:bg-red-500 transition-colors cursor-pointer"
+              className="w-5 h-5 flex items-center justify-center rounded-full text-red-500 hover:text-white hover:bg-red-500 transition-colors cursor-pointer"
             >
-              <X className="w-3.5 h-3.5 stroke-[2.5]" />
+              <X className="w-3 h-3 stroke-[2.5]" />
             </button>
           </div>
 

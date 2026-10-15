@@ -19,7 +19,8 @@ import {
   Calendar,
   Clock,
   Star,
-  ChevronRight
+  ChevronRight,
+  Globe
 } from 'lucide-react';
 import { APP_VERSION, APP_VERSION_CODENAME, APP_LOGO_URL } from '@/lib/version';
 
@@ -75,6 +76,14 @@ export default function LandingPage() {
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span>{APP_VERSION}</span>
               </span>
+              <a
+                href="https://galur.kitt.lt"
+                className="hidden xl:inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-50 text-[#0b4632] border border-emerald-300 text-[11px] font-mono font-bold hover:bg-emerald-100 transition-colors"
+                title="Domain Resmi GALUR"
+              >
+                <Globe className="w-3 h-3 text-emerald-600" />
+                <span>https://galur.kitt.lt/</span>
+              </a>
             </div>
             <p className="text-xs text-slate-500 font-medium tracking-wide">
               Diagram & Flowchart Builder
@@ -83,6 +92,14 @@ export default function LandingPage() {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
+          <a
+            href="https://galur.kitt.lt"
+            className="hidden sm:flex lg:hidden xl:hidden items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-[#0b4632] border border-emerald-300 text-xs font-mono font-bold hover:bg-emerald-100 transition-colors"
+            title="Domain Resmi GALUR"
+          >
+            <Globe className="w-3.5 h-3.5 text-emerald-600" />
+            <span>galur.kitt.lt</span>
+          </a>
           <Link
             href="/dashboard?tab=about"
             className="text-xs font-semibold text-slate-600 hover:text-emerald-800 px-3 py-2 transition-colors flex items-center gap-1.5"
@@ -120,9 +137,21 @@ export default function LandingPage() {
             />
           </div>
 
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/90 backdrop-blur-xs border border-emerald-300/80 text-[#0b4632] text-xs sm:text-sm font-bold shadow-xs">
-            <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500" />
-            <span>Garis Alur, Ngajentrekeun Struktur</span>
+          <div className="flex flex-wrap items-center justify-center gap-2.5">
+            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/90 backdrop-blur-xs border border-emerald-300/80 text-[#0b4632] text-xs sm:text-sm font-bold shadow-xs">
+              <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500" />
+              <span>Garis Alur, Ngajentrekeun Struktur</span>
+            </div>
+
+            <a
+              href="https://galur.kitt.lt"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-900/90 text-amber-300 border border-emerald-700/80 text-xs sm:text-sm font-mono font-bold shadow-xs hover:bg-emerald-950 transition-all hover:scale-105"
+              title="Portal Resmi GALUR"
+            >
+              <Globe className="w-3.5 h-3.5 text-amber-300" />
+              <span className="text-white/80 font-sans font-medium text-xs">Domain Resmi:</span>
+              <span className="text-amber-300 underline underline-offset-2">https://galur.kitt.lt/</span>
+            </a>
           </div>
         </div>
 
@@ -475,8 +504,17 @@ export default function LandingPage() {
             </span>
           </div>
 
-          {/* Sisi Tengah: Navigasi Tautan Cepat */}
-          <div className="flex items-center whitespace-nowrap justify-center gap-x-4 text-xs font-semibold text-emerald-200/80">
+          {/* Sisi Tengah: Navigasi Tautan Cepat & Domain */}
+          <div className="flex flex-wrap items-center whitespace-nowrap justify-center gap-x-4 gap-y-1 text-xs font-semibold text-emerald-200/80">
+            <a 
+              href="https://galur.kitt.lt" 
+              className="hover:text-amber-300 transition-colors flex items-center gap-1.5 text-amber-300 font-mono font-bold"
+              title="Domain Resmi"
+            >
+              <Globe className="w-3 h-3 text-emerald-400" />
+              <span>https://galur.kitt.lt/</span>
+            </a>
+            <span className="opacity-40">•</span>
             <Link href="/dashboard" className="hover:text-amber-300 transition-colors">
               Dashboard Studio
             </Link>

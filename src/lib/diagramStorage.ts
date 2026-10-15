@@ -28,14 +28,46 @@ export interface DiagramContent extends DiagramMetadata {
 }
 
 const META_INDEX_KEY = 'galur_diagrams_index';
-const SEEDED_KEY = 'galur_diagrams_seeded_v2';
+const SEEDED_KEY = 'galur_diagrams_seeded_v3';
 const DELETED_IDS_KEY = 'galur_deleted_diagram_ids';
 export const DEMO_IDS = ['flowchart-demo-1', 'mindmap-demo-2', 'swot-demo-3', 'fishbone-demo-4'];
 
-// Periksa apakah sebuah diagram telah dihapus permanen oleh pengguna
+// Daftar judul bawaan demo lama yang wajib dibersihkan total
+export const DEMO_TITLES = [
+  'diagram tulang ikan (fishbone 6m sebab-akibat)',
+  'diagram tulang ikan (fishbone / ishikawa)',
+  'diagram alur keputusan standar (flowchart)',
+  'pohon pemikiran & brainstorming (mind map)',
+  'matriks analisis swot 4 kuadran (sesuai contoh gambar)',
+  'matriks analisis swot 4 kuadran',
+];
+
+// Periksa apakah sebuah diagram terindikasi sebagai data demo/dummy bawaan
+export function isDemoDiagram(id?: string, title?: string): boolean {
+  if (id) {
+    if (DEMO_IDS.includes(id)) return true;
+    if (
+      id.startsWith('fishbone-demo-') ||
+      id.startsWith('swot-demo-') ||
+      id.startsWith('flowchart-demo-') ||
+      id.startsWith('mindmap-demo-')
+    ) {
+      return true;
+    }
+  }
+  if (title) {
+    const lower = title.toLowerCase().trim();
+    if (DEMO_TITLES.some((t) => lower === t || lower.includes(t) || t.includes(lower))) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Periksa apakah sebuah diagram telah dihapus permanen atau merupakan demo bawaan
 export function isDiagramDeleted(id: string): boolean {
   if (typeof window === 'undefined') return false;
-  if (DEMO_IDS.includes(id)) return true;
+  if (!id || isDemoDiagram(id)) return true;
   try {
     const raw = localStorage.getItem(DELETED_IDS_KEY);
     if (!raw) return false;
@@ -59,7 +91,24 @@ export function markDiagramDeleted(id: string): void {
   } catch {}
 }
 
-// Inisialisasi awal: Membersihkan data dummy/mock lama sehingga riwayat pengguna selalu bersih
+// Bersihkan seluruh cache diagram lokal (digunakan saat berganti akun Google / Logout)
+export function clearLocalDiagramStorage(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const rawIndex = localStorage.getItem(META_INDEX_KEY);
+    if (rawIndex) {
+      const parsed: DiagramMetadata[] = JSON.parse(rawIndex);
+      if (Array.isArray(parsed)) {
+        parsed.forEach((d) => {
+          localStorage.removeItem(`galur_diagram_${d.id}`);
+        });
+      }
+    }
+    localStorage.removeItem(META_INDEX_KEY);
+  } catch {}
+}
+
+// Inisialisasi awal: Membersihkan seluruh data dummy/mock lama sehingga riwayat pengguna selalu bersih
 export function initDefaultDiagramsIfEmpty(): DiagramMetadata[] {
   if (typeof window === 'undefined') return [];
 
@@ -75,8 +124,17 @@ export function initDefaultDiagramsIfEmpty(): DiagramMetadata[] {
     try {
       const parsed: DiagramMetadata[] = JSON.parse(rawIndex);
       if (Array.isArray(parsed)) {
+        // Hapus berkas diagram demo / dummy dari storage browser
+        parsed.forEach((d) => {
+          if (isDemoDiagram(d.id, d.title)) {
+            localStorage.removeItem(`galur_diagram_${d.id}`);
+          }
+        });
+
         // Bersihkan jika ada ID demo atau yang berada di blacklist penghapusan
-        const validList = parsed.filter((d) => !DEMO_IDS.includes(d.id) && !isDiagramDeleted(d.id));
+        const validList = parsed.filter(
+          (d) => !isDemoDiagram(d.id, d.title) && !isDiagramDeleted(d.id)
+        );
         if (validList.length !== parsed.length) {
           localStorage.setItem(META_INDEX_KEY, JSON.stringify(validList));
         }
@@ -95,20 +153,25 @@ export function getAllDiagramsMeta(): DiagramMetadata[] {
   if (typeof window === 'undefined') return [];
   const list = initDefaultDiagramsIfEmpty();
   return list
-    .filter((d) => !DEMO_IDS.includes(d.id) && !isDiagramDeleted(d.id))
+    .filter((d) => !isDemoDiagram(d.id, d.title) && !isDiagramDeleted(d.id))
     .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 }
 
 // Ambil isi diagram lengkap berdasarkan ID
 export function getDiagramById(id: string): DiagramContent | null {
   if (typeof window === 'undefined') return null;
-  if (!id || DEMO_IDS.includes(id) || isDiagramDeleted(id)) return null;
+  if (!id || isDemoDiagram(id) || isDiagramDeleted(id)) return null;
 
   // Coba ambil dari key spesifik
   const raw = localStorage.getItem(`galur_diagram_${id}`);
   if (raw) {
     try {
-      return JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      if (isDemoDiagram(parsed.id, parsed.title)) {
+        localStorage.removeItem(`galur_diagram_${id}`);
+        return null;
+      }
+      return parsed;
     } catch (e) {
       console.error('Error parsing diagram:', e);
     }
@@ -121,6 +184,11 @@ export function getDiagramById(id: string): DiagramContent | null {
 export function saveDiagramToStorage(diagram: DiagramContent): void {
   if (typeof window === 'undefined') return;
   if (!diagram || !diagram.id) return;
+
+  // Jangan pernah menyimpan jika diagram ini merupakan template demo bawaan
+  if (isDemoDiagram(diagram.id, diagram.title)) {
+    return;
+  }
 
   // Jangan pernah menyimpan jika diagram ini sudah dihapus oleh pengguna
   if (isDiagramDeleted(diagram.id)) {

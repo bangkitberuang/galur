@@ -78,8 +78,9 @@ export default function ShareModal({
   // URL origin browser
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   
-  // 1. Tautan Kolaborasi Real-Time
-  const collabUrl = `${origin}/editor?id=${diagramId}&room=${encodeURIComponent(activeRoomId)}`;
+  // 1. Tautan Kolaborasi Real-Time (Aktif hanya saat room dibuat / dibuka)
+  const effectiveRoomId = activeRoomId || `room_${diagramId || Date.now()}`;
+  const collabUrl = `${origin}/editor?id=${diagramId}&room=${encodeURIComponent(effectiveRoomId)}`;
 
   // 2. Tautan Snapshot Data
   const generateSnapshotLink = () => {
@@ -106,6 +107,9 @@ export default function ShareModal({
 
   // Salin Tautan Kolaborasi
   const handleCopyCollabLink = () => {
+    if (!activeRoomId) {
+      onJoinRoom(effectiveRoomId);
+    }
     navigator.clipboard.writeText(collabUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2500);

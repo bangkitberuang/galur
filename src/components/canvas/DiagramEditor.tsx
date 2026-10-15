@@ -76,6 +76,7 @@ import {
   getAllDiagramsMeta, 
   initDefaultDiagramsIfEmpty,
   isDiagramDeleted,
+  clearLocalDiagramStorage,
   DiagramPage
 } from '@/lib/diagramStorage';
 import { getTemplateByCategory, CategoryTemplate, SPECIALIST_CATEGORIES } from '@/lib/specialistTemplates';
@@ -118,7 +119,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   const [isDiagramSettingsOpen, setIsDiagramSettingsOpen] = useState(false);
   const [interactionMode, setInteractionMode] = useState<'select' | 'pan'>('select');
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [activeRoomId, setActiveRoomId] = useState<string>('galur-main-room');
+  const [activeRoomId, setActiveRoomId] = useState<string>('');
   const [collabUsers, setCollabUsers] = useState<CollabUser[]>([]);
   const [currentUser, setCurrentUser] = useState<CollabUser>(INITIAL_COLLAB_USER);
   const [authUser, setAuthUser] = useState<any>(null);
@@ -359,14 +360,14 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     };
   }, [activeRoomId, setNodes, setEdges]);
 
-  // Pelacak pergerakan pointer mouse untuk kolaborasi real-time
+  // Pelacak pergerakan pointer mouse untuk kolaborasi real-time (Hanya saat room aktif)
   const handleCanvasPointerMove = useCallback((e: React.PointerEvent) => {
-    if (!reactFlowWrapper.current) return;
+    if (!activeRoomId || !reactFlowWrapper.current) return;
     const rect = reactFlowWrapper.current.getBoundingClientRect();
     const relX = Math.round(e.clientX - rect.left);
     const relY = Math.round(e.clientY - rect.top);
     collabManager.sendCursor(relX, relY);
-  }, []);
+  }, [activeRoomId]);
 
   // Handler impor file proyek (.galur / .json)
   const handleImportDiagram = useCallback(
@@ -419,8 +420,8 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       setHistoryCount(updatedMeta.length);
       setSaveStatus('saved');
 
-      // Sebarkan sinkronisasi diagram ke rekan kolaborator di room
-      if (!isRemoteUpdating.current) {
+      // Sebarkan sinkronisasi diagram ke rekan kolaborator di room hanya jika ruang kolaborasi aktif
+      if (activeRoomId && !isRemoteUpdating.current) {
         collabManager.broadcastDiagramSync(nodes, edges, title, pageConfig);
       }
     }, 600);
@@ -674,7 +675,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   const handleNodeDragStop = useCallback(() => {
     dragContainerRef.current = null;
     setSaveStatus('idle');
-    if (!isRemoteUpdating.current) {
+    if (activeRoomId && !isRemoteUpdating.current) {
       collabManager.broadcastNodesChange(nodes);
     }
   }, [nodes]);
@@ -1542,6 +1543,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
                 type="button"
                 onClick={async () => {
                   if (confirm(`Keluar dari akun (${authUser.email})?`)) {
+                    clearLocalDiagramStorage();
                     if (supabase) await supabase.auth.signOut();
                     window.location.href = '/dashboard';
                   }
@@ -1637,7 +1639,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
               onNodeDragStop={handleNodeDragStop}
               onSelectionDragStop={() => {
                 setSaveStatus('idle');
-                if (!isRemoteUpdating.current) {
+                if (activeRoomId && !isRemoteUpdating.current) {
                   collabManager.broadcastNodesChange(nodes);
                 }
               }}
