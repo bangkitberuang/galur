@@ -269,11 +269,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       const urlId = urlParams.get('id') || diagramId;
       if (urlId && !isDiagramDeleted(urlId)) {
         targetId = urlId;
-      } else if (metaList.length > 0) {
-        targetId = metaList[0].id;
       }
-    } else if (metaList.length > 0) {
-      targetId = metaList[0].id;
     }
 
     if (targetId) {
@@ -306,10 +302,10 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       }
     }
 
-    // Jika tidak ada diagram atau diagram telah dihapus permanen, mulai kanvas kosong baru
+    // Jika tidak ada ID diagram di URL atau diagram tidak ditemukan, selalu buka kanvas kosong baru
     const newId = `diag_${Date.now()}`;
     setCurrentId(newId);
-    setTitle('Kanvas Kosong Baru');
+    setTitle('Diagram Baru');
     setNodes([]);
     setEdges([]);
     setPages([{ id: 'page-1', name: 'Page 1', nodes: [], edges: [] }]);
@@ -999,7 +995,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     takeSnapshot();
     const newId = `diag_${Date.now()}`;
     setCurrentId(newId);
-    setTitle('Kanvas Kosong Baru');
+    setTitle('Diagram Baru');
     setNodes([]);
     setEdges([]);
     setPages([{ id: 'page-1', name: 'Page 1', nodes: [], edges: [] }]);
@@ -1033,16 +1029,16 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     if (type === 'blank') {
       newNodes = [];
       newEdges = [];
-      setTitle('Kanvas Kosong Baru');
+      setTitle('Diagram Baru');
     } else if (type === 'flowchart') {
-      const demo = getDiagramById('flowchart-demo-1');
-      newNodes = demo?.nodes || [];
-      newEdges = demo?.edges || [];
+      const tmpl = getTemplateByCategory('flowchart');
+      newNodes = tmpl?.nodes || [];
+      newEdges = tmpl?.edges || [];
       setTitle('Diagram Alir Baru');
     } else if (type === 'mindmap') {
-      const demo = getDiagramById('mindmap-demo-2');
-      newNodes = demo?.nodes || [];
-      newEdges = demo?.edges || [];
+      const tmpl = getTemplateByCategory('mindmap');
+      newNodes = tmpl?.nodes || [];
+      newEdges = tmpl?.edges || [];
       setTitle('Pohon Mind Map Baru');
     }
 
