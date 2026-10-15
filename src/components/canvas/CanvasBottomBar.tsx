@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
+import { APP_LOGO_URL } from '@/lib/version';
 import { 
   useReactFlow, 
   useViewport 
@@ -280,11 +282,26 @@ export default function CanvasBottomBar({
       {/* SISI KANAN: Undo, Redo, Zoom Controls, Fullscreen & Help */}
       {/* ========================================================= */}
       <div className="flex items-center gap-1 shrink-0 pl-2">
-        {/* BANGKIT BERUANG ECOSYSTEM BRAND PILL (Sesuai Permintaan User) */}
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-700 text-[10px] font-extrabold uppercase tracking-wider transition-all select-none mr-1 shadow-2xs">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-          <span>BANGKIT BERUANG</span>
-          <span className="text-emerald-700 font-bold lowercase tracking-normal">ecosystem</span>
+        {/* BANGKIT BERUANG ECOSYSTEM BRAND PILL (Sesuai Referensi Gambar User) */}
+        <div 
+          className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-all select-none mr-1 cursor-default"
+          title="Bangkit Beruang Ecosystem"
+        >
+          <div className="w-3.5 h-3.5 shrink-0 flex items-center justify-center">
+            <Image
+              src={APP_LOGO_URL}
+              alt="GALUR Logo"
+              width={14}
+              height={14}
+              className="w-full h-full object-contain filter drop-shadow-xs"
+            />
+          </div>
+          <span className="text-[9px] font-black uppercase tracking-wider text-white bg-[#059669] px-1.5 py-0.2 rounded-full leading-none shadow-xs">
+            BANGKIT
+          </span>
+          <span className="text-[11px] font-bold text-slate-700 tracking-tight">
+            Beruang Ecosystem
+          </span>
         </div>
 
         <div className="h-4 w-[1px] bg-slate-200 mx-0.5" />
