@@ -46,37 +46,6 @@ export default function DashboardPage() {
   const [activeCategory, setActiveCategory] = useState<string>('swot');
   const [dashboardTab, setDashboardTab] = useState<'diagrams' | 'about'>('diagrams');
 
-  // Deteksi query param atau hash untuk tab Tentang
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('tab') === 'about' || window.location.hash === '#about') {
-        setDashboardTab('about');
-      }
-    }
-  }, []);
-
-  // Periksa status login pengguna
-  useEffect(() => {
-    if (isSupabaseConfigured && supabase) {
-      supabase.auth.getUser().then(({ data }) => {
-        setUser(data.user);
-        loadDiagrams(data.user?.id);
-      });
-
-      const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-        setUser(session?.user || null);
-        loadDiagrams(session?.user?.id);
-      });
-
-      return () => {
-        authListener.subscription.unsubscribe();
-      };
-    } else {
-      loadDiagrams();
-    }
-  }, []);
-
   const loadDiagrams = async (userId?: string) => {
     setLoading(true);
 
@@ -110,6 +79,39 @@ export default function DashboardPage() {
     setDiagrams(localDiagrams);
     setLoading(false);
   };
+
+  // Deteksi query param atau hash untuk tab Tentang
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('tab') === 'about' || window.location.hash === '#about') {
+
+        setDashboardTab('about');
+      }
+    }
+  }, []);
+
+  // Periksa status login pengguna
+  useEffect(() => {
+    if (isSupabaseConfigured && supabase) {
+      supabase.auth.getUser().then(({ data }) => {
+        setUser(data.user);
+        loadDiagrams(data.user?.id);
+      });
+
+      const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user || null);
+        loadDiagrams(session?.user?.id);
+      });
+
+      return () => {
+        authListener.subscription.unsubscribe();
+      };
+    } else {
+
+      loadDiagrams();
+    }
+  }, []);
 
   const handleGoogleLogin = async () => {
     if (!isSupabaseConfigured || !supabase) {

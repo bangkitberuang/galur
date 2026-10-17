@@ -87,6 +87,7 @@ export default function PrintPreviewModal({
 
   useEffect(() => {
     if (isOpen) {
+
       loadSnapshot();
     }
   }, [isOpen, loadSnapshot]);

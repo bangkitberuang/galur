@@ -127,6 +127,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   const isRemoteUpdating = useRef(false);
 
   useEffect(() => {
+
     setIsMounted(true);
     const local = getLocalCollabUser();
     if (isSupabaseConfigured && supabase) {
@@ -241,6 +242,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   useEffect(() => {
     initDefaultDiagramsIfEmpty();
     const metaList = getAllDiagramsMeta();
+
     setHistoryCount(metaList.length);
 
     let targetId = '';
@@ -374,6 +376,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   useEffect(() => {
     if (!activeRoomId) {
       collabManager.leaveRoom();
+
       setCollabUsers([]);
       return;
     }
@@ -490,6 +493,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   // AUTO-SAVE: Otomatis menyimpan setiap kali ada perubahan
   useEffect(() => {
     if (!currentId || nodes.length === 0 || isDiagramDeleted(currentId)) return;
+
 
     setSaveStatus('saving');
     const timer = setTimeout(() => {
@@ -798,6 +802,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
   useEffect(() => {
     const activeSelectedEdge = edges.find((e) => e.selected);
     if (activeSelectedEdge) {
+
       setSelectedEdge(activeSelectedEdge);
     }
   }, [edges]);

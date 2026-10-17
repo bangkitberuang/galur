@@ -58,6 +58,7 @@ export default function Sidebar({ onAddNode, edgeType, setEdgeType }: SidebarPro
         combined.push(id);
       }
     }
+
     setActiveCategoryIds(combined);
     setOpenCategoryIds((prev) => ({
       ...prev,
