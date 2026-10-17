@@ -66,14 +66,31 @@ export default function ShareModal({
   const [profileSaved, setProfileSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    setNameInput(currentUser.name);
-    setColorInput(currentUser.color);
-  }, [currentUser]);
+  const [effectiveRoomId, setEffectiveRoomId] = useState(activeRoomId);
 
   useEffect(() => {
-    setRoomInput(activeRoomId);
-  }, [activeRoomId]);
+    if (isOpen) {
+
+      setNameInput(currentUser.name);
+      setColorInput(currentUser.color);
+    }
+  }, [currentUser, isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+
+      setRoomInput(activeRoomId);
+    }
+  }, [activeRoomId, isOpen]);
+
+  useEffect(() => {
+    if (!activeRoomId && isOpen && !effectiveRoomId) {
+
+      setEffectiveRoomId(`room_${diagramId || Date.now()}`);
+    } else if (activeRoomId) {
+      setEffectiveRoomId(activeRoomId);
+    }
+  }, [activeRoomId, diagramId, isOpen, effectiveRoomId]);
 
   if (!isOpen) return null;
 
@@ -81,8 +98,7 @@ export default function ShareModal({
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   
   // 1. Tautan Kolaborasi Real-Time (Aktif hanya saat room dibuat / dibuka)
-  const effectiveRoomId = activeRoomId || `room_${diagramId || Date.now()}`;
-  const collabUrl = `${origin}/editor?id=${diagramId}&room=${encodeURIComponent(effectiveRoomId)}`;
+  const collabUrl = `${origin}/editor?id=${diagramId}&room=${encodeURIComponent(effectiveRoomId || '')}`;
 
   // 2. Tautan Snapshot Data
   const generateSnapshotLink = () => {

@@ -3060,7 +3060,8 @@ export const MultiPhaseGanttNode = memo((props: any) => {
     const newStart = lastTask ? Math.min(20, lastTask.startWeek + 1) : 1;
     const newEnd = Math.min(20, newStart + 2);
     const newTask: MultiPhaseGanttTask = {
-      id: `task-${Date.now()}`,
+      // eslint-disable-next-line react-hooks/purity
+      id: `task-${Math.random().toString(36).substring(2, 9)}`,
       phaseId,
       name: 'Tugas Baru',
       startWeek: newStart,
