@@ -35,6 +35,7 @@ import { getAllDiagramsMeta, deleteDiagramFromStorage, clearLocalDiagramStorage 
 import { SPECIALIST_CATEGORIES } from '@/lib/specialistTemplates';
 import AboutGalurSection from '@/components/dashboard/AboutGalurSection';
 import EcosystemFooter from '@/components/common/EcosystemFooter';
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 import { APP_VERSION, APP_LOGO_URL } from '@/lib/version';
 
 export default function DashboardPage() {
@@ -220,13 +221,18 @@ export default function DashboardPage() {
               </button>
             </div>
           ) : (
-            <button
-              onClick={handleGoogleLogin}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0b4632] hover:bg-[#073022] text-amber-300 text-xs font-bold shadow-xs transition-all"
-            >
-              <LogIn className="w-3.5 h-3.5 text-amber-300" />
-              <span>Login dengan Google</span>
-            </button>
+            <GoogleSignInButton
+              text="signin"
+              shape="pill"
+              theme="outline"
+              width={190}
+              onSuccess={() => {
+                supabase?.auth.getUser().then(({ data }) => {
+                  setUser(data?.user || null);
+                  loadDiagrams();
+                });
+              }}
+            />
           )}
         </div>
       </header>
