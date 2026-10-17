@@ -216,6 +216,27 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     setSaveStatus('idle');
   }, [future, nodes, edges, setNodes, setEdges]);
 
+  // Ref penampung state terbaru agar callback kolaborasi selalu memiliki snapshot data paling mutakhir
+  const latestStateRef = useRef({
+    nodes,
+    edges,
+    pages,
+    activePageId,
+    title,
+    pageConfig,
+  });
+
+  useEffect(() => {
+    latestStateRef.current = {
+      nodes,
+      edges,
+      pages,
+      activePageId,
+      title,
+      pageConfig,
+    };
+  });
+
   // Inisialisasi awal: Muat diagram dari riwayat atau parameter template
   useEffect(() => {
     initDefaultDiagramsIfEmpty();
@@ -223,10 +244,12 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     setHistoryCount(metaList.length);
 
     let targetId = '';
+    let roomParam = '';
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const urlRoom = urlParams.get('room');
       if (urlRoom) {
+        roomParam = urlRoom;
         setActiveRoomId(urlRoom);
       }
 
@@ -297,14 +320,44 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
           setEdges(loaded.edges || []);
         }
         if (typeof window !== 'undefined') {
-          window.history.replaceState(null, '', `/editor?id=${loaded.id}`);
+          const roomSuffix = roomParam ? `&room=${encodeURIComponent(roomParam)}` : '';
+          window.history.replaceState(null, '', `/editor?id=${loaded.id}${roomSuffix}`);
         }
         return;
       }
+
+      // Jika tidak ada di penyimpanan lokal, cek apakah ada di Supabase Cloud (bila penerima link membuka dari perangkat berbeda)
+      if (isSupabaseConfigured && supabase) {
+        supabase
+          .from('diagrams')
+          .select('*')
+          .eq('id', targetId)
+          .maybeSingle()
+          .then(
+            ({ data }: any) => {
+              if (data && data.data) {
+                setCurrentId(data.id);
+                if (data.title) setTitle(data.title);
+                if (data.data.pages && Array.isArray(data.data.pages) && data.data.pages.length > 0) {
+                  setPages(data.data.pages);
+                  const activeP = data.data.pages.find((p: any) => p.id === data.data.activePageId) || data.data.pages[0];
+                  setActivePageId(activeP.id);
+                  setNodes(activeP.nodes || []);
+                  setEdges(activeP.edges || []);
+                } else {
+                  setNodes(data.data.nodes || []);
+                  setEdges(data.data.edges || []);
+                }
+                if (data.data.pageConfig) setPageConfig(data.data.pageConfig);
+              }
+            },
+            () => {}
+          );
+      }
     }
 
-    // Jika tidak ada ID diagram di URL atau diagram tidak ditemukan, selalu buka kanvas kosong baru
-    const newId = `diag_${Date.now()}`;
+    // Jika tidak ada ID diagram di URL atau diagram baru, buka kanvas bersih
+    const newId = targetId || `diag_${Date.now()}`;
     setCurrentId(newId);
     setTitle('Diagram Baru');
     setNodes([]);
@@ -312,7 +365,8 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     setPages([{ id: 'page-1', name: 'Page 1', nodes: [], edges: [] }]);
     setActivePageId('page-1');
     if (typeof window !== 'undefined') {
-      window.history.replaceState(null, '', `/editor?id=${newId}`);
+      const roomSuffix = roomParam ? `&room=${encodeURIComponent(roomParam)}` : '';
+      window.history.replaceState(null, '', `/editor?id=${newId}${roomSuffix}`);
     }
   }, [diagramId, setNodes, setEdges]);
 
@@ -328,34 +382,70 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       onUsersChange: (users) => {
         setCollabUsers(users);
       },
-      onRemoteCursor: (userId, cursor) => {
+      onRemoteCursor: (userId, cursor, pageId) => {
         setCollabUsers((prev) =>
-          prev.map((u) => (u.id === userId ? { ...u, cursor, lastSeen: Date.now() } : u))
+          prev.map((u) => (u.id === userId ? { ...u, cursor, pageId, lastSeen: Date.now() } : u))
         );
+      },
+      onRequestSync: () => {
+        const { nodes: n, edges: e, pages: p, activePageId: apId, title: t, pageConfig: pc } = latestStateRef.current;
+        if (n.length > 0 || (p && p.some((page) => (page.nodes?.length || 0) > 0))) {
+          const currentPages = p.map((page) =>
+            page.id === apId ? { ...page, nodes: n, edges: e } : page
+          );
+          collabManager.broadcastDiagramSync(n, e, t, pc, currentPages, apId);
+        }
       },
       onRemoteDiagramSync: (data) => {
         isRemoteUpdating.current = true;
         if (data.title) setTitle(data.title);
-        if (data.nodes) setNodes(data.nodes);
-        if (data.edges) setEdges(data.edges);
         if (data.pageConfig) setPageConfig(data.pageConfig);
+
+        if (data.pages && Array.isArray(data.pages) && data.pages.length > 0) {
+          setPages(data.pages);
+          const currentActiveId = latestStateRef.current.activePageId;
+          const exists = data.pages.some((p) => p.id === currentActiveId);
+          const targetPageId = exists ? currentActiveId : (data.activePageId || data.pages[0].id);
+          setActivePageId(targetPageId);
+          const activeP = data.pages.find((p) => p.id === targetPageId) || data.pages[0];
+          setNodes(activeP.nodes || []);
+          setEdges(activeP.edges || []);
+        } else {
+          if (data.nodes) setNodes(data.nodes);
+          if (data.edges) setEdges(data.edges);
+        }
+
         setTimeout(() => {
           isRemoteUpdating.current = false;
         }, 150);
       },
-      onRemoteNodesChange: (remoteNodes) => {
-        isRemoteUpdating.current = true;
-        setNodes(remoteNodes);
-        setTimeout(() => {
-          isRemoteUpdating.current = false;
-        }, 150);
+      onRemoteNodesChange: (remoteNodes, pageId) => {
+        const currentActiveId = latestStateRef.current.activePageId;
+        if (!pageId || pageId === currentActiveId) {
+          isRemoteUpdating.current = true;
+          setNodes(remoteNodes);
+          setTimeout(() => {
+            isRemoteUpdating.current = false;
+          }, 150);
+        } else {
+          setPages((prev) =>
+            prev.map((p) => (p.id === pageId ? { ...p, nodes: remoteNodes } : p))
+          );
+        }
       },
-      onRemoteEdgesChange: (remoteEdges) => {
-        isRemoteUpdating.current = true;
-        setEdges(remoteEdges);
-        setTimeout(() => {
-          isRemoteUpdating.current = false;
-        }, 150);
+      onRemoteEdgesChange: (remoteEdges, pageId) => {
+        const currentActiveId = latestStateRef.current.activePageId;
+        if (!pageId || pageId === currentActiveId) {
+          isRemoteUpdating.current = true;
+          setEdges(remoteEdges);
+          setTimeout(() => {
+            isRemoteUpdating.current = false;
+          }, 150);
+        } else {
+          setPages((prev) =>
+            prev.map((p) => (p.id === pageId ? { ...p, edges: remoteEdges } : p))
+          );
+        }
       },
     });
 
@@ -370,8 +460,8 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     const rect = reactFlowWrapper.current.getBoundingClientRect();
     const relX = Math.round(e.clientX - rect.left);
     const relY = Math.round(e.clientY - rect.top);
-    collabManager.sendCursor(relX, relY);
-  }, [activeRoomId]);
+    collabManager.sendCursor(relX, relY, activePageId);
+  }, [activeRoomId, activePageId]);
 
   // Handler impor file proyek (.galur / .json)
   const handleImportDiagram = useCallback(
@@ -386,12 +476,13 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       setNodes(imported.nodes);
       setEdges(imported.edges);
       if (imported.pageConfig) setPageConfig(imported.pageConfig);
-      setPages([
+      const importedPages: DiagramPage[] = [
         { id: 'page-1', name: 'Page 1', nodes: imported.nodes, edges: imported.edges },
-      ]);
+      ];
+      setPages(importedPages);
       setActivePageId('page-1');
       setSaveStatus('idle');
-      collabManager.broadcastDiagramSync(imported.nodes, imported.edges, imported.title, imported.pageConfig);
+      collabManager.broadcastDiagramSync(imported.nodes, imported.edges, imported.title, imported.pageConfig, importedPages, 'page-1');
     },
     [takeSnapshot, setNodes, setEdges]
   );
@@ -426,7 +517,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
 
       // Sebarkan sinkronisasi diagram ke rekan kolaborator di room hanya jika ruang kolaborasi aktif
       if (activeRoomId && !isRemoteUpdating.current) {
-        collabManager.broadcastDiagramSync(nodes, edges, title, pageConfig);
+        collabManager.broadcastDiagramSync(nodes, edges, title, pageConfig, currentPages, activePageId);
       }
     }, 600);
 
@@ -680,9 +771,9 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     dragContainerRef.current = null;
     setSaveStatus('idle');
     if (activeRoomId && !isRemoteUpdating.current) {
-      collabManager.broadcastNodesChange(nodes);
+      collabManager.broadcastNodesChange(nodes, activePageId);
     }
-  }, [nodes]);
+  }, [nodes, activeRoomId, activePageId]);
 
   // Seleksi Node
   const onNodeClick = useCallback((_: any, node: Node) => {
@@ -890,7 +981,8 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       edges: [],
     };
 
-    setPages([...updatedPages, newPage]);
+    const nextPages = [...updatedPages, newPage];
+    setPages(nextPages);
     setActivePageId(newPageId);
     setNodes([]);
     setEdges([]);
@@ -898,11 +990,20 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
     setSelectedEdge(null);
     setPast([]);
     setFuture([]);
-  }, [pages, activePageId, nodes, edges, setNodes, setEdges, takeSnapshot]);
+    if (activeRoomId && !isRemoteUpdating.current) {
+      collabManager.broadcastDiagramSync([], [], title, pageConfig, nextPages, newPageId);
+    }
+  }, [pages, activePageId, nodes, edges, setNodes, setEdges, takeSnapshot, activeRoomId, title, pageConfig]);
 
   const handleRenamePage = useCallback((pageId: string, newName: string) => {
-    setPages((prev) => prev.map((p) => (p.id === pageId ? { ...p, name: newName } : p)));
-  }, []);
+    setPages((prev) => {
+      const updated = prev.map((p) => (p.id === pageId ? { ...p, name: newName } : p));
+      if (activeRoomId && !isRemoteUpdating.current) {
+        collabManager.broadcastDiagramSync(nodes, edges, title, pageConfig, updated, activePageId);
+      }
+      return updated;
+    });
+  }, [activeRoomId, nodes, edges, title, pageConfig, activePageId]);
 
   const handleDuplicatePage = useCallback(
     (pageId: string) => {
@@ -932,9 +1033,13 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
         edges: clonedEdges,
       };
 
-      setPages((prev) => [...prev, newPage]);
+      const nextPages = [...pages, newPage];
+      setPages(nextPages);
+      if (activeRoomId && !isRemoteUpdating.current) {
+        collabManager.broadcastDiagramSync(nodes, edges, title, pageConfig, nextPages, activePageId);
+      }
     },
-    [pages, activePageId, nodes, edges, takeSnapshot]
+    [pages, activePageId, nodes, edges, takeSnapshot, activeRoomId, title, pageConfig]
   );
 
   const handleDeletePage = useCallback(
@@ -942,8 +1047,9 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
       if (pages.length <= 1) return;
       takeSnapshot();
 
+      let nextActive: DiagramPage | undefined;
       if (pageId === activePageId) {
-        const nextActive = pages.find((p) => p.id !== pageId);
+        nextActive = pages.find((p) => p.id !== pageId);
         if (nextActive) {
           setActivePageId(nextActive.id);
           setNodes(nextActive.nodes || []);
@@ -953,9 +1059,20 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
         }
       }
 
-      setPages((prev) => prev.filter((p) => p.id !== pageId));
+      const nextPages = pages.filter((p) => p.id !== pageId);
+      setPages(nextPages);
+      if (activeRoomId && !isRemoteUpdating.current) {
+        collabManager.broadcastDiagramSync(
+          pageId === activePageId ? (nextActive?.nodes || []) : nodes,
+          pageId === activePageId ? (nextActive?.edges || []) : edges,
+          title,
+          pageConfig,
+          nextPages,
+          pageId === activePageId ? (nextActive?.id || 'page-1') : activePageId
+        );
+      }
     },
-    [pages, activePageId, setNodes, setEdges, takeSnapshot]
+    [pages, activePageId, setNodes, setEdges, takeSnapshot, activeRoomId, nodes, edges, title, pageConfig]
   );
 
   // Muat Diagram dari Riwayat
@@ -1624,7 +1741,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
             onDrop={onDrop}
           >
             {/* Live Multi-User Collaboration Cursors Overlay */}
-            <CollabCursorsOverlay users={collabUsers} />
+            <CollabCursorsOverlay users={collabUsers} activePageId={activePageId} />
 
             <ReactFlow
               nodes={nodes}
@@ -1653,7 +1770,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
               onSelectionDragStop={() => {
                 setSaveStatus('idle');
                 if (activeRoomId && !isRemoteUpdating.current) {
-                  collabManager.broadcastNodesChange(nodes);
+                  collabManager.broadcastNodesChange(nodes, activePageId);
                 }
               }}
               deleteKeyCode={['Backspace', 'Delete']}
@@ -1668,7 +1785,12 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
               proOptions={{ hideAttribution: true }}
             >
               {/* Lembar Halaman A4 Presisi dengan Fitur Auto-Expand Sesuai Perkembangan Diagram */}
-              <CanvasPageFrame config={pageConfig} nodes={nodes} />
+              <CanvasPageFrame
+                config={pageConfig}
+                nodes={nodes}
+                activePageName={pages.find((p) => p.id === activePageId)?.name}
+                activePageIndex={pages.findIndex((p) => p.id === activePageId) + 1}
+              />
 
               {pageConfig.showGrid && (
                 <Background
@@ -1775,8 +1897,17 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
         nodes={nodes}
         edges={edges}
         pageConfig={pageConfig}
+        pages={pages.map((p) => (p.id === activePageId ? { ...p, nodes, edges } : p))}
         activeRoomId={activeRoomId}
-        onJoinRoom={(newRoom) => setActiveRoomId(newRoom)}
+        onJoinRoom={(newRoom) => {
+          setActiveRoomId(newRoom);
+          const currentPages = pages.map((p) =>
+            p.id === activePageId ? { ...p, nodes, edges } : p
+          );
+          setTimeout(() => {
+            collabManager.broadcastDiagramSync(nodes, edges, title, pageConfig, currentPages, activePageId);
+          }, 120);
+        }}
         collabUsers={collabUsers}
         currentUser={currentUser}
         onUpdateUserProfile={(name, color) => {

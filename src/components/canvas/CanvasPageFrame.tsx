@@ -40,9 +40,11 @@ const PAPER_DIMENSIONS = {
 interface CanvasPageFrameProps {
   config: CanvasPageConfig;
   nodes: Node[];
+  activePageName?: string;
+  activePageIndex?: number;
 }
 
-export const CanvasPageFrame = memo(({ config, nodes }: CanvasPageFrameProps) => {
+export const CanvasPageFrame = memo(({ config, nodes, activePageName, activePageIndex }: CanvasPageFrameProps) => {
   const { x, y, zoom } = useViewport();
 
   // Hitung dimensi dasar lembar kertas sesuai orientasi
@@ -247,10 +249,10 @@ export const CanvasPageFrame = memo(({ config, nodes }: CanvasPageFrameProps) =>
               >
                 <span>{baseDim.label}</span>
                 <span>•</span>
-                <span>Halaman {pageNumber}</span>
+                <span>{activePageName || `Halaman ${activePageIndex || pageNumber}`}</span>
                 {!isSingle && (
                   <span className="ml-1 text-[9px] px-1.5 py-0.2 rounded bg-blue-500 text-white font-sans">
-                    {layout.cols}×{layout.rows} Lembar
+                    Lembar {pageNumber} ({layout.cols}×{layout.rows})
                   </span>
                 )}
               </div>

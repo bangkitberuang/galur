@@ -15,6 +15,8 @@ export interface CollabSnapshot {
   nodes: any[];
   edges: any[];
   pageConfig?: any;
+  pages?: any[];
+  activePageId?: string;
   updatedAt: number;
 }
 

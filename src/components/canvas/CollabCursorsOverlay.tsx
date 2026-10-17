@@ -5,13 +5,15 @@ import { CollabUser } from '@/lib/collaboration';
 
 interface CollabCursorsOverlayProps {
   users: CollabUser[];
+  activePageId?: string;
 }
 
-export const CollabCursorsOverlay: React.FC<CollabCursorsOverlayProps> = ({ users }) => {
+export const CollabCursorsOverlay: React.FC<CollabCursorsOverlayProps> = ({ users, activePageId }) => {
   return (
     <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden no-print">
       {users.map((user) => {
         if (!user.cursor) return null;
+        if (activePageId && user.pageId && user.pageId !== activePageId) return null;
 
         return (
           <div

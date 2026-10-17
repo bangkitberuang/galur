@@ -5,6 +5,7 @@ export interface CollabUser {
   name: string;
   color: string;
   cursor?: { x: number; y: number } | null;
+  pageId?: string;
   lastSeen: number;
 }
 
@@ -66,11 +67,19 @@ export function saveLocalCollabProfile(name: string, color: string) {
 
 export interface CollabListeners {
   onUsersChange?: (users: CollabUser[]) => void;
-  onRemoteCursor?: (userId: string, cursor: { x: number; y: number } | null) => void;
-  onRemoteDiagramSync?: (data: { nodes: any[]; edges: any[]; title?: string; pageConfig?: any }) => void;
-  onRemoteNodesChange?: (nodes: any[]) => void;
-  onRemoteEdgesChange?: (edges: any[]) => void;
+  onRemoteCursor?: (userId: string, cursor: { x: number; y: number } | null, pageId?: string) => void;
+  onRemoteDiagramSync?: (data: {
+    nodes: any[];
+    edges: any[];
+    title?: string;
+    pageConfig?: any;
+    pages?: any[];
+    activePageId?: string;
+  }) => void;
+  onRemoteNodesChange?: (nodes: any[], pageId?: string) => void;
+  onRemoteEdgesChange?: (edges: any[], pageId?: string) => void;
   onConnectionStatusChange?: (status: 'disconnected' | 'connecting' | 'connected') => void;
+  onRequestSync?: (senderId?: string) => void;
 }
 
 export class CollabManager {
@@ -220,7 +229,7 @@ export class CollabManager {
     this.notifyUsersChange();
   }
 
-  public sendCursor(x: number, y: number) {
+  public sendCursor(x: number, y: number, pageId?: string) {
     if (!this.roomId) return;
     const now = Date.now();
     // Throttling 40ms (~25fps) agar performa tetap super halus dan hemat bandwidth
@@ -231,10 +240,18 @@ export class CollabManager {
       type: 'cursor_move',
       userId: this.currentUser.id,
       cursor: { x, y },
+      pageId,
     });
   }
 
-  public broadcastDiagramSync(nodes: any[], edges: any[], title?: string, pageConfig?: any) {
+  public broadcastDiagramSync(
+    nodes: any[],
+    edges: any[],
+    title?: string,
+    pageConfig?: any,
+    pages?: any[],
+    activePageId?: string
+  ) {
     if (!this.roomId) return;
     this.broadcast({
       type: 'sync_diagram',
@@ -243,24 +260,28 @@ export class CollabManager {
       edges,
       title,
       pageConfig,
+      pages,
+      activePageId,
     });
   }
 
-  public broadcastNodesChange(nodes: any[]) {
+  public broadcastNodesChange(nodes: any[], pageId?: string) {
     if (!this.roomId) return;
     this.broadcast({
       type: 'nodes_change',
       senderId: this.currentUser.id,
       nodes,
+      pageId,
     });
   }
 
-  public broadcastEdgesChange(edges: any[]) {
+  public broadcastEdgesChange(edges: any[], pageId?: string) {
     if (!this.roomId) return;
     this.broadcast({
       type: 'edges_change',
       senderId: this.currentUser.id,
       edges,
+      pageId,
     });
   }
 
@@ -303,9 +324,21 @@ export class CollabManager {
           });
           this.notifyUsersChange();
         }
-        if (msg.snapshot && (msg.snapshot.nodes || msg.snapshot.edges)) {
-          this.listeners.onRemoteDiagramSync?.(msg.snapshot);
+        if (msg.snapshot && (msg.snapshot.nodes || msg.snapshot.edges || msg.snapshot.pages)) {
+          this.listeners.onRemoteDiagramSync?.({
+            nodes: msg.snapshot.nodes || [],
+            edges: msg.snapshot.edges || [],
+            title: msg.snapshot.title,
+            pageConfig: msg.snapshot.pageConfig,
+            pages: msg.snapshot.pages,
+            activePageId: msg.snapshot.activePageId,
+          });
         }
+        break;
+      }
+
+      case 'request_sync': {
+        this.listeners.onRequestSync?.(msg.senderId);
         break;
       }
 
@@ -339,20 +372,23 @@ export class CollabManager {
           const existing = this.users.get(msg.userId);
           if (existing) {
             existing.cursor = msg.cursor;
+            existing.pageId = msg.pageId;
             existing.lastSeen = Date.now();
           }
-          this.listeners.onRemoteCursor?.(msg.userId, msg.cursor);
+          this.listeners.onRemoteCursor?.(msg.userId, msg.cursor, msg.pageId);
         }
         break;
       }
 
       case 'sync_diagram': {
-        if (msg.nodes || msg.edges) {
+        if (msg.nodes || msg.edges || msg.pages) {
           this.listeners.onRemoteDiagramSync?.({
             nodes: msg.nodes || [],
             edges: msg.edges || [],
             title: msg.title,
             pageConfig: msg.pageConfig,
+            pages: msg.pages,
+            activePageId: msg.activePageId,
           });
         }
         break;
@@ -360,14 +396,14 @@ export class CollabManager {
 
       case 'nodes_change': {
         if (msg.nodes) {
-          this.listeners.onRemoteNodesChange?.(msg.nodes);
+          this.listeners.onRemoteNodesChange?.(msg.nodes, msg.pageId);
         }
         break;
       }
 
       case 'edges_change': {
         if (msg.edges) {
-          this.listeners.onRemoteEdgesChange?.(msg.edges);
+          this.listeners.onRemoteEdgesChange?.(msg.edges, msg.pageId);
         }
         break;
       }

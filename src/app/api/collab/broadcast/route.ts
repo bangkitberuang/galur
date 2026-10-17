@@ -12,12 +12,14 @@ export async function POST(req: NextRequest) {
 
     // Jika pesan adalah sync_diagram atau diagram_snapshot, simpan snapshot terkini untuk client yang baru bergabung
     if (message.type === 'sync_diagram' || message.type === 'snapshot') {
-      if (message.nodes || message.edges) {
+      if (message.nodes || message.edges || message.pages) {
         setRoomSnapshot(room, {
           title: message.title,
           nodes: message.nodes || [],
           edges: message.edges || [],
           pageConfig: message.pageConfig,
+          pages: message.pages || [],
+          activePageId: message.activePageId,
           updatedAt: Date.now(),
         });
       }

@@ -31,6 +31,7 @@ interface ShareModalProps {
   nodes: Node[];
   edges: Edge[];
   pageConfig: CanvasPageConfig;
+  pages?: any[];
   activeRoomId: string;
   onJoinRoom: (newRoomId: string) => void;
   collabUsers: CollabUser[];
@@ -47,6 +48,7 @@ export default function ShareModal({
   nodes,
   edges,
   pageConfig,
+  pages,
   activeRoomId,
   onJoinRoom,
   collabUsers,
@@ -90,6 +92,7 @@ export default function ShareModal({
         nodes,
         edges,
         pageConfig,
+        pages: pages && pages.length > 0 ? pages : [{ id: 'page-1', name: 'Page 1', nodes, edges }],
       };
       const jsonStr = JSON.stringify(payload);
       // Kompresi base64 aman untuk URL
@@ -158,6 +161,7 @@ export default function ShareModal({
       savedAt: new Date().toISOString(),
       nodes,
       edges,
+      pages: pages && pages.length > 0 ? pages : [{ id: 'page-1', name: 'Page 1', nodes, edges }],
       pageConfig,
     };
 
