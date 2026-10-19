@@ -215,11 +215,11 @@ export default function TemplateModal({
         <div className="px-4 py-2.5 bg-slate-100/70 border-b border-slate-200 flex flex-wrap items-center gap-1.5 no-scrollbar">
           {[
             { id: 'all', label: 'Semua Format', count: SPECIALIST_CATEGORIES.length },
-            { id: 'strategic', label: '🎯 Analisis Strategis', count: SPECIALIST_CATEGORIES.filter(c => c.group === 'strategic').length },
-            { id: 'problem_solving', label: '💡 Problem Solving', count: SPECIALIST_CATEGORIES.filter(c => c.group === 'problem_solving').length },
-            { id: 'business', label: '📊 Alur & Jadwal Kerja', count: SPECIALIST_CATEGORIES.filter(c => c.group === 'business' || c.id === 'flowchart' || c.id === 'org' || c.id === 'floorplan' || c.id === 'mindmap' || c.id === 'swimlane' || c.id === 'service_blueprint' || c.id === 'timebox_gantt' || c.id === 'vertical_timeline' || c.id === 'gantt_multiphase_20w').length },
-            { id: 'engineering', label: '🎥 Siaran & Jaringan', count: SPECIALIST_CATEGORIES.filter(c => c.id === 'network' || c.id === 'rack' || c.id === 'circuit' || c.id === 'pid' || c.id === 'live_streaming').length },
-            { id: 'software', label: '💻 Software & Basis Data', count: SPECIALIST_CATEGORIES.filter(c => c.id === 'uml' || c.id === 'erd' || c.id === 'block').length },
+            { id: 'strategic', label: 'Analisis Strategis', count: SPECIALIST_CATEGORIES.filter(c => c.group === 'strategic').length },
+            { id: 'problem_solving', label: 'Problem Solving', count: SPECIALIST_CATEGORIES.filter(c => c.group === 'problem_solving').length },
+            { id: 'business', label: 'Alur & Jadwal Kerja', count: SPECIALIST_CATEGORIES.filter(c => c.group === 'business' || c.id === 'flowchart' || c.id === 'org' || c.id === 'floorplan' || c.id === 'mindmap' || c.id === 'swimlane' || c.id === 'service_blueprint' || c.id === 'timebox_gantt' || c.id === 'vertical_timeline' || c.id === 'gantt_multiphase_20w').length },
+            { id: 'engineering', label: 'Siaran & Jaringan', count: SPECIALIST_CATEGORIES.filter(c => c.id === 'network' || c.id === 'rack' || c.id === 'circuit' || c.id === 'pid' || c.id === 'live_streaming').length },
+            { id: 'software', label: 'Software & Basis Data', count: SPECIALIST_CATEGORIES.filter(c => c.id === 'uml' || c.id === 'erd' || c.id === 'block').length },
           ].map((tab) => (
             <button
               key={tab.id}

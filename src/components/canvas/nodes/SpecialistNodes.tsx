@@ -2033,7 +2033,7 @@ export const SwimlaneGroupNode = memo((props: any) => {
           <span>Tambah Jalur Baru (+ Lane)</span>
         </button>
         <span className="text-[11px] text-slate-400 font-medium">
-          💡 Dobel klik nama jalur atau label pembatas untuk edit teks langsung
+          Dobel klik nama jalur atau label pembatas untuk edit teks langsung
         </span>
       </div>
     </div>
@@ -3581,7 +3581,7 @@ export const MultiPhaseGanttNode = memo((props: any) => {
         </div>
 
         <div className="text-[11px] text-slate-400 font-medium hidden md:flex items-center gap-2">
-          <span>💡 Tarik bilah untuk geser minggu • Tarik tepi kiri/kanan untuk ubah durasi • Dobel klik untuk edit teks</span>
+          <span>Tarik bilah untuk geser minggu • Tarik tepi kiri/kanan untuk ubah durasi • Dobel klik untuk edit teks</span>
         </div>
       </div>
       <Handle type="target" position={Position.Top} className="!w-2.5 !h-2.5 !bg-slate-400" />

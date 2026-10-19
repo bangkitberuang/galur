@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { 
-  Sparkles, 
   GitFork, 
   Layers, 
   Copy, 
@@ -28,7 +27,7 @@ import {
 export default function AboutGalurSection() {
   const [copied, setCopied] = useState(false);
 
-  const conciseSummary = `GALUR — Garis Alur, Ngajentrekeun Struktur.
+  const conciseSummary = `GALUR: Garis Alur, Ngajentrekeun Struktur.
 Aplikasi pembuat diagram presisi karya ekosistem Bangkit Beruang untuk merangkai gagasan, memperjelas alur proses kerja, dan membangun pemahaman visual yang terstruktur.`;
 
   const handleCopySummary = () => {
@@ -70,7 +69,7 @@ Aplikasi pembuat diagram presisi karya ekosistem Bangkit Beruang untuk merangkai
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              GALUR — <span className="text-amber-300">Garis Alur, Ngajentrekeun Struktur</span>
+              GALUR: <span className="text-amber-300">Garis Alur, Ngajentrekeun Struktur</span>
             </h1>
 
             <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed max-w-2xl font-normal">
@@ -136,7 +135,7 @@ Aplikasi pembuat diagram presisi karya ekosistem Bangkit Beruang untuk merangkai
             Maskot & Kepedulian
           </h3>
           <p className="text-xs text-slate-600 leading-relaxed">
-            Maskot Macan Tutul Jawa (<em>Panthera pardus melas</em>)—fauna identitas Jawa Barat—melambangkan ketajaman analisis, kelincahan, dan kepedulian alam.
+            Maskot Macan Tutul Jawa (<em>Panthera pardus melas</em>), fauna identitas Jawa Barat, melambangkan ketajaman analisis, kelincahan, dan kepedulian alam.
           </p>
         </div>
       </div>
@@ -144,7 +143,7 @@ Aplikasi pembuat diagram presisi karya ekosistem Bangkit Beruang untuk merangkai
       {/* 3. SPESIFIKASI & KAPABILITAS SISTEM (4 Kolom Ringkas) */}
       <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-2xs">
         <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
+          <Layers className="w-3.5 h-3.5 text-emerald-700" />
           <span>Spesifikasi & Kapabilitas Sistem</span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">

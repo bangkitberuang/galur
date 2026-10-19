@@ -272,7 +272,7 @@ export const CanvasPageFrame = memo(({ config, nodes, activePageName, activePage
                       : 'text-slate-400 bg-slate-100/80'
                   }`}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                   <span>Kanvas Otomatis Membesar (Auto-Expand)</span>
                 </div>
               )}

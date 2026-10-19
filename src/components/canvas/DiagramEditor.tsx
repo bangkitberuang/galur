@@ -1588,7 +1588,7 @@ function DiagramEditorInner({ diagramId, initialTitle = 'Diagram Tanpa Judul' }:
                 : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
             }`}
           >
-            <span className={`w-2 h-2 rounded-full ${collabUsers.length > 0 ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+            <span className={`w-2 h-2 rounded-full ${collabUsers.length > 0 ? 'bg-emerald-500' : 'bg-slate-400'}`} />
             <div className="flex items-center -space-x-1.5" suppressHydrationWarning>
               <div
                 suppressHydrationWarning

@@ -1381,10 +1381,10 @@ export default function PropertyPanel({
                   onChange={(e) => onUpdateNode(id, { status: e.target.value })}
                   className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-bold bg-white focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="on_track">🟢 Tepat Waktu (On Track)</option>
-                  <option value="critical">🔴 Jalur Kritis (Critical Path)</option>
-                  <option value="completed">🟣 Selesai Penuh (Completed)</option>
-                  <option value="delayed">🟡 Tertunda / Penyesuaian (Delayed)</option>
+                  <option value="on_track">Tepat Waktu (On Track)</option>
+                  <option value="critical">Jalur Kritis (Critical Path)</option>
+                  <option value="completed">Selesai Penuh (Completed)</option>
+                  <option value="delayed">Tertunda / Penyesuaian (Delayed)</option>
                 </select>
               </div>
 
@@ -2689,7 +2689,7 @@ export default function PropertyPanel({
                       <div className="grid grid-cols-2 gap-2">
                         {/* Padding Y */}
                         <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50/70">
-                          <span className="text-xs text-slate-500 font-mono font-bold">🟰</span>
+                          <span className="text-[10px] text-slate-400 font-mono font-bold">Y</span>
                           <input
                             type="number"
                             min={0}
@@ -2706,7 +2706,7 @@ export default function PropertyPanel({
                         </div>
                         {/* Padding X */}
                         <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50/70">
-                          <span className="text-xs text-slate-500 font-mono font-bold">⏸</span>
+                          <span className="text-[10px] text-slate-400 font-mono font-bold">X</span>
                           <input
                             type="number"
                             min={0}

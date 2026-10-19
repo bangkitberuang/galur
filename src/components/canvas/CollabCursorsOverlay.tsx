@@ -46,7 +46,7 @@ export const CollabCursorsOverlay: React.FC<CollabCursorsOverlayProps> = ({ user
               className="absolute left-3.5 top-2.5 px-2 py-0.5 rounded-full text-[11px] font-bold text-white shadow-md flex items-center gap-1 whitespace-nowrap animate-in fade-in zoom-in-90 duration-150"
               style={{ backgroundColor: user.color }}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-white/90 animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-white/90" />
               <span>{user.name}</span>
             </div>
           </div>

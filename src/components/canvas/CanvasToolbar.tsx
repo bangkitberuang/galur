@@ -327,7 +327,7 @@ export default function CanvasToolbar({
           <button
             type="button"
             onClick={() => handleArrowheadChange('none')}
-            title="Garis Polos Tanpa Panah (—)"
+            title="Garis Polos Tanpa Panah (-)"
             className="p-1 rounded-md text-slate-700 hover:bg-white hover:text-emerald-700 transition-colors"
           >
             <Minus className="w-3.5 h-3.5" />

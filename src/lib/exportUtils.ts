@@ -294,7 +294,7 @@ export function exportToCsvSpreadsheet(
   edges.forEach((e) => {
     const sourceLabel = nodeMap.get(e.source) || e.source;
     const targetLabel = nodeMap.get(e.target) || e.target;
-    const arrowhead = e.markerEnd && e.markerStart ? 'Dua Arah (↔)' : e.markerEnd ? 'Satu Arah (→)' : 'Garis Polos (—)';
+    const arrowhead = e.markerEnd && e.markerStart ? 'Dua Arah (↔)' : e.markerEnd ? 'Satu Arah (→)' : 'Garis Polos (-)';
     const row = [
       e.id,
       e.source,

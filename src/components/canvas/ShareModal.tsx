@@ -13,7 +13,7 @@ import {
   X, 
   Globe, 
   UserCheck, 
-  Sparkles,
+  Lock,
   RefreshCw,
   ExternalLink,
   ShieldCheck,
@@ -298,7 +298,7 @@ export default function ShareModal({
               <div className="bg-blue-50/70 border border-blue-200 rounded-xl p-3.5 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className={`w-2.5 h-2.5 rounded-full ${activeRoomId ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+                    <span className={`w-2.5 h-2.5 rounded-full ${activeRoomId ? 'bg-emerald-500' : 'bg-slate-400'}`} />
                     <span className="font-bold text-slate-800">
                       {activeRoomId ? 'Ruang Kolaborasi Aktif' : 'Kanvas Privat (Belum Ada Ruang Aktif)'}
                     </span>
@@ -459,7 +459,7 @@ export default function ShareModal({
                         <span className="font-medium text-slate-700">{u.name}</span>
                       </div>
                       <span className="flex items-center gap-1 text-[10px] text-emerald-600 font-semibold">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                         <span>Online</span>
                       </span>
                     </div>
@@ -473,7 +473,8 @@ export default function ShareModal({
 
                   {!activeRoomId && (
                     <div className="p-3 text-center text-slate-500 text-xs leading-relaxed bg-slate-50/60">
-                      🔒 Kanvas ini sedang berada dalam <strong>mode privat</strong>. Tidak ada sesi kolaborasi yang aktif. Klik &quot;Salin Tautan&quot; di atas jika Anda ingin mengundang rekan untuk berkolaborasi bersama.
+                      <Lock className="w-3.5 h-3.5 text-slate-400 inline mr-1 -mt-0.5" />
+                      <span>Kanvas ini sedang berada dalam <strong>mode privat</strong>. Tidak ada sesi kolaborasi yang aktif. Klik &quot;Salin Tautan&quot; di atas jika Anda ingin mengundang rekan untuk berkolaborasi bersama.</span>
                     </div>
                   )}
                 </div>

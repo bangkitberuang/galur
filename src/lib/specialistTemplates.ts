@@ -2099,7 +2099,7 @@ export const SPECIALIST_CATEGORIES: CategoryTemplate[] = [
         type: 'swimlane_group',
         position: { x: 220, y: 40 },
         data: {
-          title: 'SERVICE BLUEPRINT — CETAK BIRU LAYANAN',
+          title: 'SERVICE BLUEPRINT : CETAK BIRU LAYANAN',
           showTitle: false,
           width: 900,
           headerWidth: 125,
@@ -3178,7 +3178,7 @@ export const SPECIALIST_CATEGORIES: CategoryTemplate[] = [
           items: [
             'Peluang pasar besar namun pangsa pasar masih kecil',
             'Membutuhkan suntikan modal besar untuk merebut posisi pemimpin',
-            'Strategi: Evaluasi ketat—investasikan untuk jadi Bintang atau divestasi',
+            'Strategi: Evaluasi ketat, investasikan untuk jadi Bintang atau divestasi',
           ],
           color: '#eff6ff',
           borderColor: '#3b82f6',

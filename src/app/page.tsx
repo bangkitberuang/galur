@@ -11,14 +11,12 @@ import {
   Printer, 
   Users, 
   ArrowRight, 
-  Sparkles, 
   Layers, 
   ShieldCheck, 
   Palette,
   CheckCircle2,
   Calendar,
   Clock,
-  Star,
   ChevronRight,
   Globe
 } from 'lucide-react';
@@ -47,11 +45,6 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-gradient-to-r from-[#dfe9e2]/85 via-transparent to-[#dfe9e2]/85" />
         <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#eff4f0] to-transparent" />
 
-        {/* Glow Hangat Emas / Amber & Hijau Zamrud */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-emerald-300/30 via-emerald-100/20 to-transparent rounded-full blur-3xl" />
-        <div className="absolute top-24 right-1/4 w-[450px] h-[450px] bg-amber-200/25 rounded-full blur-3xl" />
-        <div className="absolute top-48 left-1/5 w-[420px] h-[420px] bg-emerald-200/25 rounded-full blur-3xl" />
-
         {/* Grid Titik Halus Arsitektural */}
         <div className="absolute inset-0 bg-[radial-gradient(#0b4632_0.8px,transparent_0.8px)] [background-size:24px_24px] opacity-15" />
       </div>
@@ -73,7 +66,7 @@ export default function LandingPage() {
             <div className="flex items-center gap-2">
               <span className="font-black text-2xl tracking-tight text-[#0b4632]">GALUR</span>
               <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 shadow-2xs flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 <span>{APP_VERSION}</span>
               </span>
             </div>
@@ -122,7 +115,7 @@ export default function LandingPage() {
           </div>
 
           <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/90 backdrop-blur-xs border border-emerald-300/80 text-[#0b4632] text-xs sm:text-sm font-bold shadow-xs">
-            <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500" />
+            <Layers className="w-4 h-4 text-[#0b4632]" />
             <span>Garis Alur, Ngajentrekeun Struktur</span>
           </div>
         </div>
@@ -167,7 +160,7 @@ export default function LandingPage() {
                 <div className="w-3 h-3 rounded-full bg-amber-500/90" />
                 <div className="w-3 h-3 rounded-full bg-emerald-500/90" />
                 <span className="ml-2 text-[11px] font-mono text-slate-400 hidden sm:inline">
-                  galur-studio &mdash; Proyek_Siaran_IKP_2026.galur
+                  galur-studio : Proyek_Siaran_IKP_2026.galur
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -197,7 +190,7 @@ export default function LandingPage() {
 
                     <div className="space-y-2 text-left">
                       <div className="px-3 py-1.5 rounded-lg border-2 border-emerald-500 bg-emerald-50/80 text-emerald-900 font-semibold text-[11px] flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
                         Mulai: Usulan Disposisi
                       </div>
                       <div className="flex justify-center text-slate-400 text-xs py-0.5">&darr;</div>
@@ -308,8 +301,9 @@ export default function LandingPage() {
 
                   <div className="mt-4 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
                     <span>Gantt, Milestone & Timeline</span>
-                    <span className="font-semibold text-emerald-600 flex items-center gap-0.5">
-                      ★ Target Selesai
+                    <span className="font-semibold text-emerald-600 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                      <span>Target Selesai</span>
                     </span>
                   </div>
                 </div>
@@ -334,7 +328,7 @@ export default function LandingPage() {
           <div className="space-y-3 text-left flex-1 w-full">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-amber-300 text-xs font-bold border border-white/10">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                <Layers className="w-3.5 h-3.5 text-amber-400" />
                 <span>Pilar Identitas & Nilai GALUR</span>
               </div>
               <span className="text-[11px] font-semibold text-emerald-200/90 bg-emerald-950/50 px-3 py-0.5 rounded-full border border-emerald-500/30">
@@ -345,7 +339,8 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
               <div className="bg-white/5 border border-white/10 rounded-xl p-3.5 backdrop-blur-xs">
                 <h4 className="text-amber-300 font-bold text-xs flex items-center gap-1.5">
-                  <span>🍃</span> Filosofi Sunda
+                  <Layers className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Filosofi Sunda</span>
                 </h4>
                 <p className="text-[11px] text-emerald-100/90 leading-relaxed mt-1">
                   <em>Galur</em> bermakna alur yang tertata rapi, runut, dan jelas untuk menyederhanakan gagasan rumit.
@@ -354,7 +349,8 @@ export default function LandingPage() {
 
               <div className="bg-white/5 border border-white/10 rounded-xl p-3.5 backdrop-blur-xs">
                 <h4 className="text-amber-300 font-bold text-xs flex items-center gap-1.5">
-                  <span>🐆</span> Macan Tutul Jawa
+                  <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Macan Tutul Jawa</span>
                 </h4>
                 <p className="text-[11px] text-emerald-100/90 leading-relaxed mt-1">
                   Karakter ketajaman analisis, fokus presisi, serta pesan kepedulian fauna endemik Jawa Barat.
@@ -363,10 +359,11 @@ export default function LandingPage() {
 
               <div className="bg-white/5 border border-white/10 rounded-xl p-3.5 backdrop-blur-xs">
                 <h4 className="text-amber-300 font-bold text-xs flex items-center gap-1.5">
-                  <span>⏱️</span> Produktivitas Kerja
+                  <Clock className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Produktivitas Kerja</span>
                 </h4>
                 <p className="text-[11px] text-emerald-100/90 leading-relaxed mt-1">
-                  Alur lengkap pekerja: Diagram Alir &rarr; Mind Map &rarr; Jadwal & Time Boxing Mingguan.
+                  Alur lengkap pekerja: Diagram Alir, Mind Map, hingga Jadwal & Time Boxing Mingguan.
                 </p>
               </div>
             </div>
